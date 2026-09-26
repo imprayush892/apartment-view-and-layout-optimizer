@@ -340,7 +340,7 @@ function unitMult(u, E) {
   return Math.min(c.hi, Math.max(c.lo, c.a + c.b * (lr ? lr.q : 0)));
 }
 function priceUnits(units, first, E) {
-  for (const u of units) { u.carpet = mpArea(u.mp) * E.carpetFactor; u.mult = unitMult(u, E); let rate = E.rate * (1 + E.rise / 100 * (u.level - first)) * u.mult; const ft = u.carpet * FT2; rate *= ft < 1500 ? 0.97 : ft < 4000 ? 1.0 : 1.03; u.rate = rate; u.value = rate * u.carpet * FT2; }
+  for (const u of units) { u.carpet = mpArea(u.mp) * E.carpetFactor; u.mult = unitMult(u, E); let rate = E.rate * (1 + E.rise / 100 * (u.level - first)) * u.mult; const ft = u.carpet * FT2; const sb = E.sizeBand || { small: -3, large: 3 }; rate *= ft < 1500 ? 1 + sb.small / 100 : ft < 4000 ? 1.0 : 1 + sb.large / 100; u.rate = rate; u.value = rate * u.carpet * FT2; }
 }
 
 /* ------------------------------------------------------------------ search stages */

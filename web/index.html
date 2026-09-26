@@ -286,6 +286,8 @@ body.present .stage{height:78vh}
         <label class="f">Floor rise (% per floor)<input type="number" id="eRise" value="0.5" step="0.1"></label>
         <label class="f">Pricing<select id="ePricing"><option value="continuous" selected>Continuous in living-room view</option><option value="class">By class</option></select></label>
         <label class="f">Premium / good / neutral / compromised ×<input type="text" id="eMult" value="1.15, 1.00, 0.90, 0.75"></label>
+        <label class="f" title="Rate change for flats under 1,500 ft² carpet">Small flats &lt; 1,500 ft² (%)<input type="number" id="eSmall" value="-3" step="0.5"></label>
+        <label class="f" title="Rate change for flats over 4,000 ft² carpet; this favours 1 flat per floor, set 0 to compare neutrally">Large flats &gt; 4,000 ft² (%)<input type="number" id="eLarge" value="3" step="0.5"></label>
       </div>
       <p class="hint">Rates are placeholders for comparing options, not market figures. Continuous pricing: multiplier = 0.655 + 0.69 × living-room view, kept within 0.80–1.20 (compromised units 0.75), so two nearly identical flats are never a whole class apart in price.</p>
     </details>

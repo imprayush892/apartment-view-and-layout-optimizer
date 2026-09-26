@@ -210,7 +210,7 @@ function readConfig() {
   const mult = listNums($("eMult").value), beds = listNums($("pBeds").value);
   return { fsi: +$("fsi").value, hmax: +$("hmax").value, reserved: listNums($("reserved").value).map(Math.round), rots: listNums($("rots").value), upf: listNums($("upf").value).map(Math.round).filter(v => v >= 1 && v <= 4), pods: listNums($("pods").value).map(Math.round), ftf: listNums($("ftf").value), coff: listNums($("coff").value), evalEvery: Math.max(1, Math.round(+$("evalEvery").value || 4)),
     coreFixed: +$("coreFixed").value, corePer: +$("corePer").value, colSpacing: 8, living: +$("pLiving").value, bed: +$("pBed").value, beds: [beds[0] ?? 5, beds[1] ?? 4, beds[2] ?? 3], R,
-    E: { rate: +$("eRate").value, cost: +$("eCost").value, rise: +$("eRise").value, carpetFactor: 0.88, mult: { premium: mult[0] ?? 1.15, good: mult[1] ?? 1, neutral: mult[2] ?? 0.9, compromised: mult[3] ?? 0.75 }, pricing: $("ePricing").value, cont: { a: 0.655, b: 0.69, lo: 0.8, hi: 1.2 } } };
+    E: { rate: +$("eRate").value, cost: +$("eCost").value, rise: +$("eRise").value, carpetFactor: 0.88, mult: { premium: mult[0] ?? 1.15, good: mult[1] ?? 1, neutral: mult[2] ?? 0.9, compromised: mult[3] ?? 0.75 }, pricing: $("ePricing").value, cont: { a: 0.655, b: 0.69, lo: 0.8, hi: 1.2 }, sizeBand: { small: +$("eSmall").value || 0, large: +$("eLarge").value || 0 } } };
 }
 /* Plain checks on the inputs before a search; returns a list of problems (empty = fine). */
 function validateConfig(C) {
