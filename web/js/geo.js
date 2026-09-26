@@ -121,9 +121,8 @@ function buildScene(ctx, center, half, res, opts = {}) {
   const S = { x0, y0, res, nx, ny, H: new Float32Array(nx * ny), W: new Uint8Array(nx * ny), G: new Uint8Array(nx * ny), HAB: new Uint8Array(nx * ny), landmarks: ctx.landmarks || [], warnings: [] };
   const burn = (r, fn) => { const [a, b, c, d] = bounds(r); const j0 = Math.max(0, Math.floor((a - x0) / res)), j1 = Math.min(nx, Math.ceil((c - x0) / res) + 1), i0 = Math.max(0, Math.floor((b - y0) / res)), i1 = Math.min(ny, Math.ceil((d - y0) / res) + 1); for (let i = i0; i < i1; i++) { const y = y0 + (i + 0.5) * res; for (let j = j0; j < j1; j++) { const x = x0 + (j + 0.5) * res; if (pip(x, y, r)) fn(i * nx + j); } } };
   if (ctx.coast && ctx.coast.length) floodSea(S, ctx.coast);
-  // inland water (lakes, ponds, tanks) is an open-space amenity, not sea: it goes to the green/open channel,
-  // and small ponds (< 0.5 ha) are ignored
-  let inland = 0; for (const w of ctx.water) if (ringArea(w) >= 5000) { burn(w, k => { if (!S.W[k]) { S.G[k] = 1; inland++; } }); }
+    // large water bodies (>= 20 ha: rivers like the Thames, big lakes) are a water view; 0.5-20 ha is open space
+  let inland = 0; for (const w of ctx.water) { const a = ringArea(w); if (a >= 200000) burn(w, k => { S.W[k] = 1; }); else if (a >= 5000) { burn(w, k => { if (!S.W[k]) { S.G[k] = 1; inland++; } }); } }
   for (const p of ctx.parks) burn(p, k => S.G[k] = 1);
   // the plot itself is never a view target; remember how much of it sat on water (a location check)
   if (opts.plot) { let wet = 0, tot = 0; burn(opts.plot, k => { tot++; if (S.W[k]) wet++; S.W[k] = 0; S.G[k] = 0; }); S.plotWet = tot ? wet / tot : 0; }

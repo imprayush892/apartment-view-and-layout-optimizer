@@ -103,10 +103,10 @@ function showDesign(ev, opts = {}) {
     if (!us.length) { const m = extrude(shapeOf(ccw(plate)), sp.ftf - 0.3, z + 0.3, mat(COL.podium)); m.userData = { level: l, podium: true, tower: ti }; g.add(m); T.designMeshes.push(m); continue; }
     const src = us[0].evaluated ? l : us[0].inheritFrom;
     if (src !== l && (sp.typology === "terraced" || sp.typology === "tapered" || sp.typology === "twisted")) {
-      const m = extrude(shapeOf(ccw(plate), [ccw(ev.cores[l])]), sp.ftf - 0.3, z + 0.3, mat(COL[us[0].cls])); m.userData = { level: l, tower: ti }; g.add(m); T.designMeshes.push(m);
+      const m = extrude(shapeOf(ccw(plate), [ccw(ev.cores[l])]), sp.ftf - 0.3, z + 0.3, mat(opts.neutral ? 0xe6dccb : COL[us[0].cls])); m.userData = { level: l, tower: ti }; g.add(m); T.designMeshes.push(m);
     } else for (const u of us) {
       const srcU = src === l ? u : ev.units.find(x => x.level === src && x.id.split("-U")[1] === u.id.split("-U")[1]);
-      for (const poly of srcU.mp) { const m = extrude(shapeOf(ccw(poly[0]), poly.slice(1).map(ccw)), sp.ftf - 0.3, z + 0.3, mat(COL[u.cls])); m.userData = { level: l, unit: u.id, tower: ti }; g.add(m); T.designMeshes.push(m); }
+      for (const poly of srcU.mp) { const m = extrude(shapeOf(ccw(poly[0]), poly.slice(1).map(ccw)), sp.ftf - 0.3, z + 0.3, mat(opts.neutral ? 0xe6dccb : COL[u.cls])); m.userData = { level: l, unit: u.id, tower: ti }; g.add(m); T.designMeshes.push(m); }
     }
     g.add(extrude(shapeOf(ccw(ev.cores[l])), sp.ftf, z, mat(COL.core)));
   } });

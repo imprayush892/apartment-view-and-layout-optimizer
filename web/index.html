@@ -146,6 +146,7 @@ table.sens td.neg{color:var(--bad);font-weight:600}
 .compass::after{content:"N";position:absolute;left:50%;top:-15px;transform:translateX(-50%);font-size:10px}
 .glossary{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:6px 14px;font-size:13px;margin:0}.glossary dt{font-weight:700}.glossary dd{margin:0;color:var(--ink-2)}
 .mobnav{display:none}
+.modecards{display:grid;grid-template-columns:1fr 1fr;gap:6px}.modecard{display:flex;flex-direction:column;gap:3px;text-align:left;font-weight:400;padding:8px 10px}.modecard b{font-size:13px}.modecard span{font-size:11.5px;color:var(--ink-2)}.modecard[aria-checked=true]{border-color:var(--accent);background:var(--accent-soft)}
 @media (max-width:960px){
   .shell{display:flex;flex-direction:column;align-items:stretch}
   body{padding-bottom:70px}
@@ -182,6 +183,9 @@ body.present .stage{height:78vh}
       <select id="src">
         <option value="dadar">Dadar, Mumbai: OpenStreetMap snapshot</option>
         <option value="nyc_lower">Lower Manhattan, New York: snapshot</option>
+        <option value="nyc_midtown">Midtown Manhattan, New York: snapshot</option>
+        <option value="ldn_city">City of London: snapshot</option>
+        <option value="ldn_canary">Canary Wharf, London: snapshot</option>
         <option value="live">Pin anywhere: live OpenStreetMap</option>
         <option value="upload">Upload OSM / GeoJSON file</option>
         <option value="synthetic">Synthetic test site</option>

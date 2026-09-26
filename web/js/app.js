@@ -37,9 +37,9 @@ function illustrativePlot(center, ang = 60, w = 64, d = 52) { return rot(box(-w 
 const SNAPSHOTS = {
   dadar: { file: "data/dadar_osm.json", area: "about 1 km around Shivaji Park, Dadar", plot: [[-180, -130], 60, 64, 52], name: "Illustrative plot near Shivaji Park (not the project site)" },
   nyc_lower: { file: "data/nyc_lower_osm.json", area: "about 1.8 km around the Financial District, Lower Manhattan, plus towers over 90 m within 5 km", plot: [[888, 44], 0, 60, 45], ring: [[927.6, 44.2], [878, 11.6], [873.9, 17.5], [864.4, 11], [859, 17.8], [864.1, 21.1], [848.2, 43.4], [905.2, 80.4], [910.8, 71.6], [907, 69.1], [913.6, 58.9], [917.1, 61.2]], name: "Test plot in Lower Manhattan: footprint of an existing low building near the East River (not a real project)" },
-  nyc_midtown: { file: "data/nyc_midtown_osm.json", area: "about 1.3 km around Bryant Park, Midtown Manhattan, plus towers over 90 m within 5 km", plot: [[0, 0], 29, 60, 45], name: "Illustrative plot in Midtown Manhattan (test site)" },
-  ldn_city: { file: "data/ldn_city_osm.json", area: "about 1.8 km around Bank, City of London, plus towers over 90 m within 5 km", plot: [[0, 0], 0, 60, 45], name: "Illustrative plot in the City of London (test site)" },
-  ldn_canary: { file: "data/ldn_canary_osm.json", area: "about 1.8 km around Canary Wharf, plus towers over 90 m within 5 km", plot: [[0, 0], 0, 60, 45], name: "Illustrative plot at Canary Wharf (test site)" },
+  nyc_midtown: { file: "data/nyc_midtown_osm.json", area: "about 1.3 km around Bryant Park, Midtown Manhattan, plus towers over 90 m within 5 km", plot: [[-373, 369], 29, 60, 45], ring: [[-351.1, 342.7], [-360.4, 347.9], [-375.2, 321.3], [-377.7, 322.6], [-380.8, 324.4], [-366.2, 350.6], [-394.1, 366.2], [-409.5, 374.8], [-394.2, 402.2], [-345.1, 374.7], [-336.1, 369.7], [-337.3, 367.7]], name: "Test plot in Midtown Manhattan: footprint of an existing low building (not a real project)" },
+  ldn_city: { file: "data/ldn_city_osm.json", area: "about 1.5 km around Bank, City of London, plus towers over 90 m within 5 km", plot: [[-91, -442], 0, 60, 45], ring: [[-120, -460.4], [-93.3, -468.5], [-91.4, -468.3], [-67.5, -455], [-66.3, -453.5], [-64.1, -446.2], [-63.5, -446.3], [-58.9, -430.5], [-82, -423.6], [-81.4, -421.4], [-106.4, -413.9], [-112.9, -436.1]], name: "Test plot in the City of London: footprint of an existing low building near the Thames (not a real project)" },
+  ldn_canary: { file: "data/ldn_canary_osm.json", area: "about 1.8 km around Canary Wharf, plus towers over 90 m within 5 km", plot: [[451, -95], 0, 60, 45], ring: [[418.8, -113.4], [474.4, -123.8], [483.3, -76.1], [435.4, -67.2], [426.5, -72.2]], name: "Test plot at Canary Wharf: footprint of an existing low building (not a real project)" },
 };
 async function loadSnapshot(key) {
   const m = SNAPSHOTS[key]; setInfo("ctxInfo", "Loading OpenStreetMap snapshot…"); const tok = ++st.loadToken;
@@ -230,7 +230,7 @@ async function tokenSpecs(C, mode) {
     const sc = [], L = TOK.library(), rots = [0, 45, +(((viewAz % 90) + 90) % 90).toFixed(1)];
     for (let i = 0; i < L.length; i++) { for (const rot of rots) { const sp = TOK.toSpec(L[i], pos, rot, viewAz, Ci, ftf, pod, upf); sc.push({ sp, typ: L[i], s: TOK.ruleScore(sp, f, viewAz) }); } if (i % 60 === 59) { setInfo("runInfo", `Screening the token library… ${i + 1}/${L.length}`); await new Promise(r => setTimeout(r, 0)); } }
     sc.sort((a, b) => b.s - a.s); const out = [], per = {};
-    for (const c of sc) { const b = c.sp.p.base; if ((per[b] || 0) >= 2) continue; let sp = c.sp; if (!VT.fitsAt(sp, env)) sp = fitSpec(sp, Ci); if (!ok(sp)) continue; per[b] = (per[b] || 0) + 1; out.push({ ...sp, tokNote: `library: ${c.typ.label} (after ${c.typ.precedent})` }); if (out.length >= K) break; }
+    for (const c of sc) { const b = c.sp.p.base; if ((per[b] || 0) >= 2) continue; let sp = c.sp; if (!VT.fitsAt(sp, env)) sp = fitSpec(sp, Ci); if (!ok(sp)) continue; per[b] = (per[b] || 0) + 1; out.push({ ...sp, tokNote: UXB ? `from the library: ${describeTokensPlain(sp.p)}` : `library: ${c.typ.label} (after ${c.typ.precedent})` }); if (out.length >= K) break; }
     return out;
   }
   if (!MODEL) MODEL = await (await fetch("data/typology_model.json")).json();
@@ -239,7 +239,12 @@ async function tokenSpecs(C, mode) {
   if (mode === "hybrid" && HYB) { opts.W = HYB.W; opts.prior = HYB.prior; opts.numPrior = HYB.numPrior; }
   return TOK.generate(MODEL, f, env, Ci, opts).map(g => ({ ...g.sp, tokNote: `${mode === "hybrid" ? "hybrid" : "generated"}: ${describeTokens(g.sp.p)}` }));
 }
-function describeTokens(p) { const t = [p.base.replace("_", "-")]; if (p.twist) t.push(`${p.twist.mode} twist ${p.twist.rate}°/floor`); if (p.taper) t.push(`${p.taper.mode} taper to ${Math.round(100 * p.taper.top)} %`); if (p.shift) t.push(`${p.shift.mode} shift ${p.shift.amp} m`); if (p.terrace) t.push(`terraces ${p.terrace.step} m every ${p.terrace.every} floors`); if (p.cut) t.push("corner gardens"); return t.join(", "); }
+/* UX A/B variants (?ux=B): search method as cards, neutral 3D massing (class on click), plain-language token notes */
+const UXB = new URLSearchParams(location.search).get("ux") === "B";
+function describeTokensPlain(p) { const t = [{ square: "square", rectangular: "long rectangular", chamfered: "cut-corner", curved: "rounded", diamond: "diamond", triangular: "triangular", y_shaped: "three-winged (Y)", cross: "cross-shaped", t_shaped: "T-shaped" }[p.base] + " floor plan"];
+  if (p.twist) t.push(p.twist.rate > 2 ? "turns strongly as it rises (like Absolute World)" : "turns slowly as it rises (like Cayan Tower)"); if (p.taper) t.push(p.taper.mode === "frustum" ? "alternately widens and narrows (like Vista Tower)" : p.taper.mode === "bulge" ? "swells in the middle (like the Gherkin)" : "narrows toward the top");
+  if (p.shift) t.push({ stagger: "floors shift back and forth (like 56 Leonard)", lean: "leans out toward the view", wave: "slab edges ripple (like Aqua Tower)", pixel: "blocks of floors slide out (like 56 Leonard)" }[p.shift.mode]); if (p.terrace) t.push("steps down in terraces toward the view (like Habitat 67)"); if (p.cut) t.push("corner garden cut-outs (like Kanchanjunga)"); return t.join(", "); }
+function describeTokens(p) { if (UXB) return describeTokensPlain(p); const t = [p.base.replace("_", "-")]; if (p.twist) t.push(`${p.twist.mode} twist ${p.twist.rate}°/floor`); if (p.taper) t.push(`${p.taper.mode} taper to ${Math.round(100 * p.taper.top)} %`); if (p.shift) t.push(`${p.shift.mode} shift ${p.shift.amp} m`); if (p.terrace) t.push(`terraces ${p.terrace.step} m every ${p.terrace.every} floors`); if (p.cut) t.push("corner gardens"); return t.join(", "); }
 /* Deepest point of the envelope (approximate pole of inaccessibility) — a concave plot's centroid
    can fall outside it, and the deepest point gives the tower the most room. */
 function bestCenter(env) {
@@ -466,7 +471,7 @@ function renderOptions() {
   $("optTbl").querySelectorAll("tr.pick").forEach(tr => { const go = () => { select(res[+tr.dataset.i], true); setTab("t-3d"); }; tr.addEventListener("click", go); tr.addEventListener("keydown", e => { if (e.key === "Enter") go(); }); });
   $("rejTbl").innerHTML = st.rejected.length ? `<thead><tr><th>Typology</th><th class="n">Rot °</th><th class="n">Units/fl</th><th class="n">Podium</th><th>Failed rules</th><th>Detail</th></tr></thead><tbody>${st.rejected.map(e => `<tr><td>${esc(label(e.sp))}</td><td class="n">${e.sp.rotation}</td><td class="n">${e.sp.upf}</td><td class="n">${e.sp.podium}</td><td class="mono">${e.viol.join(", ")}</td><td style="white-space:normal">${e.viol.map(v => esc(e.checks[v] ? e.checks[v][1] : "")).join("; ")}</td></tr>`).join("")}</tbody>` : `<tbody><tr><td class="muted">No options were rejected.</td></tr></tbody>`;
 }
-function select(ev, frame) { st.sel = ev; st.level = ev ? ev.evaluated[Math.floor(ev.evaluated.length / 2)] : null; hideCone(); st.cone = null; if (ev) V3D.showDesign(ev, { frame }); else V3D.clearDesign(); renderOptions(); renderDesign(); renderMap(); }
+function select(ev, frame) { st.sel = ev; st.level = ev ? ev.evaluated[Math.floor(ev.evaluated.length / 2)] : null; hideCone(); st.cone = null; if (ev) V3D.showDesign(ev, { frame, neutral: UXB }); else V3D.clearDesign(); renderOptions(); renderDesign(); renderMap(); }
 function renderDesign() {
   const ev = st.sel;
   if (!ev) { $("designHead").innerHTML = `<h3>No design selected</h3><p class="hint">Run a search, then pick an option.</p>`; ["checks", "explain", "unitTbl", "plan", "lvlPick"].forEach(id => $(id).innerHTML = ""); if (window.VTX) { VTX.renderEcon(); VTX.renderHeightTest(); VTX.renderShadow(); } return; }
@@ -548,6 +553,12 @@ async function boot() {
   $("envYes").addEventListener("click", () => { st.isEnv = true; pressEnv(); recomputeEnv(); });
   $("envNo").addEventListener("click", () => { st.isEnv = false; pressEnv(); recomputeEnv(); setTab("t-site"); setZoom("plot"); });
   $("btnRun").addEventListener("click", runSearch);
+  if (UXB) { // search method as described cards instead of a dropdown
+    const sel = $("searchMode"), wrap = document.createElement("div"); wrap.className = "modecards"; wrap.setAttribute("role", "radiogroup"); wrap.setAttribute("aria-label", "Search method");
+    const DESC = { hand: ["Choose shapes myself", "Tick tower shapes and sizes below; every combination is tested."], library: ["Best from 540 known towers", "Screens a library of towers modelled on built precedents and tests the best few."], generative: ["Invent new towers", "Composes new towers floor by floor from moves that worked on similar sites."], hybrid: ["Invent, tuned by architects", "Like Invent, weighted by 500 architects' critiques."] };
+    wrap.innerHTML = [...sel.options].map(o => `<button type="button" class="modecard" role="radio" aria-checked="${o.selected}" data-v="${o.value}"><b>${DESC[o.value][0]}</b><span>${DESC[o.value][1]}</span></button>`).join("");
+    sel.closest("label").hidden = true; sel.closest("label").after(wrap);
+    wrap.addEventListener("click", e => { const b = e.target.closest(".modecard"); if (!b) return; sel.value = b.dataset.v; wrap.querySelectorAll(".modecard").forEach(x => x.setAttribute("aria-checked", String(x === b))); }); }
   document.querySelectorAll("[data-fb]").forEach(b => b.addEventListener("click", () => { const c = st.cone, ev = st.sel; if (!c || !ev) return;
     const ll = st.anchor ? GEO.toLatLon(c.x, c.y, st.anchor) : null;
     st.feedback.push({ at: new Date().toISOString(), verdict: b.dataset.fb, note: $("fbNote").value.slice(0, 300), latlon: ll && ll.map(v => +v.toFixed(6)), local_xy: [+c.x.toFixed(1), +c.y.toFixed(1)], eye_m: +c.z.toFixed(1), facing_deg: Math.round(c.az), predicted: { sea_share: +c.cone.water.toFixed(3), quality: +c.cone.quality.toFixed(3) }, option: ev.id });
@@ -557,7 +568,7 @@ async function boot() {
   $("ePricing").addEventListener("change", multUI); multUI();
   $("lvlPick").addEventListener("change", e => { st.level = +e.target.value; renderPlan(); });
   $("coneLevel").addEventListener("change", e => { const c = st.cone; if (c) coneAt(+e.target.value, c.px, c.py); });
-  $("vReset").addEventListener("click", () => st.sel ? V3D.showDesign(st.sel, { frame: true }) : V3D.resetView());
+  $("vReset").addEventListener("click", () => st.sel ? V3D.showDesign(st.sel, { frame: true, neutral: UXB }) : V3D.resetView());
   $("vTop").addEventListener("click", V3D.topView); $("vClear").addEventListener("click", hideCone); $("vJump").addEventListener("click", jump); $("jumpExit").addEventListener("click", V3D.exitJump);
   $("btnCopy").addEventListener("click", async () => { const b = $("btnCopy"); try { await navigator.clipboard.writeText(resultsJSON()); b.textContent = "Copied"; } catch (e) { b.textContent = "Copy blocked by the browser"; } setTimeout(() => b.textContent = "Copy results JSON", 1800); });
   st.booted = true; if (window.VTX) VTX.init();

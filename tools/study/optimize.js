@@ -19,17 +19,17 @@ if (isMainThread) {
   const hyb = fs.existsSync(path.join(DIR, "hybrid_weights.json")) ? JSON.parse(fs.readFileSync(path.join(DIR, "hybrid_weights.json"), "utf8")) : null;
   for (const a of workerData.archs) {
     const f = path.join(DIR, "results", a.id + ".json"), prev = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : { id: a.id };
-    const P = C.prepare(a.site, { evalEvery: 6 }); if (!P) { fs.writeFileSync(f, JSON.stringify({ ...prev, error: "no envelope" })); parentPort.postMessage(1); continue; }
+    const P = C.prepare(a.site, { evalEvery: 8 }); if (!P) { fs.writeFileSync(f, JSON.stringify({ ...prev, error: "no envelope" })); parentPort.postMessage(1); continue; }
     prev.site = { viewAz: +P.viewAz.toFixed(1), arc: P.field.arc, opening: P.field.opening, envelope_m2: Math.round(C.VT.ringArea(P.env)), ctxH: P.ctxH, pos: P.pos };
     const N = a.site.towers || 1, run = (cands, label) => { const t = Date.now(), evs = [], used = [];
-      for (const sp of cands) { if (evs.length >= 3) break; const sps = C.layoutChecked(P, sp, N); if (!sps) continue; evs.push(C.VT.evaluateSite(sps, P.env, P.C, P.S, P.V, P.field.arc)); used.push(sp); }
+      for (const sp of cands) { if (evs.length >= 2) break; const sps = C.layoutChecked(P, sp, N); if (!sps) continue; evs.push(C.VT.evaluateSite(sps, P.env, P.C, P.S, P.V, P.field.arc)); used.push(sp); }
       const best = pickBest(C, evs); cands = used;
       return { best: best ? { lib: best.sp.lib, towers: towersOf(best), metrics: summary(best), explain: best.explain.slice(0, 3) } : null, alts: evs.map((e, i) => ({ lib: cands[i].lib, rot: cands[i].rotation, ...summary(e) })), secs: (Date.now() - t) / 1000, label }; };
     for (const mode of workerData.modes) {
       if (prev[mode]) continue;
       if (mode === "det") { // deterministic: hand-rule screening of the whole library, then full evaluation of the top 3 distinct bases
         const rots = [0, 45, +(((P.viewAz % 90) + 90) % 90).toFixed(1)], sc = [];
-        for (const typ of L) for (const rot of rots) { const sp = C.fit(C.TOK.toSpec(typ, P.pos, rot, P.viewAz, P.C), P.env, P.C); if (!sp) continue; sc.push({ sp, s: C.TOK.ruleScore(sp, P.field, P.viewAz) + 0.02 * (sp.n / 80) }); }
+        for (const typ of L) for (const rot of rots) { const sp = C.TOK.toSpec(typ, P.pos, rot, P.viewAz, P.C); sc.push({ sp, s: C.TOK.ruleScore(sp, P.field, P.viewAz) + 0.02 * (sp.n / 80) }); } // fit + hard rules happen lazily down the ranked list (run -> layoutChecked)
         sc.sort((x, y) => y.s - x.s); const pickd = [], bases = {}; for (const c of sc) { const b = c.sp.p.base; if ((bases[b] = (bases[b] || 0) + 1) > 6) continue; pickd.push(c.sp); if (pickd.length === 90) break; } // ranked list, a few per base; run() takes the first 3 feasible
         prev.det = { ...run(pickd, "deterministic"), screened: sc.length };
       }
