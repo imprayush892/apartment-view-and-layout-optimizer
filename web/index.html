@@ -225,6 +225,7 @@ tbody tr.on{background:var(--accent-soft)}
       <label class="f">Core offset from sea (m)<input type="text" id="coff" value="0"></label>
       <label class="f">View check every n floors<input type="number" id="evalEvery" value="4" min="1" max="10"></label>
     </div>
+    <label class="row" style="font-size:12px;color:var(--ink-2);gap:6px"><input type="checkbox" id="autoFit" checked> Shrink towers that don't fit the envelope (not below 16 m)</label>
     <details class="adv"><summary>Core, programme, thresholds and rates</summary>
       <div class="grid2">
         <label class="f">Core fixed area (m²)<input type="number" id="coreFixed" value="95"></label>
@@ -268,7 +269,7 @@ tbody tr.on{background:var(--accent-soft)}
     <div class="stage" id="stage">
       <div class="hud">
         <div class="hudbox" id="hudSearch" hidden><div id="hudText"></div><div class="progress"><i id="hudProg"></i></div></div>
-        <div class="hudbox" id="hudHint">Drag to orbit · right-drag or two fingers to pan · scroll to zoom. After a search, click any floor to see its view cone.</div>
+        <div class="hudbox" id="hudHint">Drag to orbit · right-drag or two fingers to pan · scroll to zoom. Press Run search to generate towers; then click any floor to see its view cone.</div>
       </div>
       <div class="tools">
         <button type="button" id="vReset">Reset view</button>

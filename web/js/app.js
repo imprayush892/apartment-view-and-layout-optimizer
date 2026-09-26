@@ -28,7 +28,7 @@ const FL = { width: "Width m", depth: "Depth m", chamfer_m: "Chamfer m", exponen
 const TL = Object.fromEntries(TYPOS.map(t => [t.key, t.label]));
 const label = sp => TL[sp.typology] || sp.typology;
 
-const st = { src: "dadar", anchor: null, ctx: null, S: null, Sf: null, boundary: null, bSource: "illus", env: [], isEnv: false, setbacks: [], selEdge: null, draw: null, field: null,
+const st = { runToken: 0, pending: [], src: "dadar", anchor: null, ctx: null, S: null, Sf: null, boundary: null, bSource: "illus", env: [], isEnv: false, setbacks: [], selEdge: null, draw: null, field: null,
   results: null, rejected: [], sel: null, level: null, cone: null, zoom: "plot", roseZ: 100, dxf: null, running: false, workers: [] };
 
 /* ================================================================ data sources */
@@ -83,6 +83,7 @@ function setBoundary(ring, name, setbacks, source) {
 function ccwKeep(r) { return r.map(p => [p[0], p[1]]); }
 function rebuildScene() {
   if (!st.ctx || !st.boundary) return;
+  cancelSearch("The site changed, so the running search was stopped. Press Run search.");
   const c = centroid(st.boundary); st.center = c;
   let removed = 0; for (const b of st.ctx.buildings) { b.excluded = pip(...centroid(b.ring), st.boundary) || polyInside(b.ring, st.boundary); if (b.excluded) removed++; }
   st.S = GEO.buildScene(st.ctx, c, SCENE_HALF, RES);
@@ -167,6 +168,7 @@ function updateEnvelope() {
   recomputeEnv();
 }
 function recomputeEnv() {
+  cancelSearch("The envelope changed, so the running search was stopped. Press Run search.");
   const envLayer = st.bSource === "dxf" && st.dxf && st.dxf.envelope;
   st.env = st.isEnv ? (envLayer ? reprojectRing(st.dxf.envelope.ring) : st.boundary.slice()) : envelopeFromSetbacks(st.boundary, st.setbacks);
   document.querySelectorAll("#edgeList span:nth-child(3n+1)").forEach((el, i) => el.className = st.selEdge === i ? "sel" : "");
@@ -190,8 +192,24 @@ function readConfig() {
     coreFixed: +$("coreFixed").value, corePer: +$("corePer").value, colSpacing: 8, living: +$("pLiving").value, bed: +$("pBed").value, beds: [beds[0] ?? 5, beds[1] ?? 4, beds[2] ?? 3], R,
     E: { rate: +$("eRate").value, cost: +$("eCost").value, rise: +$("eRise").value, carpetFactor: 0.88, mult: { premium: mult[0] ?? 1.15, good: mult[1] ?? 1, neutral: mult[2] ?? 0.9, compromised: mult[3] ?? 0.75 } } };
 }
+/* Deepest point of the envelope (approximate pole of inaccessibility) — a concave plot's centroid
+   can fall outside it, and the deepest point gives the tower the most room. */
+function bestCenter(env) {
+  const [a, b, c, d] = bounds(env), step = Math.max(0.5, Math.sqrt(ringArea(env)) / 50); let best = centroid(env), bd = pip(best[0], best[1], env) ? VT.distToBoundary(best[0], best[1], env) : -1;
+  for (let y = b + step / 2; y < d; y += step) for (let x = a + step / 2; x < c; x += step) if (pip(x, y, env)) { const dd = VT.distToBoundary(x, y, env); if (dd > bd + 1e-9) { bd = dd; best = [x, y]; } }
+  return [+best[0].toFixed(3), +best[1].toFixed(3)];
+}
+const MIN_DIM = 16;
+function scaleSpec(sp, k) { const q = { ...sp, width: +(sp.width * k).toFixed(2), depth: +(sp.depth * k).toFixed(2), p: { ...sp.p } }; if (q.p.wing_len) q.p.wing_len = +(q.p.wing_len * k).toFixed(2); if (q.p.wing_w) q.p.wing_w = +(q.p.wing_w * k).toFixed(2); if (q.p.chamfer_m) q.p.chamfer_m = +(q.p.chamfer_m * k).toFixed(2); return q; }
+function fitsEnvelope(sp) { if (sp.n <= sp.podium) return false; const lv = [...new Set([0, sp.podium, Math.floor((sp.podium + sp.n - 1) / 2), sp.n - 1])]; return lv.every(l => VT.contains(st.env, VT.plateAt(sp, l))); }
+/* Shrink a tower uniformly (6 % steps, not below 16 m) until every floor plate fits the envelope. */
+function fitSpec(sp, C) {
+  if (fitsEnvelope(sp)) return sp;
+  for (let i = 1, k = 0.94; i <= 20; i++, k *= 0.94) { const q = VT.resolveFloors(scaleSpec({ ...sp, n: 0 }, k), C); if (Math.min(q.width, q.depth) < MIN_DIM) break; if (fitsEnvelope(q)) { q.fitNote = `scaled to ${Math.round(k * 100)}% of the entered size to fit the envelope`; return q; } }
+  return sp;
+}
 function buildSpecs(C) {
-  const c = centroid(st.env), specs = [];
+  const c = bestCenter(st.env), specs = [], fit = $("autoFit").checked;
   TYPOS.forEach((t, i) => {
     if (!$(`ty-${i}`).checked) return; const vals = {}; for (const k of Object.keys(t.f)) vals[k] = listNums($(`ty-${i}-${k}`).value);
     const combos = Object.keys(vals).reduce((acc, k) => acc.flatMap(a => vals[k].map(v => ({ ...a, [k]: v }))), [{}]);
@@ -200,29 +218,37 @@ function buildSpecs(C) {
       if (["y_shaped", "t_shaped", "cross"].includes(t.key)) { w = 2 * cmb.wing_len; d = cmb.wing_w; p.wing_len = cmb.wing_len; p.wing_w = cmb.wing_w; if (t.key === "y_shaped") p.wing_angle_deg = 120; }
       for (const k of ["chamfer_m", "exponent", "twist_per_floor_deg", "top_scale", "step_every", "step_m", "step_side_deg"]) if (cmb[k] != null) p[k] = cmb[k];
       if (["twisted", "tapered"].includes(t.key)) p.base = "square"; if (t.key === "terraced") p.base = "rectangular"; if (d == null) d = w;
-      specs.push(VT.resolveFloors({ typology: t.key, width: w, depth: d, p, position: [+c[0].toFixed(3), +c[1].toFixed(3)], rotation: rotd, ftf, podium: pod, upf, coreOff: off, n: 0 }, C));
+      const sp0 = VT.resolveFloors({ typology: t.key, width: w, depth: d, p, position: c, rotation: rotd, ftf, podium: pod, upf, coreOff: off, n: 0 }, C);
+      specs.push(fit ? fitSpec(sp0, C) : sp0);
     }
   });
   const seen = new Set(); return specs.filter(s => { const id = VT.specId(s); if (seen.has(id)) return false; seen.add(id); return true; });
 }
 function makeWorkers(n) { const ws = []; try { for (let i = 0; i < n; i++) ws.push(new Worker("js/worker.js")); } catch (e) { ws.forEach(w => w.terminate()); return []; } return ws; }
+function cancelSearch(reason) {
+  if (!st.running) return; st.runToken++; (st.workers || []).forEach(w => w.terminate()); st.workers = []; (st.pending || []).forEach(r => r()); st.pending = [];
+  st.running = false; setRunButton(false); $("hudSearch").hidden = true; $("hudHint").hidden = false; V3D.clearGhost();
+  setInfo("runInfo", reason || "Search stopped.");
+}
+function setRunButton(running) { const b = $("btnRun"); b.textContent = running ? "Stop search" : "Run search"; b.classList.toggle("primary", !running); }
 async function runSearch() {
-  if (st.running) return;
+  if (st.running) return cancelSearch("Search stopped. Press Run search to start again.");
   if (!st.env || !st.env.length) return setInfo("runInfo", "Set a buildable envelope first.", true);
   const C = readConfig(); if (!(C.fsi > 0) || !(C.hmax > 0)) return setInfo("runInfo", "Enter the consumable FSI area and the maximum height.", true);
   if (!st.field) computeField();
   const specs = buildSpecs(C); if (!specs.length) return setInfo("runInfo", "Tick at least one typology.", true);
-  st.running = true; $("btnRun").disabled = true; hideCone(); V3D.clearDesign(); setTab("t-3d");
+  st.running = true; const token = ++st.runToken; setRunButton(true); hideCone(); V3D.clearDesign(); setTab("t-3d"); st.pending = [];
   const t0 = performance.now(), results = [], rejected = [], arc = st.field && st.field.arc; let done = 0, lastGhost = 0;
   $("hudSearch").hidden = false; $("hudHint").hidden = true;
   const progress = (msg) => { const pct = 100 * done / specs.length; $("prog").style.width = $("hudProg").style.width = pct + "%"; $("hudText").innerHTML = msg; setInfo("runInfo", `${done}/${specs.length} options evaluated · ${rejected.length} rejected so far.`); };
-  const onMassing = m => { const now = performance.now(); if (now - lastGhost < 180) return; lastGhost = now; V3D.showGhost(m.sp, m.plates); progress(`Testing <b>${esc(label(m.sp))}</b> · ${m.sp.upf}/floor · ${m.sp.n} floors (${fmt(m.sp.n * m.sp.ftf, 0)} m) · rot ${m.sp.rotation}°${m.feasible ? "" : ` · <span style="color:#bf4d37">fails ${esc(m.viol.join(", "))}</span>`}`); };
-  const onResult = ev => { done++; (ev.feasible ? results : rejected).push(ev); if (ev.feasible) { const best = results.reduce((a, b) => a.metrics.compromised < b.metrics.compromised || (a.metrics.compromised === b.metrics.compromised && a.metrics.gdv >= b.metrics.gdv) ? a : b); $("hudText").innerHTML += `<br>Best so far: ${esc(label(best.sp))}, ₹${fmtInt(best.metrics.gdvCr)} cr, ${best.metrics.compromised} compromised`; } progress($("hudText").innerHTML); };
+  const onMassing = m => { if (token !== st.runToken) return; const now = performance.now(); if (now - lastGhost < 180) return; lastGhost = now; V3D.showGhost(m.sp, m.plates); progress(`Testing <b>${esc(label(m.sp))}</b> · ${m.sp.upf}/floor · ${m.sp.n} floors (${fmt(m.sp.n * m.sp.ftf, 0)} m) · rot ${m.sp.rotation}°${m.feasible ? "" : ` · <span style="color:#bf4d37">fails ${esc(m.viol.join(", "))}</span>`}`); };
+  const onResult = ev => { if (token !== st.runToken) return; done++; (ev.feasible ? results : rejected).push(ev); if (ev.feasible) { const best = results.reduce((a, b) => a.metrics.compromised < b.metrics.compromised || (a.metrics.compromised === b.metrics.compromised && a.metrics.gdv >= b.metrics.gdv) ? a : b); $("hudText").innerHTML += `<br>Best so far: ${esc(label(best.sp))}, ₹${fmtInt(best.metrics.gdvCr)} cr, ${best.metrics.compromised} compromised`; } progress($("hudText").innerHTML); };
   const nW = Math.max(1, Math.min(6, (navigator.hardwareConcurrency || 4) - 1, specs.length)), ws = makeWorkers(nW);
   const scene = { x0: st.S.x0, y0: st.S.y0, res: st.S.res, nx: st.S.nx, ny: st.S.ny, H: st.S.H, W: st.S.W, G: st.S.G, HAB: st.S.HAB, landmarks: st.ctx.landmarks || [] };
   if (ws.length) {
     st.workers = ws;
     await Promise.all(ws.map((w, k) => new Promise((res, rej) => {
+      st.pending.push(res);
       w.onerror = e => { rej(e.message || "worker error"); };
       w.onmessage = e => { const m = e.data; if (m.type === "ready") w.postMessage({ type: "eval", specs: specs.filter((_, i) => i % ws.length === k) }); else if (m.type === "massing") onMassing(m); else if (m.type === "result") onResult(m.ev); else if (m.type === "batchDone") res(); };
       w.postMessage({ type: "init", scene, C, env: st.env, arc, maxD: 3000 });
@@ -230,14 +256,18 @@ async function runSearch() {
     ws.forEach(w => w.terminate()); st.workers = [];
   } else { // fallback: main thread
     const V = VT.viewSettings({ res: RES, lmOn: !!(scene.landmarks.length) });
-    for (const sp of specs) { const ev = VT.checkCandidate(sp, st.env, C, arc); onMassing({ sp, plates: ev.plates, feasible: ev.feasible, viol: ev.viol }); await new Promise(r => setTimeout(r, 0)); if (ev.feasible) VT.evaluateViews(ev, st.S, C, V); onResult(ev); }
+    for (const sp of specs) { if (token !== st.runToken) break; const ev = VT.checkCandidate(sp, st.env, C, arc); onMassing({ sp, plates: ev.plates, feasible: ev.feasible, viol: ev.viol }); await new Promise(r => setTimeout(r, 0)); if (ev.feasible) VT.evaluateViews(ev, st.S, C, V); onResult(ev); }
   }
+  if (token !== st.runToken) return; // cancelled or superseded (site changed)
   VT.paretoRanks(results); results.sort(VT.cmpKey);
   if (st.Sf && results.length) { const V = VT.viewSettings({ res: RES }); for (const ev of results.slice(0, 8)) { const cl = { ...ev, viol: [], checks: { ...ev.checks }, metrics: { ...ev.metrics }, explain: [], units: [] }; VT.evaluateViews(cl, st.Sf, C, V); ev.metrics.futureComp = cl.metrics.compromised; ev.explain.push(`With future neighbours built: ${cl.metrics.compromised} compromised, ${cl.metrics.premium} premium.`); } }
   st.results = results; st.rejected = rejected.sort((a, b) => a.id < b.id ? -1 : 1); st.C = C;
   $("prog").style.width = "100%"; $("hudSearch").hidden = true; $("hudHint").hidden = false; $("hudHint").textContent = "Click any floor of the tower to see its view cone. Drag to orbit, scroll to zoom.";
-  setInfo("runInfo", `${results.length} feasible · ${rejected.length} rejected · ${results.filter(e => e.rank === 0).length} on the Pareto front · ${fmt((performance.now() - t0) / 1000, 1)} s on ${ws.length || 1} ${ws.length ? "workers" : "thread"}.`);
-  st.running = false; $("btnRun").disabled = false; V3D.clearGhost();
+  const fitted = specs.filter(sp => sp.fitNote).length;
+  if (results.length) setInfo("runInfo", `${results.length} feasible · ${rejected.length} rejected · ${results.filter(e => e.rank === 0).length} on the Pareto front · ${fmt((performance.now() - t0) / 1000, 1)} s on ${ws.length || 1} ${ws.length ? "workers" : "thread"}.${fitted ? ` ${fitted} option(s) were shrunk to fit the envelope.` : ""}`);
+  else { const cnt = {}; rejected.forEach(e => e.viol.forEach(v => cnt[v] = (cnt[v] || 0) + 1)); const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${k} (${v})`).join(", ");
+    setInfo("runInfo", `No option passed the hard rules. Most common failures: ${top}. ${cnt["ENV-ENVELOPE-01"] ? "The towers do not fit this envelope: draw a larger plot, reduce setbacks, or enter smaller widths. " : ""}See the Options tab for details.`, true); }
+  st.running = false; setRunButton(false); V3D.clearGhost();
   select(results[0] || null, true); renderKPIs();
 }
 
@@ -378,7 +408,7 @@ function renderDesign() {
   const ev = st.sel;
   if (!ev) { $("designHead").innerHTML = `<h3>No design selected</h3><p class="hint">Run a search, then pick an option.</p>`; ["checks", "explain", "unitTbl", "plan", "lvlPick"].forEach(id => $(id).innerHTML = ""); return; }
   const m = ev.metrics, sp = ev.sp, pr = Object.entries(sp.p).filter(([k]) => k !== "base").map(([k, v]) => `${FL[k] || k} ${v}`).join(" · ");
-  $("designHead").innerHTML = `<div class="row" style="justify-content:space-between"><h3>${esc(label(sp))} · ${sp.upf} unit${sp.upf > 1 ? "s" : ""} per floor · ${sp.n} floors (${fmt(m.height, 1)} m)</h3><span class="mono muted">${ev.id}</span></div><p class="hint">${sp.width} × ${sp.depth} m${pr ? " · " + esc(pr) : ""} · rotation ${sp.rotation}° · podium ${sp.podium} floors · floor-to-floor ${sp.ftf} m</p><div class="summary">${[["GDV", `₹${fmtInt(m.gdvCr)} cr`], ["Carpet", `${fmtInt(m.carpet)} m²`], ["Efficiency", fmt(m.efficiency, 2)], ["FSI used", `${fmt(100 * m.fsiUtil, 0)}%`], ["Premium", `${m.premium}/${m.units}`], ["Compromised", `${m.compromised}${m.futureComp != null ? ` (future ${m.futureComp})` : ""}`], ["Inventory risk", `${fmt(100 * m.risk, 1)}%`], ["Slenderness", `1:${fmt(m.slender, 1)}`]].map(([a, b]) => `<div class="kpi"><span>${a}</span><b style="font-size:15px">${b}</b></div>`).join("")}</div>`;
+  $("designHead").innerHTML = `<div class="row" style="justify-content:space-between"><h3>${esc(label(sp))} · ${sp.upf} unit${sp.upf > 1 ? "s" : ""} per floor · ${sp.n} floors (${fmt(m.height, 1)} m)</h3><span class="mono muted">${ev.id}</span></div><p class="hint">${sp.width} × ${sp.depth} m${pr ? " · " + esc(pr) : ""} · rotation ${sp.rotation}° · podium ${sp.podium} floors · floor-to-floor ${sp.ftf} m${sp.fitNote ? ` · <span class="warnline">${esc(sp.fitNote)}</span>` : ""}</p><div class="summary">${[["GDV", `₹${fmtInt(m.gdvCr)} cr`], ["Carpet", `${fmtInt(m.carpet)} m²`], ["Efficiency", fmt(m.efficiency, 2)], ["FSI used", `${fmt(100 * m.fsiUtil, 0)}%`], ["Premium", `${m.premium}/${m.units}`], ["Compromised", `${m.compromised}${m.futureComp != null ? ` (future ${m.futureComp})` : ""}`], ["Inventory risk", `${fmt(100 * m.risk, 1)}%`], ["Slenderness", `1:${fmt(m.slender, 1)}`]].map(([a, b]) => `<div class="kpi"><span>${a}</span><b style="font-size:15px">${b}</b></div>`).join("")}</div>`;
   $("checks").innerHTML = Object.entries(ev.checks).map(([id, [ok, d]]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "✗"}</span><span class="mono">${id}</span><span>${esc(d)}</span>`).join("");
   $("explain").innerHTML = ev.explain.map(x => `<li>${esc(x)}</li>`).join("");
   $("lvlPick").innerHTML = ev.evaluated.map(l => `<option value="${l}" ${l === st.level ? "selected" : ""}>${l} (${fmt(l * sp.ftf, 1)} m)</option>`).join("");
@@ -453,7 +483,7 @@ async function boot() {
   $("vTop").addEventListener("click", V3D.topView); $("vClear").addEventListener("click", hideCone); $("vJump").addEventListener("click", jump); $("jumpExit").addEventListener("click", V3D.exitJump);
   $("btnCopy").addEventListener("click", async () => { const b = $("btnCopy"); try { await navigator.clipboard.writeText(resultsJSON()); b.textContent = "Copied"; } catch (e) { b.textContent = "Copy blocked by the browser"; } setTimeout(() => b.textContent = "Copy results JSON", 1800); });
   await changeSource("dadar");
-  runSearch();
+  setInfo("runInfo", "Set the site, envelope and limits, then press Run search.");
 }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
 })();
