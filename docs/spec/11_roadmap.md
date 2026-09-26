@@ -33,18 +33,25 @@ Status: ✅ done in this repository (v0.1) · 🟡 partial · ⬜ not started
 ## Phase 4 — Optimisation
 - ✅ Deterministic enumeration, hard-rule filter with reasons, Pareto sort, presentation order
 - ⬜ Deterministic pattern-search refinement
+- ✅ Ranking on value minus construction cost (height-band cost factors); adaptive view-check refinement
 
 ## Phase 5 — Economic model
 - ✅ Carpet area, class multipliers, floor rise, size bands, GDV, cost, inventory risk
-- ⬜ Calibrate with user-supplied (non-confidential) comparables
+- ✅ Continuous view-price multiplier; economics card (land, soft, sales costs, margin, residual land value, sensitivity)
+- ⬜ Calibrate with user-supplied (non-confidential) comparables / registrations (hedonic regression, 12 §5)
+- ⬜ Absorption / sales-velocity and NPV; continuous size-price elasticity
 
 ## Phase 6 — User interface
 - ✅ Static web app `web/` (no build step): map pin + place search, DXF upload with georeferencing, draw-on-plan, edge-click setbacks, 3D OSM city model, parallel Web-Worker search with live massings, click-a-floor view cones + floor-by-floor sea chart, first-person jump-in, ranked options, floor plans, unit tables
 - ✅ GitHub Pages workflow
-- ⬜ View-corridor marking UI, landmark picking, per-option comparison view, export (IFC/DXF/GLB)
+- ✅ Exports: board pack HTML, units CSV, CAD zip (DXF + OBJ), scenario JSON, share link; presenter mode; phone layout; plain-language verdict and reliability badges
+- ⬜ View-corridor marking UI, landmark picking, per-option comparison view, IFC/GLB export, sun/shadow study
 
 ## Phase 7 — Validation
 - ✅ Tests: generator exactness (IoU), envelope, DXF round-trip, ray engine against analytic
   cases, classification, determinism
 - ⬜ Compare generated typologies with precedents where public geometry allows (Cayan twist, 432 Park)
-- ⬜ Edge cases: concave envelopes, envelopes smaller than min plate, no-water sites
+- ✅ Robustness audit (fuzzed 728 geometry candidates, invalid inputs, concave plots) and fixes, see 12 §4
+- ✅ Two rounds of persona usability testing with A/B tests, see 12 §6
+- ⬜ Ground-truth view photos / buyer labels at known points (view feedback capture is in place)
+- ⬜ Height fusion (Google Open Buildings 2.5D, Overture, GHSL) and building coverage to 3 km

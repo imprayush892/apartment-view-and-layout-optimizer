@@ -9,7 +9,8 @@ artifact preview and on any static host (GitHub Pages workflow in `.github/workf
 | `js/worker.js` | Parallel search worker (hard rules → streamed massing → view evaluation). |
 | `js/geo.js` | Georeferencing (lat/lon anchor, UTM), OSM parsing (Overpass JSON, GeoJSON, bundled snapshot), sea traced from coastlines, raster scene. |
 | `js/view3d.js` | three.js city model, live search massings, view cones, first-person jump-in. |
-| `js/app.js` | UI. |
+| `js/app.js` | UI: inputs, envelope, search orchestration, map, options, design detail. |
+| `js/extras.js` | Verdict and reliability badges, exports (board pack HTML, units CSV, CAD zip with DXF + OBJ), scenario save/load/share link, economics and sensitivity, building-height uncertainty test, presenter mode, first-person controls, sortable tables. |
 | `data/dadar_osm.json` | OpenStreetMap snapshot (© OpenStreetMap contributors, ODbL) around Shivaji Park, Dadar, fetched 2026-09-26 via Overpass. |
 
 **Live data.** On a normal host, "Pin anywhere" fetches buildings, streets, parks, water and
@@ -27,4 +28,21 @@ angle, or read directly as UTM easting/northing (zone + hemisphere).
 
 **Height data.** OSM `height`, else `building:levels × 3.2 m`, else a per-type estimate (shown
 lighter in 3D and counted in the context summary). In Dadar about 93 % of buildings have estimated
-heights — upload better data or set "Unknown heights" when you know the local norm.
+heights. Estimates are calibrated against the tagged buildings nearby (Dadar ×1.33 from 97 tagged),
+the verdict shows a reliability badge for the buildings in the sea-view directions, and the Design tab
+can re-run the selected tower with estimated heights ×0.75 and ×1.5. Upload better data or set
+"Unknown heights" when you know the local norm.
+
+**Exports and sharing.** Board pack (one HTML page with a 3D snapshot, flat mix, economics, height
+test and assumptions; print it to PDF), units CSV (with an assumptions header), CAD massing zip (R12
+DXF of floor plates, cores and units by class + OBJ massing with context within 600 m), scenario JSON
+(inputs, site, results, per-flat features and view feedback) and a share link (`#s=…`) that reopens
+the same site, envelope and inputs. `#present` opens presenter mode. In the claude.ai preview files are
+offered through the viewer's download prompt; on a normal host they download directly.
+
+**View feedback.** On any view cone, "Looks right / Not right" (+ note) records the predicted sea share
+and quality with the location, height and direction. It stays in the browser (localStorage) and is
+included in saved scenarios, to calibrate the view model against what people actually see.
+
+**Headless harness.** `node tools/harness.js '<json>'` runs the same engine in Node for experiments
+(see `DEFAULTS` in the file; `returnEvs`, `refine`, `thresholds`, `rates` are supported).

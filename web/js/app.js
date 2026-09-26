@@ -28,7 +28,7 @@ const FL = { width: "Width m", depth: "Depth m", chamfer_m: "Chamfer m", exponen
 const TL = Object.fromEntries(TYPOS.map(t => [t.key, t.label]));
 const label = sp => TL[sp.typology] || sp.typology;
 
-const st = { loadToken: 0, runToken: 0, pending: [], src: "dadar", anchor: null, ctx: null, S: null, Sf: null, boundary: null, bSource: "illus", env: [], isEnv: false, setbacks: [], selEdge: null, draw: null, field: null,
+const st = { feedback: (() => { try { return JSON.parse(localStorage.getItem("vt-feedback") || "[]"); } catch (e) { return []; } })(), loadToken: 0, runToken: 0, pending: [], src: "dadar", anchor: null, ctx: null, S: null, Sf: null, boundary: null, bSource: "illus", env: [], isEnv: false, setbacks: [], selEdge: null, draw: null, field: null,
   results: null, rejected: [], sel: null, level: null, cone: null, zoom: "plot", roseZ: 100, dxf: null, running: false, workers: [] };
 
 /* ================================================================ data sources */
@@ -493,7 +493,10 @@ async function changeSource(v) {
   if (v === "synthetic") loadSynthetic();
 }
 function renderTypos() { $("typos").innerHTML = TYPOS.map((t, i) => `<div class="typo"><input type="checkbox" id="ty-${i}" ${t.on ? "checked" : ""}><label for="ty-${i}" style="font-weight:600">${t.label}</label><div class="ps">${Object.entries(t.f).map(([k, v]) => `<label class="f">${FL[k]}<input type="text" id="ty-${i}-${k}" value="${v}"></label>`).join("")}</div></div>`).join(""); }
-function resultsJSON() { return JSON.stringify({ site: st.siteName, anchor_latlon: st.anchor, envelope_m2: ringArea(st.env), setbacks_m: st.isEnv ? null : st.setbacks, limits: st.C ? { fsi_m2: st.C.fsi, max_height_m: st.C.hmax } : { fsi_m2: +$("fsi").value, max_height_m: +$("hmax").value }, config_used: st.C || null, envelope: st.env, premium_arc_deg: st.field && st.field.arc, options: (st.results || []).map(e => ({ id: e.id, rank: e.rank, spec: e.sp, metrics: e.metrics, checks: e.checks })), rejected: st.rejected.map(e => ({ id: e.id, spec: e.sp, violations: e.viol })) }, (k, v) => typeof v === "number" ? +v.toFixed(4) : v, 1); }
+/* features logged with every export so sessions can become labelled data (see docs/spec/12) */
+function dataSummary() { const b = st.ctx ? st.ctx.buildings : [], est = b.filter(x => x.hsrc === "estimated").length; return { source: (st.dataNote || "").replace(/<[^>]+>/g, ""), buildings: b.length, estimated_heights: est, height_calibration: st.ctx && st.ctx.heightCalib, sea_cells: st.S ? st.S.W.reduce((a, v) => a + v, 0) : 0, raster_m: RES, plot_wet_share: st.S ? st.S.plotWet || 0 : 0 }; }
+function unitFeatures(ev) { return ev.units.map(u => { const lr = u.rooms.find(r => r.room === "living") || {}; return { id: u.id, level: u.level, evaluated: u.evaluated !== false, cls: u.cls, margin: u.margin, prem_slack: u.premSlack, mult: u.mult, q: lr.q, water: lr.water, d_obs: lr.dMed, horizon: lr.hMed, privacy: lr.privacy, beds_sea: u.rooms.filter(r => r.room.startsWith("bed")).map(r => +r.water.toFixed(3)) }; }); }
+function resultsJSON() { return JSON.stringify({ engine_version: VT.fnv(String(VT.evaluateViews) + String(VT.classify) + String(VT.castRay)), data: dataSummary(), view_feedback: st.feedback, selected_units: st.sel ? unitFeatures(st.sel) : [], site: st.siteName, anchor_latlon: st.anchor, envelope_m2: ringArea(st.env), setbacks_m: st.isEnv ? null : st.setbacks, limits: st.C ? { fsi_m2: st.C.fsi, max_height_m: st.C.hmax } : { fsi_m2: +$("fsi").value, max_height_m: +$("hmax").value }, config_used: st.C || null, envelope: st.env, premium_arc_deg: st.field && st.field.arc, options: (st.results || []).map(e => ({ id: e.id, rank: e.rank, spec: e.sp, metrics: e.metrics, checks: e.checks })), rejected: st.rejected.map(e => ({ id: e.id, spec: e.sp, violations: e.viol })) }, (k, v) => typeof v === "number" ? +v.toFixed(4) : v, 1); }
 
 function countSpecs() { if (!st.env || !st.env.length) return 0; try { return buildSpecs(readConfig()).length; } catch (e) { return 0; } }
 window.VTApp = { st, label, readConfig, setBoundary, recomputeEnv, pressEnv, changeSource, loadLive, renderKPIs, setTab, TYPOS, compass, resultsJSON, countSpecs, SCENE_HALF, RES };
@@ -521,6 +524,11 @@ async function boot() {
   $("envYes").addEventListener("click", () => { st.isEnv = true; pressEnv(); recomputeEnv(); });
   $("envNo").addEventListener("click", () => { st.isEnv = false; pressEnv(); recomputeEnv(); setTab("t-site"); setZoom("plot"); });
   $("btnRun").addEventListener("click", runSearch);
+  document.querySelectorAll("[data-fb]").forEach(b => b.addEventListener("click", () => { const c = st.cone, ev = st.sel; if (!c || !ev) return;
+    const ll = st.anchor ? GEO.toLatLon(c.x, c.y, st.anchor) : null;
+    st.feedback.push({ at: new Date().toISOString(), verdict: b.dataset.fb, note: $("fbNote").value.slice(0, 300), latlon: ll && ll.map(v => +v.toFixed(6)), local_xy: [+c.x.toFixed(1), +c.y.toFixed(1)], eye_m: +c.z.toFixed(1), facing_deg: Math.round(c.az), predicted: { sea_share: +c.cone.water.toFixed(3), quality: +c.cone.quality.toFixed(3) }, option: ev.id });
+    try { localStorage.setItem("vt-feedback", JSON.stringify(st.feedback.slice(-500))); } catch (e) { }
+    $("fbNote").value = ""; $("fbInfo").textContent = `Thanks — ${st.feedback.length} view check${st.feedback.length === 1 ? "" : "s"} recorded in this browser. They are included when you save the scenario.`; }));
   const multUI = () => { const c = $("ePricing").value === "continuous"; $("eMult").disabled = c; $("eMult").title = c ? "Only used with By-class pricing (compromised units always use the last value)" : ""; };
   $("ePricing").addEventListener("change", multUI); multUI();
   $("lvlPick").addEventListener("change", e => { st.level = +e.target.value; renderPlan(); });

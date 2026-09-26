@@ -12,7 +12,7 @@ The context is rasterised on a regular grid of resolution `r` (default 2–4 m):
 
 The candidate tower's own plate is burned into `H` (as a prism to the tower top) so that wings
 of Y/T/cross plans occlude each other (`GR-REENTRANT-01`).
-Cells outside the raster are treated as `H = 0`, not water (conservative).
+Cells outside the raster are treated as `H = 0`. The web engine (v0.2) continues the water value of the nearest edge cell past the raster edge (sea keeps going to the horizon); the Python reference treats them as not water.
 
 ## 2. Ray profile
 Observer `o = (x₀, y₀, z₀)`, eye at floor level + 1.5 m, 0.75 m outside the facade.
@@ -31,7 +31,7 @@ Per-azimuth variables:
 | `distance_to_obstruction` d_obs(θ) | `min{ d_k : H(p_k) > z₀ }`, else `R` |
 | `obstruction_height` | `H` at that sample |
 | `sky_openness` S(θ) | `1 − sin α(θ)` (fraction of the vertical sky half-plane open above the horizon line) |
-| `water_visibility` W(θ) | `min(1, Δβ_water(θ) / β_ref)` with `Δβ_water = Σ_k 1[water_k ∧ visible_k]·|e_k − e_{k+1}|` — the visible **depression-angle span** subtended by water; `β_ref` default 1.0° |
+| `water_visibility` W(θ) | `min(1, Δβ_water(θ) / β_ref)` with `Δβ_water = Σ_k 1[water_k ∧ visible_k]·|e_k − e_{k+1}|` — the visible **depression-angle span** subtended by water; `β_ref` default 5.0° in the web engine v0.2 (1.0° in the Python reference); at 1° a 1.5° strip of distant sea scored the same as a 50° seafront view |
 | `green_visibility` G(θ) | same as W with `M_green` |
 | `landmark_visibility` L(θ) | `Σ_j w_j·1[landmark j visible]` for landmarks within ±`δ` (default 3°) of θ; a landmark is visible if its top's elevation angle ≥ running horizon at its distance |
 | `corridor` C(θ) | user-marked view corridors: `w_c` if θ ∈ [θ₁, θ₂] and d_obs(θ) ≥ `corridor_min_distance` |
@@ -77,3 +77,17 @@ inside the envelope (spacing default 10 m), compute the full 360° profile. Outp
 ## 6. Seasonal / time effects (v0: reported, not scored)
 Monsoon haze is modelled optionally as `R_eff = min(R, visibility_km·1000)`. Solar exposure of
 the premium (often west-facing, for Mumbai) facade is reported via azimuth only.
+
+
+## Sea, inland water and the plot (web engine v0.2)
+- **Sea** is classified per raster cell by the side of the nearest OSM coastline segment (land on the
+  left of the way, sea on the right; pseudo-normals at shared vertices; ways joined by shared nodes;
+  cells nearest to a dangling end count as land). This replaced a flood fill that dropped the whole
+  sea whenever a clipped coastline end let it leak.
+- **Inland water** (lakes, tanks) of at least 0.5 ha counts as open space (green channel), not sea;
+  smaller ponds are ignored.
+- The **plot itself** is masked out of water and green, and the share of it that sat on water is
+  reported (a location check).
+- **Estimated heights** (no OSM `height` or `building:levels`) are calibrated to the neighbourhood: a
+  type with ≥ 8 tagged examples uses their median; other estimates are scaled by the median ratio of
+  tagged height to type default (clamped 0.7–2.5). Dadar: ×1.33 from 97 tagged buildings.

@@ -334,6 +334,8 @@ body.present .stage{height:78vh}
         <label class="f" style="flex-direction:row;align-items:center;gap:6px">Floor <select id="coneLevel" style="width:auto"></select></label></div>
       <div class="conecard">
         <div><div class="summary" id="coneKpis"></div><p class="hint" id="coneSectors" style="margin-top:8px"></p>
+          <div class="row" style="margin-top:8px" role="group" aria-label="View feedback"><span class="hint">Know this spot? Does this match the real view?</span><button type="button" class="chip" data-fb="right">Looks right</button><button type="button" class="chip" data-fb="wrong">Not right</button><input type="text" id="fbNote" placeholder="optional note, e.g. new tower blocks the sea" style="flex:1 1 160px" aria-label="Feedback note"></div>
+          <p class="hint" id="fbInfo">Feedback stays in this browser and is included when you save the scenario; it is used to check and calibrate the view model.</p>
           <div class="legend" style="margin-top:6px"><span><i style="background:#1f6fd1"></i>Reaches sea</span><span><i style="background:#d24b3a"></i>Blocked (length = distance to obstruction)</span><span><i style="background:#8a948f"></i>Open land / sky</span></div></div>
         <div><p class="hint">Sea view from this facade point, floor by floor</p><svg id="coneChart" viewBox="0 0 360 170" style="width:100%;height:auto" role="img" aria-label="Sea visibility by floor"></svg></div>
       </div>
