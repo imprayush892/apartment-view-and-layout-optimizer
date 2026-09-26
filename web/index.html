@@ -93,6 +93,7 @@ svg text{fill:var(--ink);font-family:var(--mono)}
 table{border-collapse:collapse;width:100%;font-size:12.5px}
 th{font-weight:600;text-align:left;color:var(--ink-2);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;background:var(--surface)}
 td{padding:5px 8px;border-bottom:1px solid var(--surface-2);white-space:nowrap}
+td.why{white-space:normal;min-width:240px;max-width:360px;font-size:12px;overflow-wrap:break-word;word-break:normal}
 td.n,th.n{text-align:right}
 tbody tr.pick{cursor:pointer}
 tbody tr.pick:hover{background:var(--surface-2)}
@@ -147,16 +148,17 @@ table.sens td.neg{color:var(--bad);font-weight:600}
 .mobnav{display:none}
 @media (max-width:960px){
   .shell{display:flex;flex-direction:column;align-items:stretch}
-  body{padding-bottom:84px}
+  body{padding-bottom:70px}
+  .exportbar{padding-right:70px}
   header.top p{font-size:13px}
   header.top{flex-wrap:wrap}
   main.work{order:-1}
   .stage{height:62vh;min-height:340px}
-  .mobnav{display:flex;position:fixed;left:50%;bottom:12px;transform:translateX(-50%);gap:6px;z-index:20;background:rgba(21,32,30,.88);padding:6px;border-radius:99px}
-  .mobnav a{color:#fff;text-decoration:none;font-size:13px;font-weight:600;padding:6px 14px;border-radius:99px}
+  .mobnav{display:flex;flex-direction:column;position:fixed;right:10px;bottom:10px;gap:4px;z-index:20}
+  .mobnav a{color:#fff;background:rgba(21,32,30,.82);text-decoration:none;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:99px;text-align:center}
   .hud{max-width:calc(100% - 120px)}
-  nav.tabs{scroll-snap-type:x mandatory;mask-image:linear-gradient(90deg,#000 85%,transparent)}
-  nav.tabs button{scroll-snap-align:start}
+  nav.tabs{flex-wrap:wrap;overflow:visible}
+  nav.tabs button{padding:7px 9px}
   .glossary{grid-template-columns:1fr}
 }
 body.present aside.controls, body.present nav.tabs, body.present .exportbar, body.present header.top p, body.present .mobnav, body.present #kpis{display:none!important}
@@ -170,7 +172,7 @@ body.present .stage{height:78vh}
   <p>Pin a location or upload a georeferenced DXF, confirm the buildable envelope and limits, then search tower typologies in a 3D city model. Click any floor of a result to see its view cone, or jump in to stand at the window.</p>
   <button type="button" class="chip" id="btnPresent" aria-pressed="false" title="Hide the inputs and show the tower and its verdict full width, for a client or buyer">Present</button>
 </header>
-<nav class="mobnav" aria-label="Jump to"><a href="#results">Results</a><a href="#inputs">Inputs</a></nav>
+<nav class="mobnav" aria-label="Jump to"><a href="#results" aria-label="Go to results">▲ Results</a><a href="#inputs" aria-label="Go to inputs">Inputs ▼</a></nav>
 
 <div class="shell">
 <aside class="controls" aria-label="Inputs" id="inputs">
@@ -335,7 +337,8 @@ body.present .stage{height:78vh}
       <div class="row" style="justify-content:space-between"><h3 id="coneTitle">View cone</h3>
         <label class="f" style="flex-direction:row;align-items:center;gap:6px">Floor <select id="coneLevel" style="width:auto"></select></label></div>
       <div class="conecard">
-        <div><div class="summary" id="coneKpis"></div><p class="hint" id="coneSectors" style="margin-top:8px"></p>
+        <div><div class="summary" id="coneKpis"></div><p class="hint" id="coneSectors" style="margin-top:8px"></p><p class="status" id="coneNote"></p>
+          <div class="row" style="margin-top:8px"><button type="button" class="chip" id="xFlat" title="One page for this flat: view, sea by floor, size and indicative price, to send to a buyer">Flat sheet for a buyer</button></div>
           <div class="row" style="margin-top:8px" role="group" aria-label="View feedback"><span class="hint">Know this spot? Does this match the real view?</span><button type="button" class="chip" data-fb="right">Looks right</button><button type="button" class="chip" data-fb="wrong">Not right</button><input type="text" id="fbNote" placeholder="optional note, e.g. new tower blocks the sea" style="flex:1 1 160px" aria-label="Feedback note"></div>
           <p class="hint" id="fbInfo">Feedback stays in this browser and is included when you save the scenario; it is used to check and calibrate the view model.</p>
           <div class="legend" style="margin-top:6px"><span><i style="background:#1f6fd1"></i>Reaches sea</span><span><i style="background:#d24b3a"></i>Blocked (length = distance to obstruction)</span><span><i style="background:#8a948f"></i>Open land / sky</span></div></div>
@@ -388,11 +391,15 @@ body.present .stage{height:78vh}
           <label class="f">Soft costs (% of construction)<input type="number" id="xSoft" value="15" step="1"></label>
           <label class="f">Sales &amp; marketing (% of GDV)<input type="number" id="xSales" value="3" step="0.5"></label>
           <label class="f">Target margin (% of GDV)<input type="number" id="xTarget" value="20" step="1"></label>
+          <label class="f">Build period (months)<input type="number" id="xMonths" value="" placeholder="24 + 0.6 × floors" min="6" step="1"></label>
+          <label class="f">Sales per quarter (% of flats)<input type="number" id="xAbs" value="6" min="0.5" step="0.5"></label>
+          <label class="f">Discount rate (% a year)<input type="number" id="xDisc" value="12" step="0.5"></label>
         </div>
         <p class="hint">Construction uses the ₹/ft² built-up rate in step 5 (advanced) times the whole tower incl. podium, plus a premium for structurally complex shapes.</p>
         <div id="econOut"></div></div>
       <div class="card"><div class="row" style="justify-content:space-between"><h3>Building-height uncertainty</h3><button type="button" class="chip" id="btnHeight">Test this tower</button></div><div id="htOut"></div></div>
     </div>
+    <div class="card"><div class="row" style="justify-content:space-between"><h3>Shadow study</h3><label class="f" style="flex-direction:row;align-items:center;gap:6px">Date <select id="shDate" style="width:auto"><option value="0">21 Mar (equinox)</option><option value="1">21 Jun (monsoon solstice)</option><option value="2">21 Dec (winter solstice)</option></select></label></div><div id="shadowOut"></div></div>
     <div class="card"><h3>Units</h3><p class="hint">Click a column heading to sort.</p><div class="tablewrap scroll"><table id="unitTbl"></table></div></div>
   </section>
 
@@ -415,6 +422,8 @@ body.present .stage{height:78vh}
         <dt>Sea share</dt><dd>How much of the reference sea view a window gets; 1.0 means a band of sea at least 5° tall across the view.</dd>
         <dt>Premium sea arc</dt><dd>The compass directions from the plot with a clear sea view at 100 m height.</dd>
         <dt>GDV</dt><dd>Gross development value: the total sales value of all flats at the placeholder rates.</dd>
+        <dt>Inventory risk</dt><dd>Share of sales value sitting in ordinary or compromised flats, which are usually slower to sell.</dd>
+        <dt>Open (&gt; 3 km)</dt><dd>No building blocks the view within the 3 km the rays are traced; beyond the loaded building data the city is not modelled, so read this as “nothing mapped in the way”.</dd>
         <dt>Efficiency</dt><dd>Carpet area divided by the gross floor area of the saleable floors.</dd>
         <dt>Best trade-off</dt><dd>An option no other option beats on every measure at once (also called the Pareto front).</dd>
         <dt>Estimated height</dt><dd>OpenStreetMap had no height or floor count for that building, so it was guessed from its type and calibrated against tagged buildings nearby. Use the height test to see how much it matters.</dd>

@@ -78,4 +78,42 @@ What would most improve the results, in order:
 7. **Active labelling**: ask for labels first on flats within 0.1 of a class threshold.
 
 ## 6. Persona usability testing and A/B tests
-See the section appended after round 2 below.
+Method: 500 role-played personas in 12 segments (buyers, sales, finance, architects, construction,
+designers, data scientists, public, leadership, engineers, planners, marketing), 10 per agent. Each
+reviewed a dossier of real screenshots and measured facts, gave 1–5 ratings and NPS, issues with
+severity and suggestions, and votes on A/B tests. Round 2 re-tested the **same 80 personas** (panels 1–8)
+on the improved version, told their round-1 issues but asked to rate the app as it is.
+
+### Round 1 → round 2 (same 80 personas, paired)
+| Measure | Round 1 | Round 2 | Change |
+|---|---|---|---|
+| Would use (1–5) | 2.51 | 3.08 | +0.57 |
+| Usefulness (1–5) | 2.84 | 3.19 | +0.35 |
+| Ease (1–5) | 2.45 | 3.38 | +0.93 |
+| Trust in results (1–5) | 2.39 | 2.91 | +0.52 |
+| Visual quality (1–5) | 3.21 | 3.69 | +0.48 |
+| NPS (0–10) | 4.51 | 5.70 | +1.19 |
+
+53 % of personas raised "would use", 1 % lowered it. Blocker-level issues fell from 48 to 9. Of 298
+round-1 issues these people had raised, 46 were judged fixed, 136 partly fixed, 116 not fixed.
+Largest gains: financial analysts (would use 2.0 → 3.0, NPS 3.2 → 5.5), construction (2.0 → 2.9),
+developer leadership (2.8 → 3.8), data scientists (trust 2.0 → 3.1). Smallest: engineers (1.8 → 2.0)
+and planners (2.0 → 2.0), who need structural/wind checks and shadow studies.
+
+Remaining blockers after round 2: no cash flow / IRR / NPV (5 finance personas) and no shadow study on
+Shivaji Park (3 planners); both were added after round 2 (a simple quarterly cash flow with IRR, NPV
+and peak funding, and a tower-only shadow study with shade hours on nearby parks). Frequent majors:
+a view cone taken on the landward facade showed 0 % sea next to a "premium" flat (the cone card now says
+whose view it is and offers "View from this flat's living room"); the phone's floating buttons covered
+the export bar and tabs were clipped (fixed); no per-flat sheet for buyers (added: "Flat sheet for a
+buyer"); capped values shown as measurements (now "open (>3 km)"). Not addressed: room-level layouts,
+structural system / wind / core sizing by lift count, IFC export, calibrated prices, absorption by
+class, construction programme.
+
+### A/B tests
+| Test | Result | Decision |
+|---|---|---|
+| 1. Unit split: equal view value (A) vs equal facade length (B), round 1, 500 personas | A 298, B 78, no preference 124 | keep A |
+| 2. View checks: every 4th floor (A) vs every floor (B), round 1 | A 269, B 156 | adaptive: every 4th floor + bisection where classes change (engine test: 30 → 11 wrong of 304 inland flats at 1.1–2.3× time) |
+| 3. Pricing: by class (A) vs continuous in view (B), round 2, 80 personas | B 47, A 6, no preference 27 (buyers 15/16 B; sales split 4–4, they like a clean price ladder) | continuous is the default; "By class" stays selectable |
+| 4. Premium label: lenient round-1 rules (A) vs calibrated (B), round 2 | B 68, A 4, no preference 8 (sales 4 of 8 prefer A) | calibrated is the default |

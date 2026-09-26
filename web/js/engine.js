@@ -389,6 +389,7 @@ function checkCandidate(sp, env, C, arc) {
   const slender = sp.n * sp.ftf / minWidth(ev.plates[tower[0]]), rep = Math.max(...Object.values(sig)) / tower.length;
   Object.assign(ev.metrics, { height: sp.n * sp.ftf, floors: sp.n, fsiUsed, fsiUtil: fsiUsed / C.fsi, coreRatio: rHi, depth, minDepth, span, overhang: worstCant, slender, rep,
     structural: 0.4 * span / R.span + 0.3 * (1 - rep) + 0.3 * Math.min(slender / 12, 1.5), constructability: rep * Math.max(0, 1 - worstCant / R.cant) });
+  ev.checks["GR-SLEND-01"] = [slender <= 8, slender <= 8 ? `slenderness 1:${f2(slender, 1)} ≤ 1:8 (advisory)` : `slenderness 1:${f2(slender, 1)} above 1:8: wind tunnel study and damping likely (advisory, does not reject)`];
   if (slender > 12) ev.explain.push(`Slenderness 1:${f2(slender, 1)} is above 1:12 (GR-SLEND-01): expect wind engineering and damping.`); else if (slender > 8) ev.explain.push(`Slenderness 1:${f2(slender, 1)} is above 1:8 (GR-SLEND-01): wind review advisable.`);
   if (minDepth < 6) ev.explain.push(`Shallowest room zone ${f2(minDepth, 1)} m is under 6 m (GR-DEPTH-02).`);
   ev.feasible = !ev.viol.length; return ev;
