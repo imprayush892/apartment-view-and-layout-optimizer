@@ -48,8 +48,12 @@ const ROAD_W = { motorway: 14, trunk: 14, primary: 12, secondary: 10, tertiary: 
 /* ---------- parse: compact bundled snapshot (web/data/*.json) */
 function fromCompact(d, anchor, opts = {}) {
   const off = toLocal(d.anchor[0], d.anchor[1], anchor), P = a => { const r = []; for (let i = 0; i < a.length; i += 2) r.push([a[i] + off[0], a[i + 1] + off[1]]); return r; };
-  const ctx = emptyCtx(d.source + " · fetched " + d.fetched);
+  const ctx = emptyCtx(d.source + " · fetched " + d.fetched); ctx.name = d.name || null; ctx.profile = d.profile || "coastal";
   d.buildings.forEach((b, i) => { const ring = P(b.slice(3)); if (ring.length < 3) return; const known = b[1] > 0; const h = known ? b[0] : (opts.defaultH ?? TYPE_H[b[2]] ?? 12); if (h <= 0) return; ctx.buildings.push({ id: "osm-" + i, ring, height: h, base: 0, scenario: "existing", habitable: true, hsrc: known ? (b[1] === 2 ? "osm height" : "osm levels") : "estimated", type: b[2] }); });
+  // building parts (setbacks, podiums): own base height; parts without a height are skipped
+  (d.parts || []).forEach((b, i) => { if (!(b[0] > 0)) return; const ring = P(b.slice(3)); if (ring.length < 3) return; ctx.buildings.push({ id: "osm-part-" + i, ring, height: Math.max(1, b[0] - b[1]), base: b[1], scenario: "existing", habitable: true, hsrc: b[2] === 2 ? "osm height" : "osm levels", type: "part" }); });
+  // named towers (>= 150 m) become landmarks: a visible tip adds to the view
+  ctx.landmarks = (d.landmarks || []).map(([name, x, y, z]) => ({ id: name, name, x: x + off[0], y: y + off[1], z, weight: 0.35 }));
   ctx.roads = d.roads.map(r => ({ w: r[0], line: P(r.slice(1)) }));
   ctx.parks = d.parks.map(P); ctx.water = d.water.map(P); ctx.beach = d.beach.map(P); ctx.coast = d.coast.map(P);
   return calibrateHeights(ctx, opts);
@@ -178,6 +182,30 @@ function floodSea(S, coast) {
   if (!sea) S.warnings.push("No sea found from the coastline data in this area.");
 }
 
+/* Buildable envelope = plot minus a strip of the given depth along each side. Corner discs are only needed at
+   reflex (inward) corners; at convex corners the two strips already cover it. The ring is cleaned first
+   (repeated / collinear vertices, mm rounding) because polygon-clipping is fragile on degenerate input. */
+function cleanRing(r, sb) {
+  let pts = r.map(([x, y], i) => ({ p: [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000], s: sb ? sb[i] : 0 }));
+  let changed = true;
+  while (changed && pts.length > 3) { changed = false;
+    for (let i = 0; i < pts.length && pts.length > 3; i++) { const a = pts[(i - 1 + pts.length) % pts.length].p, b = pts[i].p, c = pts[(i + 1) % pts.length].p;
+      const dup = Math.hypot(b[0] - a[0], b[1] - a[1]) < 0.01, col = Math.abs((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])) < 1e-6 * Math.max(1, Math.hypot(c[0] - a[0], c[1] - a[1])) ** 2;
+      if (dup || col) { pts.splice(i, 1); changed = true; i--; } } }
+  return { ring: pts.map(q => q.p), sb: pts.map(q => q.s) };
+}
+function envelopeFromSetbacks(b0, sb0, PC) {
+  const { ring: b, sb } = cleanRing(b0, sb0), n = b.length, isC = G.VT.signedArea(b) >= 0, cut = [];
+  for (let i = 0; i < n; i++) { const s = +sb[i] || 0; if (s <= 0) continue; const a = b[i], q = b[(i + 1) % n], dx = q[0] - a[0], dy = q[1] - a[1], L = Math.hypot(dx, dy); let nx = -dy / L, ny = dx / L; if (!isC) { nx = -nx; ny = -ny; } cut.push([[a, q, [q[0] + nx * s, q[1] + ny * s], [a[0] + nx * s, a[1] + ny * s]]]); }
+  for (let i = 0; i < n; i++) {
+    const p = b[(i - 1 + n) % n], v = b[i], q = b[(i + 1) % n], cr = (v[0] - p[0]) * (q[1] - v[1]) - (v[1] - p[1]) * (q[0] - v[0]), reflex = isC ? cr < 0 : cr > 0;
+    const s = Math.max(+sb[(i - 1 + n) % n] || 0, +sb[i] || 0); if (!reflex || s <= 0) continue;
+    const d = []; for (let k = 0; k < 24; k++) { const t = 2 * Math.PI * (k + 0.5) / 24; d.push([v[0] + s * Math.cos(t), v[1] + s * Math.sin(t)]); } cut.push([d]);
+  }
+  if (!cut.length) return b.slice(); const env = PC.difference([b], ...cut); if (!env.length) return [];
+  let best = null, ba = -1; for (const p of env) { const a = ringArea(p[0]); if (a > ba) { ba = a; best = p[0]; } } return best.slice(0, -1);
+}
+
 /* ---------- synthetic test site (port of src/viewtower/synthetic.py) */
 function syntheticContext() {
   const { box, polysIntersect, polyDistance } = G.VT;
@@ -193,5 +221,7 @@ function syntheticContext() {
   return { ctx: { source: "Synthetic test context (fictitious)", buildings: specials.concat(fabric), roads, parks: [PARK], water: [SEA], beach: [], coast: [], landmarks: [{ id: "LM-BRIDGE-PYLON", x: -1400, y: 1800, z: 126, weight: 0.5 }] }, boundary: BOUNDARY, setbacks: [9, 6, 6, 9], anchor: null };
 }
 
-G.GEO = { toLocal, toLatLon, utmToLatLon, utmZoneOf, heightFor, fromCompact, fromOverpass, fromGeoJSON, fetchOverpass, overpassQuery, geocode, buildScene, calibrateHeights, syntheticContext, TYPE_H };
+/* rule presets by context: dense cities (NYC, London) accept closer outlooks than a Mumbai seafront */
+const PROFILES = { coastal: { d_min: 100, alpha_max: 10 }, dense: { d_min: 35, alpha_max: 20, h_near: 150 } };
+G.GEO = { PROFILES, toLocal, toLatLon, utmToLatLon, utmZoneOf, heightFor, fromCompact, fromOverpass, fromGeoJSON, fetchOverpass, overpassQuery, geocode, buildScene, calibrateHeights, envelopeFromSetbacks, cleanRing, syntheticContext, TYPE_H };
 })(typeof self !== "undefined" ? self : this);

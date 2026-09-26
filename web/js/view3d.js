@@ -84,33 +84,45 @@ function updateSite(site) { if (!T || !T.ctx) return; T.site = site; setGroup("g
 function shapeOf(ring, holes) { const s = new THREE.Shape(ring.map(([x, y]) => new THREE.Vector2(x - T.ctr[0], y - T.ctr[1]))); for (const h of holes || []) s.holes.push(new THREE.Path(h.map(([x, y]) => new THREE.Vector2(x - T.ctr[0], y - T.ctr[1])))); return s; }
 function extrude(shape, h, z, mat) { const g = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); g.translate(0, z, 0); return new THREE.Mesh(g, mat); }
 function showGhost(sp, plates, label) {
+  const list = Array.isArray(sp) ? sp : [{ sp, plates }]; // one tower or a list of {sp, plates}
   const g = new THREE.Group(), mat = new THREE.MeshLambertMaterial({ color: COL.ghost, transparent: true, opacity: 0.35, depthWrite: false }), edge = new THREE.LineBasicMaterial({ color: 0x0d5e78, transparent: true, opacity: 0.55 });
-  const n = sp.n, step = n > 60 ? 2 : 1;
-  for (let l = 0; l < n; l += step) { const p = plates[l]; if (!p) continue; const m = extrude(shapeOf(ccw(p)), sp.ftf * step - 0.25, l * sp.ftf, mat); g.add(m); if (l % (4 * step) === 0) { const e = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ccw(p).map(([x, y]) => W3(x, y, l * sp.ftf + 0.05))), edge); g.add(e); } }
+  for (const { sp, plates } of list) { const n = sp.n, step = n > 60 ? 2 : 1;
+  for (let l = 0; l < n; l += step) { const p = plates[l]; if (!p) continue; const m = extrude(shapeOf(ccw(p)), sp.ftf * step - 0.25, l * sp.ftf, mat); g.add(m); if (l % (4 * step) === 0) { const e = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ccw(p).map(([x, y]) => W3(x, y, l * sp.ftf + 0.05))), edge); g.add(e); } } }
   setGroup("ghost", g); T.ghostLabel = label;
 }
 function clearGhost() { setGroup("ghost", null); }
 function showDesign(ev, opts = {}) {
   clearGhost(); clearCone();
-  const g = new THREE.Group(), sp = ev.sp; T.designMeshes = []; T.design = ev;
+  const g = new THREE.Group(); T.designMeshes = []; T.design = ev;
   const mats = {}; const mat = c => mats[c] || (mats[c] = new THREE.MeshLambertMaterial({ color: c }));
   const slabMat = new THREE.MeshLambertMaterial({ color: 0xf2f2ef });
-  for (let l = 0; l < sp.n; l++) {
+  (ev.towers || [ev]).forEach((tw, ti) => { const sp = tw.sp, evT = tw;
+  for (let l = 0; l < sp.n; l++) { const ev = evT;
     const z = l * sp.ftf, us = ev.units.filter(u => u.level === l), plate = ev.plates[l];
     g.add(extrude(shapeOf(ccw(plate)), 0.3, z, slabMat));
-    if (!us.length) { const m = extrude(shapeOf(ccw(plate)), sp.ftf - 0.3, z + 0.3, mat(COL.podium)); m.userData = { level: l, podium: true }; g.add(m); T.designMeshes.push(m); continue; }
+    if (!us.length) { const m = extrude(shapeOf(ccw(plate)), sp.ftf - 0.3, z + 0.3, mat(COL.podium)); m.userData = { level: l, podium: true, tower: ti }; g.add(m); T.designMeshes.push(m); continue; }
     const src = us[0].evaluated ? l : us[0].inheritFrom;
     if (src !== l && (sp.typology === "terraced" || sp.typology === "tapered" || sp.typology === "twisted")) {
-      const m = extrude(shapeOf(ccw(plate), [ccw(ev.cores[l])]), sp.ftf - 0.3, z + 0.3, mat(COL[us[0].cls])); m.userData = { level: l }; g.add(m); T.designMeshes.push(m);
+      const m = extrude(shapeOf(ccw(plate), [ccw(ev.cores[l])]), sp.ftf - 0.3, z + 0.3, mat(COL[us[0].cls])); m.userData = { level: l, tower: ti }; g.add(m); T.designMeshes.push(m);
     } else for (const u of us) {
       const srcU = src === l ? u : ev.units.find(x => x.level === src && x.id.split("-U")[1] === u.id.split("-U")[1]);
-      for (const poly of srcU.mp) { const m = extrude(shapeOf(ccw(poly[0]), poly.slice(1).map(ccw)), sp.ftf - 0.3, z + 0.3, mat(COL[u.cls])); m.userData = { level: l, unit: u.id }; g.add(m); T.designMeshes.push(m); }
+      for (const poly of srcU.mp) { const m = extrude(shapeOf(ccw(poly[0]), poly.slice(1).map(ccw)), sp.ftf - 0.3, z + 0.3, mat(COL[u.cls])); m.userData = { level: l, unit: u.id, tower: ti }; g.add(m); T.designMeshes.push(m); }
     }
     g.add(extrude(shapeOf(ccw(ev.cores[l])), sp.ftf, z, mat(COL.core)));
-  }
+  } });
   setGroup("design", g);
-  if (opts.frame) frameTower(sp.n * sp.ftf);
+  if (opts.frame) frameTower(Math.max(...(ev.towers || [ev]).map(t => t.sp.n * t.sp.ftf)));
 }
+/* Neutral massing for image-only review: glass floors with slab lines, no class colours or numbers. */
+function showMassing(towers, opts = {}) {
+  clearGhost(); clearCone(); T.designMeshes = [];
+  const g = new THREE.Group(), glass = new THREE.MeshLambertMaterial({ color: opts.color || 0xdfe8ec }), pod = new THREE.MeshLambertMaterial({ color: 0xc9cdca }), slab = new THREE.MeshLambertMaterial({ color: 0x8d9a9e });
+  for (const t of towers) for (let l = 0; l < t.sp.n; l++) { const p = t.plates[l]; if (!p) continue; const z = l * t.sp.ftf, s = shapeOf(ccw(p));
+    g.add(extrude(s, t.sp.ftf - 0.45, z + 0.45, l < t.sp.podium ? pod : glass)); g.add(extrude(s, 0.45, z, slab)); }
+  setGroup("design", g); T.design = null;
+}
+/* Camera at a site azimuth (degrees, the side the camera stands on), distance and elevation, looking at height tz. */
+function camAt(az, dist, elev, tz) { if (!T) return; const a = az * D2R, e = elev * D2R; T.controls.target.set(0, tz, 0); T.camera.position.set(Math.sin(a) * Math.cos(e) * dist, tz + Math.sin(e) * dist, -Math.cos(a) * Math.cos(e) * dist); T.camera.lookAt(0, tz, 0); T.controls.update(); T.dirty = true; }
 function clearDesign() { setGroup("design", null); T && (T.designMeshes = []); }
 
 /* ---------- picking + view cones */
@@ -127,8 +139,8 @@ function pick(e) {
   const r = T.renderer.domElement.getBoundingClientRect(), m = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
   T.raycaster.setFromCamera(m, T.camera); const hits = T.raycaster.intersectObjects(T.designMeshes, false); if (!hits.length) return null;
   const h = hits[0], n = h.face.normal.clone().transformDirection(h.object.matrixWorld), x = h.point.x + T.ctr[0], y = -h.point.z + T.ctr[1];
-  const level = h.object.userData.level, horizontal = Math.abs(n.y) < 0.5;
-  return { level, x, y, az: horizontal ? mod(Math.atan2(n.x, -n.z) / D2R, 360) : null };
+  const level = h.object.userData.level, tower = h.object.userData.tower || 0, horizontal = Math.abs(n.y) < 0.5;
+  return { level, tower, x, y, az: horizontal ? mod(Math.atan2(n.x, -n.z) / D2R, 360) : null };
 }
 /* Snap a plan point to the nearest facade sample of a plate: returns observer point + outward normal. */
 function snapToFacade(plate, x, y) { const pp = perimeterPoints(plate, 0.5); let bi = 0, bd = Infinity; pp.pts.forEach((p, i) => { const d = Math.hypot(p[0] - x, p[1] - y); if (d < bd) { bd = d; bi = i; } }); return { x: pp.pts[bi][0], y: pp.pts[bi][1], az: pp.normals[bi] }; }
@@ -206,5 +218,5 @@ function snapshot(w = 1200) {
   c.width = w; c.height = Math.round(w * src.height / src.width); c.getContext("2d").drawImage(src, 0, 0, c.width, c.height); return c.toDataURL("image/png");
 }
 
-G.V3D = { init, setSeaAz, frameTower, setContext, updateSite, showGhost, clearGhost, showDesign, clearDesign, showCone, clearCone, snapToFacade, resetView, topView, jumpIn, exitJump, on, setYaw, setKey, turn, snapshot, COL, get state() { return T; } };
+G.V3D = { init, setSeaAz, frameTower, setContext, updateSite, showGhost, clearGhost, showDesign, clearDesign, showCone, clearCone, snapToFacade, resetView, topView, jumpIn, exitJump, on, showMassing, camAt, setYaw, setKey, turn, snapshot, COL, get state() { return T; } };
 })(window);

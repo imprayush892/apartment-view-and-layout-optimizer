@@ -49,7 +49,7 @@ function clipConvex(subject, clip) {
 function sampleDistances(res, P) { const d = [P.minD]; while (d[d.length - 1] < P.maxD) { const v = d[d.length - 1]; d.push(v + Math.max(res / 2, P.growth * v)); } return Float64Array.from(d); }
 function castRay(S, ox, oy, oz, az, D, P, own, out, trace) {
   const th = az * D2R, s = Math.sin(th), c = Math.cos(th), res = S.res, nx = S.nx, ny = S.ny;
-  let prevMax = -90, water = 0, green = 0, pendW = false, pendG = false, pendE = 0, found = false, dObs = P.maxD, obsH = 0, obsHab = false, firstSea = -1, lastSea = -1;
+  let prevMax = -90, water = 0, green = 0, skyline = 0, pendW = false, pendG = false, pendE = 0, found = false, dObs = P.maxD, obsH = 0, obsHab = false, firstSea = -1, lastSea = -1;
   for (let k = 0; k < D.length; k++) {
     const d = D[k]; if (d > P.maxD) break;
     const x = ox + s * d, y = oy + c * d, j = Math.floor((x - S.x0) / res), i = Math.floor((y - S.y0) / res);
@@ -61,6 +61,8 @@ function castRay(S, ox, oy, oz, az, D, P, own, out, trace) {
     // credit only the visible surface between the previous sample and this one (not a wall behind it)
     if (pendW || pendG) { const eg = Math.atan2(-oz, d) * R2D, inc = Math.max(0, Math.min(eg, e) - pendE); if (pendW) water += inc; if (pendG) green += inc; }
     const vis = e >= prevMax - 1e-9; pendW = !!w && vis; pendG = !!g && vis; pendE = e;
+    // skyline: the visible face of a distant tall building (the city itself as a view)
+    if (h >= P.skyMinH && d >= P.skyMinD && e > prevMax) skyline += e - Math.max(prevMax, Math.atan2(-oz, d) * R2D);
     if (trace && w && vis) { if (firstSea < 0) firstSea = d; lastSea = d; }
     if (e > prevMax) prevMax = e;
     if (!found && h > oz) { found = true; dObs = d; obsH = h; obsHab = !!hab; }
@@ -69,6 +71,7 @@ function castRay(S, ox, oy, oz, az, D, P, own, out, trace) {
   out.horizon = horizon; out.dObs = dObs; out.obsH = obsH; out.hab = obsHab;
   out.sky = 1 - Math.sin(horizon * D2R);
   out.water = Math.min(1, water / P.waterRef); out.green = Math.min(1, green / P.waterRef);
+  out.skyline = Math.min(1, skyline / P.skyRef); out.prize = Math.max(out.water, P.skyW * out.skyline); // prize view = sea or skyline
   out.dist = Math.log1p(dObs / P.distRef) / Math.log1p(P.maxD / P.distRef);
   out.priv = obsHab && dObs < P.privD ? 1 - dObs / P.privD : 0;
   if (trace) { out.firstSea = firstSea; out.lastSea = lastSea; }
@@ -86,39 +89,39 @@ function landmarkInfo(S, ox, oy, oz, P) {
 }
 function lmTerm(info, az, half) { let s = 0; for (const l of info) { const diff = Math.abs(mod(az - l.th + 180, 360) - 180); if (l.vis && diff <= half) s += l.w; } return Math.min(s, 1); }
 function corridorTerm(az, dObs, corridors) { let m = 0; for (const c of corridors || []) { const a0 = mod(c.from, 360), a1 = mod(c.to, 360); const ins = a0 <= a1 ? (az >= a0 && az <= a1) : (az >= a0 || az <= a1); if (ins && dObs >= (c.minD ?? 100)) m = Math.max(m, c.weight ?? 1); } return m; }
-function quality(r, lm, corr, W) { const q = W.water * r.water + W.dist * r.dist + W.sky * r.sky + W.green * r.green + W.lm * lm + W.corr * corr - W.priv * r.priv; return q < 0 ? 0 : q > 1 ? 1 : q; }
+function quality(r, lm, corr, W) { const q = W.water * (r.prize ?? r.water) + W.dist * r.dist + W.sky * r.sky + W.green * r.green + W.lm * lm + W.corr * corr - W.priv * r.priv; return q < 0 ? 0 : q > 1 ? 1 : q; }
 function normWeights(w) { const t = w.water + w.dist + w.sky + w.green + w.lm + w.corr || 1; return { water: w.water / t, dist: w.dist / t, sky: w.sky / t, green: w.green / t, lm: w.lm / t, corr: w.corr / t, priv: w.priv }; }
 function viewSettings(opts = {}) {
-  const P = { minD: 1, maxD: opts.maxD || 3000, growth: 0.005, waterRef: 5.0, distRef: 50, privD: 30, lmHalf: 3 };
+  const P = { minD: 1, maxD: opts.maxD || 3000, growth: 0.005, waterRef: 5.0, distRef: 50, privD: 30, lmHalf: 3, skyMinH: 60, skyMinD: 150, skyRef: 5.0, skyW: 0.9 };
   return { P, D: sampleDistances(opts.res || 4, P), W: normWeights({ water: .45, dist: .2, sky: .15, green: .1, lm: .1, corr: 0, priv: .3 }), fov: 75, azStep: 2, spacing: 2, corridors: opts.corridors || [], lmOn: !!opts.lmOn };
 }
 function evalApertures(S, obs, normals, own, V) {
   const offs = []; for (let o = -V.fov; o <= V.fov + 1e-9; o += V.azStep) offs.push(o);
   const cw = offs.map(o => Math.cos(o * D2R)), wsum = cw.reduce((a, b) => a + b, 0), W = V.W, tmp = {};
-  const N = obs.length, R = { quality: new Float64Array(N), water: new Float64Array(N), sky: new Float64Array(N), privacy: new Float64Array(N), dMed: new Float64Array(N), hMed: new Float64Array(N) };
+  const N = obs.length, R = { quality: new Float64Array(N), water: new Float64Array(N), skyline: new Float64Array(N), prize: new Float64Array(N), sky: new Float64Array(N), privacy: new Float64Array(N), dMed: new Float64Array(N), hMed: new Float64Array(N) };
   const dA = new Float64Array(offs.length), hA = new Float64Array(offs.length);
   for (let n = 0; n < N; n++) {
     const [ox, oy, oz] = obs[n], li = V.lmOn ? landmarkInfo(S, ox, oy, oz, V.P) : [];
-    let q = 0, w = 0, sk = 0, pr = 0;
+    let q = 0, w = 0, sk = 0, pr = 0, sl = 0, pz = 0;
     for (let a = 0; a < offs.length; a++) {
       const az = mod(normals[n] + offs[a], 360); castRay(S, ox, oy, oz, az, V.D, V.P, own, tmp);
       const lm = li.length ? lmTerm(li, az, V.P.lmHalf) : 0, cr = corridorTerm(az, tmp.dObs, V.corridors);
-      q += cw[a] * quality(tmp, lm, cr, W); w += cw[a] * tmp.water; sk += cw[a] * tmp.sky; pr += cw[a] * tmp.priv; dA[a] = tmp.dObs; hA[a] = tmp.horizon;
+      q += cw[a] * quality(tmp, lm, cr, W); w += cw[a] * tmp.water; sl += cw[a] * tmp.skyline; pz += cw[a] * tmp.prize; sk += cw[a] * tmp.sky; pr += cw[a] * tmp.priv; dA[a] = tmp.dObs; hA[a] = tmp.horizon;
     }
-    R.quality[n] = q / wsum; R.water[n] = w / wsum; R.sky[n] = sk / wsum; R.privacy[n] = pr / wsum; R.dMed[n] = percentile(dA, 25); R.hMed[n] = percentile(hA, 75); // near-side obstruction (p25 distance, p75 horizon)
+    R.quality[n] = q / wsum; R.water[n] = w / wsum; R.skyline[n] = sl / wsum; R.prize[n] = pz / wsum; R.sky[n] = sk / wsum; R.privacy[n] = pr / wsum; R.dMed[n] = percentile(dA, 25); R.hMed[n] = percentile(hA, 75); // near-side obstruction (p25 distance, p75 horizon)
   }
   return R;
 }
 /* One facade point, full detail for the 3D view cone: per-azimuth rays over the window's field of view. */
 function viewCone(S, x, y, z, normal, own, V, halfAngle = 90, step = 2) {
-  const rays = [], tmp = {}; let q = 0, w = 0, ws = 0; const li = V.lmOn ? landmarkInfo(S, x, y, z, V.P) : [];
+  const rays = [], tmp = {}; let q = 0, w = 0, ws = 0, sk = 0, pz = 0; const li = V.lmOn ? landmarkInfo(S, x, y, z, V.P) : [];
   for (let o = -halfAngle; o <= halfAngle + 1e-9; o += step) {
     const az = mod(normal + o, 360); castRay(S, x, y, z, az, V.D, V.P, own, tmp, true);
     const lm = li.length ? lmTerm(li, az, V.P.lmHalf) : 0, qq = quality(tmp, lm, corridorTerm(az, tmp.dObs, V.corridors), V.W), cw = Math.max(0, Math.cos(o * D2R));
-    rays.push({ az, off: o, q: qq, water: tmp.water, dObs: tmp.dObs, obsH: tmp.obsH, horizon: tmp.horizon, hab: tmp.hab, firstSea: tmp.firstSea, lastSea: tmp.lastSea });
-    q += cw * qq; w += cw * tmp.water; ws += cw;
+    rays.push({ az, off: o, q: qq, water: tmp.water, skyline: tmp.skyline, prize: tmp.prize, dObs: tmp.dObs, obsH: tmp.obsH, horizon: tmp.horizon, hab: tmp.hab, firstSea: tmp.firstSea, lastSea: tmp.lastSea });
+    q += cw * qq; w += cw * tmp.water; sk += cw * tmp.skyline; pz += cw * tmp.prize; ws += cw;
   }
-  return { rays, quality: q / ws, water: w / ws };
+  return { rays, quality: q / ws, water: w / ws, skyline: sk / ws, prize: pz / ws };
 }
 function premiumArc(vals, az, thr) {
   const ok = vals.map(v => v >= thr), n = ok.length; if (!ok.some(Boolean)) return null; if (ok.every(Boolean)) return [0, 360];
@@ -133,14 +136,14 @@ function siteViewField(S, env, V, heights, spacing) {
   const az = []; for (let a = 0; a < 360; a += V.azStep) az.push(a);
   const rose = {}, tmp = {};
   for (const z of heights) {
-    const acc = { quality: new Float64Array(az.length), water: new Float64Array(az.length), sky: new Float64Array(az.length), horizon: new Float64Array(az.length) };
-    for (const [x, y] of pts) { const li = V.lmOn ? landmarkInfo(S, x, y, z + 1.5, V.P) : []; for (let a = 0; a < az.length; a++) { castRay(S, x, y, z + 1.5, az[a], V.D, V.P, null, tmp); const lm = li.length ? lmTerm(li, az[a], V.P.lmHalf) : 0; acc.quality[a] += quality(tmp, lm, corridorTerm(az[a], tmp.dObs, V.corridors), V.W); acc.water[a] += tmp.water; acc.sky[a] += tmp.sky; acc.horizon[a] += tmp.horizon; } }
+    const acc = { quality: new Float64Array(az.length), water: new Float64Array(az.length), skyline: new Float64Array(az.length), prize: new Float64Array(az.length), sky: new Float64Array(az.length), horizon: new Float64Array(az.length) };
+    for (const [x, y] of pts) { const li = V.lmOn ? landmarkInfo(S, x, y, z + 1.5, V.P) : []; for (let a = 0; a < az.length; a++) { castRay(S, x, y, z + 1.5, az[a], V.D, V.P, null, tmp); const lm = li.length ? lmTerm(li, az[a], V.P.lmHalf) : 0; acc.quality[a] += quality(tmp, lm, corridorTerm(az[a], tmp.dObs, V.corridors), V.W); acc.water[a] += tmp.water; acc.skyline[a] += tmp.skyline; acc.prize[a] += tmp.prize; acc.sky[a] += tmp.sky; acc.horizon[a] += tmp.horizon; } }
     for (const k in acc) for (let a = 0; a < az.length; a++) acc[k][a] /= pts.length;
     rose[z] = acc;
   }
-  const top = Math.max(...heights), arc = premiumArc(Array.from(rose[top].water), az, 0.5);
+  const top = Math.max(...heights), arc = premiumArc(Array.from(rose[top].prize), az, 0.5);
   let opening = null;
-  if (arc) { const sel = az.map(a => arc[0] <= arc[1] ? (a >= arc[0] && a <= arc[1]) : (a >= arc[0] || a <= arc[1])); for (const z of heights.slice().sort((a, b) => a - b)) { const v = mean(Array.from(rose[z].water).filter((_, i) => sel[i])); if (v >= 0.5) { opening = z; break; } } }
+  if (arc) { const sel = az.map(a => arc[0] <= arc[1] ? (a >= arc[0] && a <= arc[1]) : (a >= arc[0] || a <= arc[1])); for (const z of heights.slice().sort((a, b) => a - b)) { const v = mean(Array.from(rose[z].prize).filter((_, i) => sel[i])); if (v >= 0.5) { opening = z; break; } } }
   return { heights, az, rose, arc, opening, pts };
 }
 
@@ -182,8 +185,36 @@ function baseShape(t, w, d, p) {
 }
 const place = (r, sp) => tr(rot(r, -sp.rotation), sp.position[0], sp.position[1]);
 function clipHalf(poly, ux, uy, cut) { const out = [], n = poly.length, f = p => p[0] * ux + p[1] * uy - cut; for (let i = 0; i < n; i++) { const P = poly[i], Q = poly[(i + 1) % n], fp = f(P), fq = f(Q); if (fp <= 0) out.push(P); if ((fp < 0 && fq > 0) || (fp > 0 && fq < 0)) { const t = fp / (fp - fq); out.push([P[0] + t * (Q[0] - P[0]), P[1] + t * (Q[1] - P[1])]); } } return out; }
+/* ------------------------------------------------------------------ token typologies
+   A "token" tower is a base shape plus per-floor tokens (see docs/spec/13):
+     twist  {rate °/floor, mode linear|band|ease, band floors}
+     taper  {top scale at the top, mode linear|frustum|bulge, period floors}
+     shift  {amp m, mode stagger|lean|wave|pixel, period floors, dir site azimuth °}
+     terrace{every floors, step m, dir site azimuth °, max m}
+     cut    {every floors, size m} — corner cut-outs (double-height gardens), rotating corner by band
+   The core stays on the tower axis; overhang and core-fit rules then bound the moves. */
+const hash01 = (a, b) => { let h = Math.imul(a * 73856093 ^ b * 19349663, 0x9E3779B1) >>> 0; h ^= h >>> 15; return (h >>> 0) / 4294967296; };
+function tokenPlate(sp, level) {
+  const p = sp.p, first = sp.podium, n = Math.max(sp.n, first + 2), k = Math.max(level - first, 0), t = level >= first ? k / Math.max(1, n - 1 - first) : 0;
+  let poly = baseShape(p.base || "square", sp.width, sp.depth, p);
+  const tp = p.taper; if (tp && level >= first) { const A = (tp.top ?? 1) - 1; let sc = 1;
+    if (tp.mode === "frustum") { const P = Math.max(2, tp.period || 10), ph = (k % (2 * P)) / P; sc = 1 + A * (ph <= 1 ? ph : 2 - ph); } else if (tp.mode === "bulge") sc = 1 + A * Math.sin(Math.PI * t); else sc = 1 + A * t;
+    poly = scl(poly, Math.max(0.35, sc)); }
+  const cu = p.cut; if (cu && level >= first && cu.every > 0 && k % cu.every < 2) { const b = bounds(poly), cx = [b[0], b[2]], cy = [b[1], b[3]], c = Math.floor(k / cu.every) % 4, sx = c % 2 ? 1 : -1, sy = c < 2 ? 1 : -1, s0 = cu.size || 5;
+    poly = clipHalf(poly, sx / Math.SQRT2, sy / Math.SQRT2, (sx * (sx > 0 ? cx[1] : cx[0]) + sy * (sy > 0 ? cy[1] : cy[0])) / Math.SQRT2 - s0); }
+  const te = p.terrace; if (te && level >= first) { const every = Math.max(1, Math.round(te.every || 6)), side = ((te.dir ?? 0) - (sp.rotation || 0)) * D2R, ux = Math.sin(side), uy = Math.cos(side), proj = poly.map(q => q[0] * ux + q[1] * uy), lo = Math.min(...proj), hi = Math.max(...proj);
+    const retreat = Math.min((te.step ?? 3) * Math.floor(k / every), te.max ?? 0.35 * (hi - lo)); if (retreat > 0) poly = clipHalf(poly, ux, uy, Math.max(hi - retreat, lo + 12)); }
+  const tw = p.twist; if (tw && level >= first) { let ang = 0; const r = tw.rate || 0;
+    if (tw.mode === "band") { const B = Math.max(2, tw.band || 6); ang = r * B * Math.floor(k / B); } else if (tw.mode === "ease") { const T = r * (n - 1 - first); ang = T * (3 * t * t - 2 * t * t * t); } else ang = r * k;
+    poly = rot(poly, -ang); }
+  const sh = p.shift; if (sh && level >= first && sh.amp) { const P = Math.max(1, sh.period || 2), dir = ((sh.dir ?? 0) - (sp.rotation || 0)) * D2R, ux = Math.sin(dir), uy = Math.cos(dir); let a = 0;
+    if (sh.mode === "lean") a = sh.amp * t; else if (sh.mode === "wave") a = sh.amp * Math.sin(2 * Math.PI * k / Math.max(4, P)); else if (sh.mode === "pixel") { const band = Math.floor(k / P); a = sh.amp * (2 * hash01(band, 7) - 1); poly = tr(poly, sh.amp * (2 * hash01(band, 11) - 1) * uy, -sh.amp * (2 * hash01(band, 11) - 1) * ux); } else a = sh.amp * (Math.floor(k / P) % 2 ? 1 : -1) / 2;
+    poly = tr(poly, a * ux, a * uy); }
+  return poly;
+}
 function localPlate(sp, level) {
   const p = sp.p;
+  if (sp.typology === "token") return tokenPlate(sp, level);
   if (sp.typology === "podium_tower" && level < sp.podium) return rect(p.podium_w ?? sp.width * 1.6, p.podium_d ?? sp.depth * 1.6);
   const base = MODIFIERS.includes(sp.typology) ? (p.base || "square") : sp.typology;
   let poly = baseShape(base, sp.width, sp.depth, p);
@@ -199,11 +230,12 @@ function localPlate(sp, level) {
 }
 const plateAt = (sp, level) => place(localPlate(sp, level), sp);
 function coreAt(sp, level, area, offM, offDir) {
-  const base = MODIFIERS.includes(sp.typology) ? sp.p.base : sp.typology; let loc;
+  const base = MODIFIERS.includes(sp.typology) || sp.typology === "token" ? (sp.p.base || "square") : sp.typology; let loc;
   if (base === "y_shaped" || base === "t_shaped") { const r = Math.sqrt(2 * area / (3 * Math.sqrt(3))); loc = []; for (let k = 0; k < 6; k++) { const a = (90 + 60 * k) * D2R; loc.push([r * Math.cos(a), r * Math.sin(a)]); } }
   else if (base === "cross" || base === "diamond") { const s = Math.sqrt(area); loc = rot(rect(s, s), 45); }
   else { const elong = ["rectangular", "slender", "rotated", "chamfered", "curved"].includes(base); const aspect = elong ? Math.min(Math.max(sp.width / sp.depth, 0.5), 2) : 1; const cw = Math.sqrt(area * aspect); loc = rect(cw, area / cw); }
   if (sp.typology === "twisted") loc = rot(loc, -(sp.p.twist_per_floor_deg ?? 1.2) * Math.max(level - sp.podium, 0));
+  if (sp.typology === "token" && sp.p.twist && sp.p.twist.mode === "linear") loc = rot(loc, -(sp.p.twist.rate || 0) * Math.max(level - sp.podium, 0)); // a twisting plate turns its core with it (Cayan); banded/eased twists keep a straight core
   let placed = place(loc, sp);
   if (offM && offDir != null) placed = tr(placed, offM * Math.sin(offDir * D2R), offM * Math.cos(offDir * D2R));
   return placed;
@@ -283,7 +315,7 @@ const unitFrontage = (prog, spacing) => spacing * (roomSamples(prog.living, spac
 function assignRooms(idx, spacing, ap, prog, pts) {
   const free = new Array(idx.length).fill(true), rooms = [], viol = [];
   const wanted = [["living", prog.living]]; for (let i = 0; i < prog.bedrooms; i++) wanted.push([`bed${i + 1}`, prog.bed]);
-  const mk = (name, sel) => ({ room: name, frontage: sel.length * spacing, q: mean(sel.map(i => ap.quality[i])), water: mean(sel.map(i => ap.water[i])), sky: mean(sel.map(i => ap.sky[i])), privacy: Math.max(...sel.map(i => ap.privacy[i])), dMed: median(sel.map(i => ap.dMed[i])), hMed: median(sel.map(i => ap.hMed[i])), pts: sel.map(i => pts[i]) });
+  const mk = (name, sel) => ({ room: name, frontage: sel.length * spacing, q: mean(sel.map(i => ap.quality[i])), water: mean(sel.map(i => ap.water[i])), skyline: mean(sel.map(i => ap.skyline[i])), prize: mean(sel.map(i => ap.prize[i])), sky: mean(sel.map(i => ap.sky[i])), privacy: Math.max(...sel.map(i => ap.privacy[i])), dMed: median(sel.map(i => ap.dMed[i])), hMed: median(sel.map(i => ap.hMed[i])), pts: sel.map(i => pts[i]) });
   for (const [name, need] of wanted) {
     const k = roomSamples(need, spacing); let best = -1, bj = -1;
     for (let j = 0; j + k <= idx.length; j++) { let ok = true, s = 0; for (let t = j; t < j + k; t++) { if (!free[t]) { ok = false; break; } s += ap.quality[idx[t]]; } if (ok && s / k > best + 1e-12) { best = s / k; bj = j; } }
@@ -317,15 +349,17 @@ const f2 = (v, d) => Number.isFinite(v) ? v.toFixed(d) : "–";
 function classify(u, R) {
   const lr = u.rooms.find(r => r.room === "living"); if (!lr) return { cls: "compromised", reasons: ["VC-COMPROMISED: no living-room frontage"], margin: -1 };
   const hab = u.rooms.filter(r => r.room !== "kitchen_service"), privacy = hab.length ? Math.max(...hab.map(r => r.privacy)) : 0, c = R.vcComp;
-  const checks = [["living view", lr.q, c.q_lr_min, 1], ["obstruction distance", lr.dMed, c.d_min, 1], ["horizon angle", lr.hMed, c.alpha_max, -1], ["privacy", privacy, c.p_max, -1]];
+  // the skyline-angle rule only bites when the obstruction is near (c.h_near): a tall skyline far away is a view, not a wall
+  const checks = [["living view", lr.q, c.q_lr_min, 1], ["obstruction distance", lr.dMed, c.d_min, 1], ["horizon angle", lr.dMed < (c.h_near ?? Infinity) ? lr.hMed : 0, c.alpha_max, -1], ["privacy", privacy, c.p_max, -1]];
   const reasons = [], margins = [];
   for (const [name, val, thr, sense] of checks) { const slack = (val - thr) / Math.max(Math.abs(thr), 1e-9) * sense; margins.push(slack); if (slack < 0) reasons.push(`VC-COMPROMISED: ${name} ${f2(val, 2)} ${sense > 0 ? "<" : ">"} ${thr}`); }
   const margin = Math.min(...margins); if (reasons.length) return { cls: "compromised", reasons, margin };
   // premium: living room sees enough sea at good quality AND enough bedrooms see the sea (n_min, or a share of bedrooms)
-  const beds = u.rooms.filter(r => r.room.startsWith("bed")), okB = beds.filter(b => b.water >= R.vcBR.w_min).length;
+  const pz = r => r.prize ?? r.water, kind = r => (r.water ?? 0) >= 0.9 * (r.skyline ?? 0) ? "sea" : "skyline";
+  const beds = u.rooms.filter(r => r.room.startsWith("bed")), okB = beds.filter(b => pz(b) >= R.vcBR.w_min).length;
   const need = Math.min(beds.length, Math.max(R.vcBR.n_min || 0, Math.ceil((R.vcBR.share || 0) * beds.length - 1e-9)));
-  if (lr.water >= R.vcLR.w_min && lr.q >= R.vcLR.q_min && okB >= need) return { cls: "premium", reasons: [`VC-LR-PREMIUM: living sea ${f2(lr.water, 2)}, view ${f2(lr.q, 2)}`, `VC-BR-PREMIUM: ${okB}/${beds.length} bedrooms see the sea`], margin, premSlack: Math.min(lr.water - R.vcLR.w_min, lr.q - R.vcLR.q_min) };
-  const why = []; if (lr.water < R.vcLR.w_min) why.push(`living sea ${f2(lr.water, 2)} < ${R.vcLR.w_min}`); if (lr.q < R.vcLR.q_min) why.push(`living view ${f2(lr.q, 2)} < ${R.vcLR.q_min}`); if (okB < need) why.push(`${okB}/${need} bedrooms see the sea`);
+  if (pz(lr) >= R.vcLR.w_min && lr.q >= R.vcLR.q_min && okB >= need) return { cls: "premium", reasons: [`VC-LR-PREMIUM: living ${kind(lr)} view ${f2(pz(lr), 2)}, view score ${f2(lr.q, 2)}`, `VC-BR-PREMIUM: ${okB}/${beds.length} bedrooms see sea or skyline`], margin, premSlack: Math.min(pz(lr) - R.vcLR.w_min, lr.q - R.vcLR.q_min) };
+  const why = []; if (pz(lr) < R.vcLR.w_min) why.push(`living sea/skyline ${f2(pz(lr), 2)} < ${R.vcLR.w_min}`); if (lr.q < R.vcLR.q_min) why.push(`living view ${f2(lr.q, 2)} < ${R.vcLR.q_min}`); if (okB < need) why.push(`${okB}/${need} bedrooms see sea or skyline`);
   if (lr.q >= R.vcGood.q_min) return { cls: "good", reasons: ["VC-GOOD: not premium because " + why.join("; ")], margin };
   // good also covers a long open outlook with no sea: far obstruction and a low horizon
   const open = R.vcGood.d_open != null && lr.dMed >= R.vcGood.d_open && lr.hMed < (R.vcGood.h_open ?? 2);
@@ -407,7 +441,7 @@ function evaluateViews(ev, S, C, V) {
     const ap = evalApertures(S, obs, pp.normals, { ring: plate, bb: bounds(plate), top }, V);
     const { units, viol: v } = buildUnits(l, l * sp.ftf, plate, core, pp, spacing, ap, sp.upf, prog, C.split, ev.arc ? coreOffsetDir(ev.arc) : null); v.forEach(x => viol.add(x));
     for (const u of units) for (const r of u.rooms) if (r.room !== "kitchen_service" && r.dMed < R.priv && r.privacy > 0) privFail = Math.max(privFail, R.priv - r.dMed);
-    byLevel[l] = units;
+    byLevel[l] = units; if (C.keepAp) (ev.apByLevel || (ev.apByLevel = {}))[l] = ap;
   };
   evaluated.forEach(evalLevel);
   // adaptive refinement: where the unit classes change between two sampled floors, evaluate the floor
@@ -424,8 +458,11 @@ function evaluateViews(ev, S, C, V) {
     }
     evaluated.sort((a, b) => a - b);
   }
-  ev.checks["GR-PRIV-01"] = privFail > 0 ? [false, `a habitable room faces a habitable building ${f2(privFail, 1)} m closer than ${R.priv} m`] : [true, `all habitable rooms ≥ ${R.priv} m from habitable neighbours`];
-  if (privFail > 0) viol.add("GR-PRIV-01");
+  // facing distance: hard fail only below privHard (NYC: 30 ft between building portions); up to R.priv
+  // (London 18-21 m yardstick) it is advisory and the privacy penalty already lowers the flat's class
+  const closest = R.priv - privFail, hard = R.privHard ?? 0;
+  ev.checks["GR-PRIV-01"] = privFail > 0 && closest < hard ? [false, `a habitable room faces a habitable building only ${f2(closest, 1)} m away (hard limit ${hard} m)`] : [true, privFail > 0 ? `closest facing habitable building ${f2(closest, 1)} m (≥ ${hard} m hard limit; below the ${R.priv} m yardstick, so those rooms carry a privacy penalty)` : `all habitable rooms ≥ ${R.priv} m from habitable neighbours`];
+  if (privFail > 0 && closest < hard) viol.add("GR-PRIV-01");
   for (const vv of ["GR-FRONT-LR-01", "GR-FRONT-BR-01", "GR-FRONT-UNIT-01"]) ev.checks[vv] = viol.has(vv) ? [false, "frontage does not fit the room programme"] : [true, `living ${prog.living} m and ${beds} bedrooms × ${prog.bed} m fit on the facade`];
   const units = [];
   for (const l of saleable) {
@@ -441,7 +478,7 @@ function evaluateViews(ev, S, C, V) {
   const cost = grossAll * FT2 * C.E.cost * heightF * (1 + 0.15 * ev.metrics.structural), risky = units.filter(u => u.cls === "neutral" || u.cls === "compromised").reduce((s, u) => s + u.value, 0);
   const bedsAll = units.flatMap(u => u.rooms.filter(r => r.room.startsWith("bed"))), living = units.map(u => u.rooms.find(r => r.room === "living")).filter(Boolean), carpet = units.reduce((s, u) => s + u.carpet, 0);
   ev.units = units; ev.evaluated = evaluated; ev.viol = [...new Set(ev.viol.concat([...viol]))].sort(); ev.feasible = !ev.viol.length;
-  Object.assign(ev.metrics, { units: units.length, ...cnt, premiumShare: cnt.premium / Math.max(units.length, 1), premiumBeds: bedsAll.filter(b => b.water >= R.vcBR.w_min).length, bedsTotal: bedsAll.length,
+  Object.assign(ev.metrics, { units: units.length, ...cnt, premiumShare: cnt.premium / Math.max(units.length, 1), premiumBeds: bedsAll.filter(b => (b.prize ?? b.water) >= R.vcBR.w_min).length, bedsTotal: bedsAll.length,
     livingView: mean(living.map(r => r.q)), carpet, efficiency: grossSale ? carpet / grossSale : 0, gdv, gdvCr: gdv / 1e7, cost, margin: gdv - cost,
     privacy: 1 - mean(units.map(u => Math.max(...u.rooms.map(r => r.privacy)))), minMargin: Math.min(...units.map(u => u.margin)),
     rateCV: rates.length ? Math.sqrt(mean(rates.map(r => (r - mean(rates)) ** 2))) / mean(rates) : 0, risk: gdv ? risky / gdv : 0, evalLevels: evaluated.length });
@@ -451,6 +488,55 @@ function evaluateViews(ev, S, C, V) {
   const neu = units.filter(u => u.cls === "neutral"); if (neu.length) ev.explain.push(`Neutral units sit on levels ${Math.min(...neu.map(u => u.level))}–${Math.max(...neu.map(u => u.level))}.`);
   return ev;
 }
+/* ------------------------------------------------------------------ multi-tower sites */
+function scaleSpec(sp, k) { const q = { ...sp, width: +(sp.width * k).toFixed(2), depth: +(sp.depth * k).toFixed(2), p: { ...sp.p } }; for (const f of ["wing_len", "wing_w", "chamfer_m", "step_m"]) if (q.p[f] != null) q.p[f] = +(q.p[f] * k).toFixed(2); return q; }
+function fitsAt(sp, env) { if (sp.n <= sp.podium) return false; const st = Math.max(1, Math.floor((sp.n - sp.podium) / 12)), lv = [0]; for (let l = sp.podium; l < sp.n; l += st) lv.push(l); lv.push(sp.n - 1); return lv.every(l => contains(env, plateAt(sp, l))); }
+/* Place N towers of one spec: shrink in 6 % steps (not below 16 m) until N footprints fit the envelope at
+   least C.towerSep apart; towers are spread greedily (max-min spacing), the first at the deepest point. */
+function siteLayout(sp0, N, env, C) {
+  const Ci = { ...C, fsi: C.fsi / N }, sep = C.towerSep ?? 24, [x0, y0, x1, y1] = bounds(env), step = Math.max(2, Math.sqrt(ringArea(env)) / 40);
+  for (let i = 0, k = 1; i <= 20; i++, k *= 0.94) {
+    const base = resolveFloors(scaleSpec({ ...sp0, n: 0 }, k), Ci); if (Math.min(base.width, base.depth) < 16 && i > 0) break;
+    const cands = []; for (let y = y0 + step / 2; y < y1; y += step) for (let x = x0 + step / 2; x < x1; x += step) { if (!pip(x, y, env)) continue; const q = { ...base, position: [+x.toFixed(2), +y.toFixed(2)] }; if (fitsAt(q, env)) cands.push({ q, d: distToBoundary(x, y, env), fp: plateAt(q, q.podium) }); }
+    if (cands.length < N) continue;
+    cands.sort((a, b) => b.d - a.d); const chosen = [cands[0]];
+    while (chosen.length < N) {
+      let best = null, bd = -1; for (const c of cands) { if (chosen.includes(c)) continue; const m = Math.min(...chosen.map(o => polyDistance(o.fp, c.fp))); if (m >= sep && m > bd) { bd = m; best = c; } }
+      if (!best) break; chosen.push(best);
+    }
+    if (chosen.length === N) return { sps: chosen.map((c, j) => ({ ...c.q, tower: j, count: N })), note: k < 1 ? `scaled to ${Math.round(k * 100)}% to fit ${N} towers` : "" };
+  }
+  return null;
+}
+/* Scene with other towers burned in (they block views and count as habitable neighbours for privacy). */
+function withTowers(S, evs) {
+  const H = Float32Array.from(S.H), HAB = Uint8Array.from(S.HAB), W = Uint8Array.from(S.W), G = Uint8Array.from(S.G);
+  for (const ev of evs) for (const [l, p] of Object.entries(ev.plates)) { const top = (+l + 1) * ev.sp.ftf, [a, b, c, d] = bounds(p);
+    for (let i = Math.max(0, Math.floor((b - S.y0) / S.res)); i <= Math.min(S.ny - 1, Math.floor((d - S.y0) / S.res)); i++) for (let j = Math.max(0, Math.floor((a - S.x0) / S.res)); j <= Math.min(S.nx - 1, Math.floor((c - S.x0) / S.res)); j++) {
+      if (!pip(S.x0 + (j + 0.5) * S.res, S.y0 + (i + 0.5) * S.res, p)) continue; const k = i * S.nx + j; if (top > H[k]) H[k] = top; HAB[k] = 1; W[k] = 0; G[k] = 0; } }
+  return { ...S, H, HAB, W, G };
+}
+/* Evaluate a whole site: N towers of the same typology; returns one combined result with .towers. */
+function evaluateSite(sps, env, C, S, V, arc, onMassing) {
+  const N = sps.length, Ci = { ...C, fsi: C.fsi / N }, evs = sps.map(sp => checkCandidate(sp, env, Ci, arc));
+  let sepMin = Infinity; for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) for (const l of [evs[i].sp.podium, Math.floor(evs[i].sp.n / 2), evs[i].sp.n - 1]) { const a = evs[i].plates[Math.min(l, evs[i].sp.n - 1)], b = evs[j].plates[Math.min(l, evs[j].sp.n - 1)]; if (a && b) sepMin = Math.min(sepMin, polyDistance(a, b)); }
+  if (onMassing) onMassing(evs);
+  if (evs.every(e => e.feasible)) evs.forEach((ev, i) => evaluateViews(ev, N > 1 ? withTowers(S, evs.filter((_, j) => j !== i)) : S, Ci, V));
+  if (N === 1) { evs[0].towers = [evs[0]]; return evs[0]; }
+  const sep = C.towerSep ?? 24, M = {}, sum = k => evs.reduce((a, e) => a + (e.metrics[k] || 0), 0), wmean = (k, w) => evs.reduce((a, e) => a + (e.metrics[k] || 0) * (e.metrics[w] || 0), 0) / Math.max(1e-9, sum(w));
+  for (const k of ["units", "premium", "good", "neutral", "compromised", "gdv", "cost", "margin", "carpet", "fsiUsed", "premiumBeds", "bedsTotal"]) M[k] = sum(k);
+  Object.assign(M, { gdvCr: M.gdv / 1e7, fsiUtil: M.fsiUsed / C.fsi, premiumShare: M.premium / Math.max(1, M.units), livingView: wmean("livingView", "units"), efficiency: wmean("efficiency", "units"), structural: Math.max(...evs.map(e => e.metrics.structural || 0)),
+    slender: Math.max(...evs.map(e => e.metrics.slender || 0)), height: Math.max(...evs.map(e => e.metrics.height || 0)), coreRatio: wmean("coreRatio", "units"), privacy: wmean("privacy", "units"), minMargin: Math.min(...evs.map(e => e.metrics.minMargin ?? 1)), towers: N, towerSep: sepMin });
+  const units = []; evs.forEach((e, i) => (e.units || []).forEach(u => units.push({ ...u, id: `T${i + 1}-${u.id}`, tower: i })));
+  const rates = units.map(u => u.rate); M.rateCV = rates.length ? Math.sqrt(mean(rates.map(r => (r - mean(rates)) ** 2))) / mean(rates) : 0; M.risk = M.gdv ? units.filter(u => u.cls === "neutral" || u.cls === "compromised").reduce((a, u) => a + u.value, 0) / M.gdv : 0;
+  const checks = {}; evs.forEach((e, i) => Object.entries(e.checks).forEach(([id, v]) => { if (!checks[id] || !v[0]) checks[id] = [v[0] && (checks[id] ? checks[id][0] : true), N > 1 ? `tower ${i + 1}: ${v[1]}` : v[1]]; }));
+  checks["GR-SEP-01"] = [sepMin >= sep - 1e-6, `towers ${f2(sepMin, 1)} m apart (min ${sep} m)`];
+  const viol = [...new Set(evs.flatMap(e => e.viol).concat(sepMin >= sep - 1e-6 ? [] : ["GR-SEP-01"]))].sort();
+  const e0 = evs[0];
+  return { id: fnv(evs.map(e => e.id).join("|")), sp: { ...e0.sp, count: N }, towers: evs, arc: e0.arc, feasible: !viol.length, viol, checks, metrics: M, plates: e0.plates, cores: e0.cores, cols: e0.cols, units, evaluated: e0.evaluated,
+    explain: [`${N} towers, ${M.units} units: ${M.premium} premium, ${M.good} good, ${M.neutral} neutral, ${M.compromised} compromised; closest towers ${f2(sepMin, 1)} m apart.`].concat(...evs.map((e, i) => (e.explain || []).slice(0, 2).map(x => `Tower ${i + 1}: ${x}`))) };
+}
+
 const OBJ = [["margin", "max"], ["compromised", "min"], ["premium", "max"], ["livingView", "max"], ["efficiency", "max"], ["structural", "min"]];
 function paretoRanks(evs) {
   const n = evs.length, v = evs.map(e => OBJ.map(([k, s]) => (s === "max" ? 1 : -1) * e.metrics[k])), rank = new Array(n).fill(-1);
@@ -464,6 +550,6 @@ function cmpKey(a, b) { const ka = presKey(a), kb = presKey(b); for (let i = 0; 
 
 G.VT = { D2R, R2D, FT2, mod, signedArea, ringArea, ccw, box, rot, tr, scl, centroid, bounds, pip, segDist, distToBoundary, distPoly, edgesCross, polysIntersect, polyDistance, contains, hull, percentile, median, mean, minWidth, fnv, clipConvex,
   sampleDistances, castRay, landmarkInfo, quality, normWeights, viewSettings, evalApertures, viewCone, premiumArc, siteViewField,
-  MODIFIERS, baseShape, localPlate, plateAt, coreAt, perimeterPoints, structure, maxOverhang, coreFits, splitCuts, unitEnvelopes, mpArea, buildUnits, classify, unitMult, priceUnits,
-  resolveFloors, coreOffsetDir, specId, checkCandidate, evaluateViews, paretoRanks, cmpKey };
+  MODIFIERS, baseShape, tokenPlate, localPlate, plateAt, coreAt, perimeterPoints, structure, maxOverhang, coreFits, splitCuts, unitEnvelopes, mpArea, buildUnits, classify, unitMult, priceUnits,
+  resolveFloors, coreOffsetDir, specId, checkCandidate, evaluateViews, paretoRanks, cmpKey, scaleSpec, fitsAt, siteLayout, withTowers, evaluateSite };
 })(typeof self !== "undefined" ? self : this);

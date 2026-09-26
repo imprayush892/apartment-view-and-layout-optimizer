@@ -181,6 +181,7 @@ body.present .stage{height:78vh}
     <label class="f">Context data
       <select id="src">
         <option value="dadar">Dadar, Mumbai: OpenStreetMap snapshot</option>
+        <option value="nyc_lower">Lower Manhattan, New York: snapshot</option>
         <option value="live">Pin anywhere: live OpenStreetMap</option>
         <option value="upload">Upload OSM / GeoJSON file</option>
         <option value="synthetic">Synthetic test site</option>
@@ -251,12 +252,23 @@ body.present .stage{height:78vh}
       <label class="f">Max height (m)<input type="number" id="hmax" value="165" min="10" step="1"></label>
     </div>
     <label class="f">Reserved non-saleable floors (optional)<input type="text" id="reserved" value="" placeholder="e.g. 20, 30"></label>
+    <div class="grid2">
+      <label class="f">Towers on the site<input type="number" id="towers" value="1" min="1" max="6" step="1"></label>
+      <label class="f">Min gap between towers (m)<input type="number" id="towerSep" value="24" min="6" step="1"></label>
+    </div>
   </section>
 
   <section class="step">
     <h2><b>5</b>Options to explore</h2>
     <div class="row" role="group" aria-label="Search size"><span class="hint">Search size:</span><button type="button" class="chip" data-preset="quick" aria-pressed="false">Quick</button><button type="button" class="chip" data-preset="standard" aria-pressed="true">Standard</button><button type="button" class="chip" data-preset="thorough" aria-pressed="false">Thorough</button></div>
     <p class="hint" id="presetInfo">Quick tests 2 shapes in about a minute; Thorough tests every shape, rotation and flat count.</p>
+    <label class="f">Search method<select id="searchMode">
+      <option value="hand">Hand-set typologies (below)</option>
+      <option value="library">Token library, deterministic (540 typologies, rule-screened)</option>
+      <option value="generative">Generative, probabilistic (learned token model)</option>
+      <option value="hybrid">Hybrid (generative + architect feedback)</option>
+    </select></label>
+    <label class="f" id="tokKWrap">Designs to evaluate in full (token modes)<input type="number" id="tokK" value="8" min="2" max="24"></label>
     <div class="typos" id="typos"></div>
     <div class="grid2">
       <label class="f">Rotations (°)<input type="text" id="rots" value="0, 30"></label>
@@ -440,6 +452,7 @@ body.present .stage{height:78vh}
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/tokens.js"></script>
 <script src="js/geo.js"></script>
 <script src="js/view3d.js"></script>
 <script src="js/app.js"></script>

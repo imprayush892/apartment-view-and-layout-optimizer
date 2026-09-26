@@ -26,22 +26,33 @@ const TYPOS = [
 ];
 const FL = { width: "Width m", depth: "Depth m", chamfer_m: "Chamfer m", exponent: "Roundness", wing_len: "Wing length m", wing_w: "Wing width m", twist_per_floor_deg: "Twist °/floor", top_scale: "Top scale", step_every: "Step every n", step_m: "Step m", step_side_deg: "Step faces °" };
 const TL = Object.fromEntries(TYPOS.map(t => [t.key, t.label]));
-const label = sp => TL[sp.typology] || sp.typology;
+const label = sp => sp.typology === "token" ? `Token: ${sp.p.base.replace("_", "-")}${sp.p.twist ? " · twist" : ""}${sp.p.taper ? " · taper" : ""}${sp.p.shift ? " · " + sp.p.shift.mode : ""}${sp.p.terrace ? " · terraces" : ""}${sp.p.cut ? " · gardens" : ""}` : (TL[sp.typology] || sp.typology);
 
 const st = { feedback: (() => { try { return JSON.parse(localStorage.getItem("vt-feedback") || "[]"); } catch (e) { return []; } })(), loadToken: 0, runToken: 0, pending: [], src: "dadar", anchor: null, ctx: null, S: null, Sf: null, boundary: null, bSource: "illus", env: [], isEnv: false, setbacks: [], selEdge: null, draw: null, field: null,
   results: null, rejected: [], sel: null, level: null, cone: null, zoom: "plot", roseZ: 100, dxf: null, running: false, workers: [] };
 
 /* ================================================================ data sources */
 function illustrativePlot(center, ang = 60, w = 64, d = 52) { return rot(box(-w / 2, -d / 2, w / 2, d / 2), ang).map(([x, y]) => [x + center[0], y + center[1]]); }
-async function loadDadar() {
-  setInfo("ctxInfo", "Loading OpenStreetMap snapshot…"); const tok = ++st.loadToken;
-  const d = await (await fetch("data/dadar_osm.json")).json(); if (tok !== st.loadToken) return;
+/* bundled OpenStreetMap snapshots: file, area note, default illustrative plot (centre, angle, size) */
+const SNAPSHOTS = {
+  dadar: { file: "data/dadar_osm.json", area: "about 1 km around Shivaji Park, Dadar", plot: [[-180, -130], 60, 64, 52], name: "Illustrative plot near Shivaji Park (not the project site)" },
+  nyc_lower: { file: "data/nyc_lower_osm.json", area: "about 1.8 km around the Financial District, Lower Manhattan, plus towers over 90 m within 5 km", plot: [[888, 44], 0, 60, 45], ring: [[927.6, 44.2], [878, 11.6], [873.9, 17.5], [864.4, 11], [859, 17.8], [864.1, 21.1], [848.2, 43.4], [905.2, 80.4], [910.8, 71.6], [907, 69.1], [913.6, 58.9], [917.1, 61.2]], name: "Test plot in Lower Manhattan: footprint of an existing low building near the East River (not a real project)" },
+  nyc_midtown: { file: "data/nyc_midtown_osm.json", area: "about 1.3 km around Bryant Park, Midtown Manhattan, plus towers over 90 m within 5 km", plot: [[0, 0], 29, 60, 45], name: "Illustrative plot in Midtown Manhattan (test site)" },
+  ldn_city: { file: "data/ldn_city_osm.json", area: "about 1.8 km around Bank, City of London, plus towers over 90 m within 5 km", plot: [[0, 0], 0, 60, 45], name: "Illustrative plot in the City of London (test site)" },
+  ldn_canary: { file: "data/ldn_canary_osm.json", area: "about 1.8 km around Canary Wharf, plus towers over 90 m within 5 km", plot: [[0, 0], 0, 60, 45], name: "Illustrative plot at Canary Wharf (test site)" },
+};
+async function loadSnapshot(key) {
+  const m = SNAPSHOTS[key]; setInfo("ctxInfo", "Loading OpenStreetMap snapshot…"); const tok = ++st.loadToken;
+  const d = await (await fetch(m.file)).json(); if (tok !== st.loadToken) return;
   st.anchor = d.anchor.slice(); $("lat").value = d.anchor[0]; $("lon").value = d.anchor[1];
   st.ctx = GEO.fromCompact(d, st.anchor, { defaultH: defH() });
-  st.dataNote = `Context: ${d.source}, fetched ${d.fetched}, about 1 km around Shivaji Park, Dadar. Building data is © OpenStreetMap contributors (ODbL).`;
-  st.illusCenter = [-180, -130]; st.illusAng = 60;
-  setBoundary(illustrativePlot(st.illusCenter, st.illusAng), "Illustrative plot near Shivaji Park (not the project site)", [6, 6, 6, 6], "illus");
+  st.dataNote = `Context: ${d.source}, fetched ${d.fetched}, ${m.area}. Building data is © OpenStreetMap contributors (ODbL).`;
+  const pr = GEO.PROFILES[st.ctx.profile || "coastal"]; $("cD").value = pr.d_min; $("cA").value = pr.alpha_max;
+  st.illusCenter = m.plot[0]; st.illusAng = m.plot[1]; st.illusSize = [m.plot[2], m.plot[3]];
+  st.illusRing = m.ring || null;
+  setBoundary(m.ring || illustrativePlot(st.illusCenter, st.illusAng, ...st.illusSize), m.name, (m.ring || [0, 0, 0, 0]).map(() => st.ctx.profile === "dense" ? 3 : 6), "illus");
 }
+const loadDadar = () => loadSnapshot("dadar");
 function loadSynthetic() {
   st.loadToken++;
   const s = GEO.syntheticContext(); st.anchor = null; st.ctx = s.ctx; st.dataNote = "Context: synthetic, fictitious geometry. No real location.";
@@ -154,29 +165,7 @@ function geoModeUI() { const u = $("geoMode").value === "utm"; $("geoAnchor").hi
 
 /* ================================================================ envelope */
 function pressEnv() { $("envYes").setAttribute("aria-pressed", String(st.isEnv)); $("envNo").setAttribute("aria-pressed", String(!st.isEnv)); $("setbackBox").hidden = st.isEnv; }
-/* Buildable envelope = plot minus a strip of the given depth along each side. Corner discs are only needed at
-   reflex (inward) corners; at convex corners the two strips already cover it. The ring is cleaned first
-   (repeated / collinear vertices, mm rounding) because polygon-clipping is fragile on degenerate input. */
-function cleanRing(r, sb) {
-  let pts = r.map(([x, y], i) => ({ p: [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000], s: sb ? sb[i] : 0 }));
-  let changed = true;
-  while (changed && pts.length > 3) { changed = false;
-    for (let i = 0; i < pts.length && pts.length > 3; i++) { const a = pts[(i - 1 + pts.length) % pts.length].p, b = pts[i].p, c = pts[(i + 1) % pts.length].p;
-      const dup = Math.hypot(b[0] - a[0], b[1] - a[1]) < 0.01, col = Math.abs((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])) < 1e-6 * Math.max(1, Math.hypot(c[0] - a[0], c[1] - a[1])) ** 2;
-      if (dup || col) { pts.splice(i, 1); changed = true; i--; } } }
-  return { ring: pts.map(q => q.p), sb: pts.map(q => q.s) };
-}
-function envelopeFromSetbacks(b0, sb0) {
-  const { ring: b, sb } = cleanRing(b0, sb0), n = b.length, isC = VT.signedArea(b) >= 0, cut = [];
-  for (let i = 0; i < n; i++) { const s = +sb[i] || 0; if (s <= 0) continue; const a = b[i], q = b[(i + 1) % n], dx = q[0] - a[0], dy = q[1] - a[1], L = Math.hypot(dx, dy); let nx = -dy / L, ny = dx / L; if (!isC) { nx = -nx; ny = -ny; } cut.push([[a, q, [q[0] + nx * s, q[1] + ny * s], [a[0] + nx * s, a[1] + ny * s]]]); }
-  for (let i = 0; i < n; i++) {
-    const p = b[(i - 1 + n) % n], v = b[i], q = b[(i + 1) % n], cr = (v[0] - p[0]) * (q[1] - v[1]) - (v[1] - p[1]) * (q[0] - v[0]), reflex = isC ? cr < 0 : cr > 0;
-    const s = Math.max(+sb[(i - 1 + n) % n] || 0, +sb[i] || 0); if (!reflex || s <= 0) continue;
-    const d = []; for (let k = 0; k < 24; k++) { const t = 2 * Math.PI * (k + 0.5) / 24; d.push([v[0] + s * Math.cos(t), v[1] + s * Math.sin(t)]); } cut.push([d]);
-  }
-  if (!cut.length) return b.slice(); const env = PC.difference([b], ...cut); if (!env.length) return [];
-  let best = null, ba = -1; for (const p of env) { const a = ringArea(p[0]); if (a > ba) { ba = a; best = p[0]; } } return best.slice(0, -1);
-}
+const envelopeFromSetbacks = (b, sb) => GEO.envelopeFromSetbacks(b, sb, PC);
 function faceDir(r, i) { const a = r[i], b = r[(i + 1) % r.length], isC = VT.signedArea(r) >= 0; let nx = b[1] - a[1], ny = -(b[0] - a[0]); if (!isC) { nx = -nx; ny = -ny; } return ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(mod(Math.atan2(nx, ny) * R2D, 360) / 45) % 8]; }
 function updateEnvelope() {
   const b = st.boundary; if (!b) return;
@@ -206,9 +195,9 @@ function computeField() { if (!st.env.length || !st.S) return; const V = VT.view
 /* ================================================================ search (parallel workers, live 3D) */
 function readConfig() {
   const R = { depth: +$("rDepth").value, span: +$("rSpan").value, fit: +$("rFit").value, cant: +$("rCant").value, priv: +$("rPriv").value, coreLo: 0.08, coreHi: 0.35, frontLR: 6, frontBR: 3.6,
-    vcComp: { q_lr_min: +$("cQ").value, d_min: +$("cD").value, alpha_max: +$("cA").value, p_max: +$("cP").value }, vcLR: { w_min: +$("prW").value, q_min: +$("prQ").value }, vcBR: { w_min: +$("prBW").value, n_min: 0, share: +$("prShare").value / 100 }, vcGood: { q_min: 0.40 } };
+    vcComp: { q_lr_min: +$("cQ").value, d_min: +$("cD").value, alpha_max: +$("cA").value, p_max: +$("cP").value, h_near: (GEO.PROFILES[(st.ctx && st.ctx.profile) || "coastal"] || {}).h_near }, vcLR: { w_min: +$("prW").value, q_min: +$("prQ").value }, vcBR: { w_min: +$("prBW").value, n_min: 0, share: +$("prShare").value / 100 }, vcGood: { q_min: 0.40 } };
   const mult = listNums($("eMult").value), beds = listNums($("pBeds").value);
-  return { fsi: +$("fsi").value, hmax: +$("hmax").value, reserved: listNums($("reserved").value).map(Math.round), rots: listNums($("rots").value), upf: listNums($("upf").value).map(Math.round).filter(v => v >= 1 && v <= 4), pods: listNums($("pods").value).map(Math.round), ftf: listNums($("ftf").value), coff: listNums($("coff").value), evalEvery: Math.max(1, Math.round(+$("evalEvery").value || 4)),
+  return { towers: Math.max(1, Math.min(6, Math.round(+$("towers").value || 1))), towerSep: +$("towerSep").value || 24, fsi: +$("fsi").value, hmax: +$("hmax").value, reserved: listNums($("reserved").value).map(Math.round), rots: listNums($("rots").value), upf: listNums($("upf").value).map(Math.round).filter(v => v >= 1 && v <= 4), pods: listNums($("pods").value).map(Math.round), ftf: listNums($("ftf").value), coff: listNums($("coff").value), evalEvery: Math.max(1, Math.round(+$("evalEvery").value || 4)),
     coreFixed: +$("coreFixed").value, corePer: +$("corePer").value, colSpacing: 8, living: +$("pLiving").value, bed: +$("pBed").value, beds: [beds[0] ?? 5, beds[1] ?? 4, beds[2] ?? 3], R,
     E: { rate: +$("eRate").value, cost: +$("eCost").value, rise: +$("eRise").value, carpetFactor: 0.88, mult: { premium: mult[0] ?? 1.15, good: mult[1] ?? 1, neutral: mult[2] ?? 0.9, compromised: mult[3] ?? 0.75 }, pricing: $("ePricing").value, cont: { a: 0.655, b: 0.69, lo: 0.8, hi: 1.2 }, sizeBand: { small: +$("eSmall").value || 0, large: +$("eLarge").value || 0 } } };
 }
@@ -224,10 +213,33 @@ function validateConfig(C) {
   if (!C.coff.length) bad.push("enter a core offset (0 for none)");
   if (!(C.coreFixed > 0) || !(C.corePer >= 0)) bad.push("core areas must be positive");
   const R = C.R; for (const [k, v] of [["max core-to-facade", R.depth], ["max slab span", R.span], ["core slab margin", R.fit], ["max overhang", R.cant], ["min facing distance", R.priv]]) if (!num(v) || v < 0) bad.push(`${k} must be a number ≥ 0`);
-  for (const [k, v] of Object.entries({ ...R.vcComp, ...R.vcLR })) if (!num(v)) bad.push(`threshold ${k} is blank`);
+  for (const [k, v] of Object.entries({ ...R.vcComp, ...R.vcLR })) if (k !== "h_near" && !num(v)) bad.push(`threshold ${k} is blank`);
   if (!(C.E.rate > 0)) bad.push("base rate must be above 0");
   return bad;
 }
+/* Token search (see docs/spec/13): "library" screens the 540-typology library with a fixed hand rule;
+   "generative" samples token designs by cross-entropy, scored by the open segment model; "hybrid" uses
+   the generator with weights adjusted from the architect study. Returns the shortlist to evaluate. */
+let MODEL = null, HYB = null;
+async function tokenSpecs(C, mode) {
+  if (!st.field) computeField(); const f = st.field, env = st.env, viewAz = TOK.viewAzOf(f), pos = bestCenter(env), N = C.towers || 1, Ci = { ...C, fsi: C.fsi / N };
+  const ok = sp => { if (sp.n <= sp.podium || !VT.fitsAt(sp, env)) return false; return VT.checkCandidate(sp, env, Ci, f.arc).feasible; };
+  const ftf = (C.ftf[0] || 3.6), pod = (C.pods[0] ?? 6), upf = (C.upf[0] || 2), K = +$("tokK").value || 8;
+  if (mode === "library") {
+    // 1) cheap rule score for every typology x rotation, 2) fit + hard rules only down the ranked list
+    const sc = [], L = TOK.library(), rots = [0, 45, +(((viewAz % 90) + 90) % 90).toFixed(1)];
+    for (let i = 0; i < L.length; i++) { for (const rot of rots) { const sp = TOK.toSpec(L[i], pos, rot, viewAz, Ci, ftf, pod, upf); sc.push({ sp, typ: L[i], s: TOK.ruleScore(sp, f, viewAz) }); } if (i % 60 === 59) { setInfo("runInfo", `Screening the token library… ${i + 1}/${L.length}`); await new Promise(r => setTimeout(r, 0)); } }
+    sc.sort((a, b) => b.s - a.s); const out = [], per = {};
+    for (const c of sc) { const b = c.sp.p.base; if ((per[b] || 0) >= 2) continue; let sp = c.sp; if (!VT.fitsAt(sp, env)) sp = fitSpec(sp, Ci); if (!ok(sp)) continue; per[b] = (per[b] || 0) + 1; out.push({ ...sp, tokNote: `library: ${c.typ.label} (after ${c.typ.precedent})` }); if (out.length >= K) break; }
+    return out;
+  }
+  if (!MODEL) MODEL = await (await fetch("data/typology_model.json")).json();
+  if (mode === "hybrid" && !HYB) { try { HYB = await (await fetch("data/hybrid_weights.json")).json(); } catch (e) { HYB = {}; } }
+  const ctxH = TOK.contextHeight(st.S, ...pos), opts = { S: st.S, V: VT.viewSettings({ res: RES, lmOn: !!(st.ctx.landmarks && st.ctx.landmarks.length) }), check: ok, seed: 1 + (st.runToken % 97), pop: 60, iters: 5, top: K, ctxH, dense: st.ctx.profile === "dense", position: pos, ftf, podium: pod, upf };
+  if (mode === "hybrid" && HYB) { opts.W = HYB.W; opts.prior = HYB.prior; opts.numPrior = HYB.numPrior; }
+  return TOK.generate(MODEL, f, env, Ci, opts).map(g => ({ ...g.sp, tokNote: `${mode === "hybrid" ? "hybrid" : "generated"}: ${describeTokens(g.sp.p)}` }));
+}
+function describeTokens(p) { const t = [p.base.replace("_", "-")]; if (p.twist) t.push(`${p.twist.mode} twist ${p.twist.rate}°/floor`); if (p.taper) t.push(`${p.taper.mode} taper to ${Math.round(100 * p.taper.top)} %`); if (p.shift) t.push(`${p.shift.mode} shift ${p.shift.amp} m`); if (p.terrace) t.push(`terraces ${p.terrace.step} m every ${p.terrace.every} floors`); if (p.cut) t.push("corner gardens"); return t.join(", "); }
 /* Deepest point of the envelope (approximate pole of inaccessibility) — a concave plot's centroid
    can fall outside it, and the deepest point gives the tower the most room. */
 function bestCenter(env) {
@@ -272,12 +284,15 @@ async function runSearch() {
   if (!st.env || !st.env.length) return setInfo("runInfo", "Set a buildable envelope first.", true);
   const C = readConfig(), bad = validateConfig(C); if (bad.length) return setInfo("runInfo", "Check the inputs: " + bad.join("; ") + ".", true);
   if (!st.field) computeField();
-  const specs = buildSpecs(C); if (!specs.length) return setInfo("runInfo", "Tick at least one typology.", true);
+  const mode = $("searchMode").value; let specs;
+  if (mode === "hand") specs = buildSpecs(C);
+  else { setInfo("runInfo", mode === "library" ? "Screening the 540-typology library…" : "Sampling token designs with the learned model…"); await new Promise(r => setTimeout(r, 30)); specs = await tokenSpecs(C, mode); }
+  if (!specs.length) return setInfo("runInfo", mode === "hand" ? "Tick at least one typology." : "No token design fits this envelope and passes the hard rules. Try a larger plot, fewer towers or smaller setbacks.", true);
   st.running = true; const token = ++st.runToken; setRunButton(true); hideCone(); V3D.clearDesign(); setTab("t-3d"); st.pending = [];
   const t0 = performance.now(), results = [], rejected = [], arc = st.field && st.field.arc; let done = 0, lastGhost = 0, failure = null, testing = "", bestLine = "";
   $("hudSearch").hidden = false; $("hudHint").hidden = true;
   const progress = (msg) => { const pct = 100 * done / specs.length; $("prog").style.width = $("hudProg").style.width = pct + "%"; if (msg != null) testing = msg; $("hudText").innerHTML = testing + bestLine; setInfo("runInfo", `${done}/${specs.length} options evaluated · ${rejected.length} rejected so far.`); };
-  const onMassing = m => { if (token !== st.runToken) return; const now = performance.now(); if (now - lastGhost < 180) return; lastGhost = now; V3D.showGhost(m.sp, m.plates); progress(`Testing <b>${esc(label(m.sp))}</b> · ${m.sp.upf}/floor · ${m.sp.n} floors (${fmt(m.sp.n * m.sp.ftf, 0)} m) · rot ${m.sp.rotation}°${m.feasible ? "" : ` · <span style="color:#bf4d37">fails ${esc(m.viol.join(", "))}</span>`}`); };
+  const onMassing = m => { if (token !== st.runToken) return; const now = performance.now(); if (now - lastGhost < 180) return; lastGhost = now; V3D.showGhost(m.towers || m.sp, m.plates); progress(`Testing <b>${esc(label(m.sp))}</b> · ${m.sp.upf}/floor · ${m.sp.n} floors (${fmt(m.sp.n * m.sp.ftf, 0)} m) · rot ${m.sp.rotation}°${m.feasible ? "" : ` · <span style="color:#bf4d37">fails ${esc(m.viol.join(", "))}</span>`}`); };
   const onResult = ev => { if (token !== st.runToken) return; done++; (ev.feasible ? results : rejected).push(ev); if (ev.feasible) { const best = results.reduce((a, b) => a.metrics.compromised < b.metrics.compromised || (a.metrics.compromised === b.metrics.compromised && a.metrics.gdv >= b.metrics.gdv) ? a : b); bestLine = `<br>Best so far: ${esc(label(best.sp))}, ₹${fmtInt(best.metrics.gdvCr)} cr, ${best.metrics.compromised} compromised`; } progress(null); };
   const nW = Math.max(1, Math.min(6, (navigator.hardwareConcurrency || 4) - 1, specs.length)), ws = makeWorkers(nW);
   const scene = { x0: st.S.x0, y0: st.S.y0, res: st.S.res, nx: st.S.nx, ny: st.S.ny, H: st.S.H, W: st.S.W, G: st.S.G, HAB: st.S.HAB, landmarks: st.ctx.landmarks || [] };
@@ -298,7 +313,7 @@ async function runSearch() {
   if (token !== st.runToken) return; // cancelled or superseded (site changed)
   if (failure) { st.running = false; setRunButton(false); V3D.clearGhost(); $("hudSearch").hidden = true; $("hudHint").hidden = false; return setInfo("runInfo", `The search stopped with an error after ${done} of ${specs.length} options: ${esc(failure)}. Check the inputs and try again.`, true); }
   VT.paretoRanks(results); results.sort(VT.cmpKey);
-  if (st.Sf && results.length) { const V = VT.viewSettings({ res: RES, lmOn: !!(scene.landmarks.length) }); for (const ev of results.slice(0, 8)) { const cl = { ...ev, viol: [], checks: { ...ev.checks }, metrics: { ...ev.metrics }, explain: [], units: [] }; VT.evaluateViews(cl, st.Sf, C, V); ev.metrics.futureComp = cl.metrics.compromised; ev.explain.push(`With future neighbours built: ${cl.metrics.compromised} compromised, ${cl.metrics.premium} premium.`); } }
+  if (st.Sf && results.length) { const V = VT.viewSettings({ res: RES, lmOn: !!(scene.landmarks.length) }); for (const ev of results.slice(0, 8).filter(e => !e.towers || e.towers.length === 1)) { const cl = { ...ev, viol: [], checks: { ...ev.checks }, metrics: { ...ev.metrics }, explain: [], units: [] }; VT.evaluateViews(cl, st.Sf, C, V); ev.metrics.futureComp = cl.metrics.compromised; ev.explain.push(`With future neighbours built: ${cl.metrics.compromised} compromised, ${cl.metrics.premium} premium.`); } }
   st.results = results; st.rejected = rejected.sort((a, b) => a.id < b.id ? -1 : 1); st.C = C;
   $("prog").style.width = "100%"; $("hudSearch").hidden = true; $("hudHint").hidden = false; $("hudHintText").textContent = "Click any floor of the tower to see its view cone. Drag to orbit, scroll to zoom.";
   const fitted = specs.filter(sp => sp.fitNote).length;
@@ -310,8 +325,10 @@ async function runSearch() {
 }
 
 /* ================================================================ view cones + jump in */
-function coneAt(level, x, y) {
-  const ev = st.sel; if (!ev) return; const sp = ev.sp, plate = ev.plates[level]; if (!plate) return;
+/* the tower being inspected (multi-tower sites keep each tower's full evaluation in ev.towers) */
+function TW() { const ev = st.sel; return ev ? (ev.towers ? ev.towers[Math.min(st.tw || 0, ev.towers.length - 1)] : ev) : null; }
+function coneAt(level, x, y, tw) {
+  if (tw != null) st.tw = tw; const ev = TW(); if (!ev) return; const sp = ev.sp, plate = ev.plates[level]; if (!plate) return;
   const f = V3D.snapToFacade(plate, x, y), z = level * sp.ftf + 1.5, V = VT.viewSettings({ res: RES, lmOn: !!(st.ctx.landmarks && st.ctx.landmarks.length) });
   const own = { ring: plate, bb: bounds(plate), top: sp.n * sp.ftf }, ox = f.x + 0.75 * Math.sin(f.az * D2R), oy = f.y + 0.75 * Math.cos(f.az * D2R);
   const cone = VT.viewCone(st.S, ox, oy, z, f.az, own, V, 90, 2);
@@ -320,7 +337,7 @@ function coneAt(level, x, y) {
   renderCone(); $("vJump").hidden = false; $("vClear").hidden = false;
 }
 function renderCone() {
-  const c = st.cone, ev = st.sel; if (!c || !ev) return; const sp = ev.sp, rays = c.cone.rays;
+  const c = st.cone, ev = TW(); if (!c || !ev) return; const sp = ev.sp, rays = c.cone.rays;
   $("coneCard").hidden = false;
   $("coneTitle").textContent = `View cone · floor ${c.level} (${fmt(c.level * sp.ftf, 1)} m) · facing ${fmt(c.az, 0)}° ${compass(c.az)}`;
   const levels = []; for (let l = sp.podium; l < sp.n; l++) levels.push(l);
@@ -351,7 +368,7 @@ function sectors(list) { const out = []; let cur = null; for (const [a, on] of l
 const arcWidth = a => (a[0] === 0 && a[1] === 360) ? "360" : fmt(mod(a[1] - a[0], 360), 0);
 const compass = az => ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(mod(az, 360) / 45) % 8];
 function hideCone() { $("coneCard").hidden = true; $("vJump").hidden = true; $("vClear").hidden = true; V3D.clearCone && V3D.clearCone(); }
-function jump() { const c = st.cone, ev = st.sel; if (!c || !ev) return; V3D.jumpIn({ x: c.x, y: c.y, az: c.az, floorZ: c.level * ev.sp.ftf }, ev.plates[c.level], ev.sp.ftf); $("jumpbar").hidden = false; $("jumpText").textContent = `Floor ${c.level} · ${fmt(c.level * ev.sp.ftf + 1.6, 1)} m eye height · facing ${compass(c.az)}`; $("stage").querySelector(".tools").hidden = true; $("hudHint").hidden = true; }
+function jump() { const c = st.cone, ev = TW(); if (!c || !ev) return; V3D.jumpIn({ x: c.x, y: c.y, az: c.az, floorZ: c.level * ev.sp.ftf }, ev.plates[c.level], ev.sp.ftf); $("jumpbar").hidden = false; $("jumpText").textContent = `Floor ${c.level} · ${fmt(c.level * ev.sp.ftf + 1.6, 1)} m eye height · facing ${compass(c.az)}`; $("stage").querySelector(".tools").hidden = true; $("hudHint").hidden = true; }
 
 /* ================================================================ rendering: KPIs, plan, rose, options, design */
 function setInfo(id, html, warn) { const el = $(id); el.innerHTML = html; el.className = warn ? "status warnline" : "status"; }
@@ -454,7 +471,7 @@ function renderDesign() {
   const ev = st.sel;
   if (!ev) { $("designHead").innerHTML = `<h3>No design selected</h3><p class="hint">Run a search, then pick an option.</p>`; ["checks", "explain", "unitTbl", "plan", "lvlPick"].forEach(id => $(id).innerHTML = ""); if (window.VTX) { VTX.renderEcon(); VTX.renderHeightTest(); VTX.renderShadow(); } return; }
   const m = ev.metrics, sp = ev.sp, pr = Object.entries(sp.p).filter(([k]) => k !== "base").map(([k, v]) => `${FL[k] || k} ${v}`).join(" · ");
-  $("designHead").innerHTML = `<div class="row" style="justify-content:space-between"><h3>${esc(label(sp))} · ${sp.upf} unit${sp.upf > 1 ? "s" : ""} per floor · ${sp.n} floors (${fmt(m.height, 1)} m)</h3><span class="mono muted">${ev.id}</span></div><p class="hint">${sp.width} × ${sp.depth} m${pr ? " · " + esc(pr) : ""} · rotation ${sp.rotation}° · podium ${sp.podium} floors · floor-to-floor ${sp.ftf} m${sp.fitNote ? ` · <span class="warnline">${esc(sp.fitNote)}</span>` : ""}</p><div class="summary">${[["GDV", `₹${fmtInt(m.gdvCr)} cr`], ["Carpet", `${fmtInt(m.carpet)} m²`], ["Avg flat price", `₹${fmt(m.gdvCr / Math.max(1, m.units), 1)} cr`], ["Efficiency", fmt(m.efficiency, 2)], ["FSI used", `${fmt(100 * m.fsiUtil, 0)}%`], ["Premium", `${m.premium}/${m.units}`], ["Compromised", `${m.compromised}${m.futureComp != null ? ` (future ${m.futureComp})` : ""}`], ["Inventory risk", `${fmt(100 * m.risk, 1)}%`], ["Slenderness", `1:${fmt(m.slender, 1)}`]].map(([a, b]) => `<div class="kpi"><span>${a}</span><b style="font-size:15px">${b}</b></div>`).join("")}</div>`;
+  $("designHead").innerHTML = `<div class="row" style="justify-content:space-between"><h3>${esc(label(sp))} · ${sp.upf} unit${sp.upf > 1 ? "s" : ""} per floor · ${sp.n} floors (${fmt(m.height, 1)} m)</h3><span class="mono muted">${ev.id}</span></div><p class="hint">${sp.width} × ${sp.depth} m${pr ? " · " + esc(pr) : ""} · rotation ${sp.rotation}° · podium ${sp.podium} floors · floor-to-floor ${sp.ftf} m${sp.tokNote ? ` · ${esc(sp.tokNote)}` : ""}${sp.fitNote ? ` · <span class="warnline">${esc(sp.fitNote)}</span>` : ""}</p><div class="summary">${[["GDV", `₹${fmtInt(m.gdvCr)} cr`], ["Carpet", `${fmtInt(m.carpet)} m²`], ["Avg flat price", `₹${fmt(m.gdvCr / Math.max(1, m.units), 1)} cr`], ["Efficiency", fmt(m.efficiency, 2)], ["FSI used", `${fmt(100 * m.fsiUtil, 0)}%`], ["Premium", `${m.premium}/${m.units}`], ["Compromised", `${m.compromised}${m.futureComp != null ? ` (future ${m.futureComp})` : ""}`], ["Inventory risk", `${fmt(100 * m.risk, 1)}%`], ["Slenderness", `1:${fmt(m.slender, 1)}`]].map(([a, b]) => `<div class="kpi"><span>${a}</span><b style="font-size:15px">${b}</b></div>`).join("")}</div>`;
   $("checks").innerHTML = Object.entries(ev.checks).map(([id, [ok, d]]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "✗"}</span><span class="mono">${id}</span><span>${esc(d)}</span>`).join("");
   $("explain").innerHTML = ev.explain.map(x => `<li>${esc(x)}</li>`).join("");
   $("lvlPick").innerHTML = ev.evaluated.map(l => `<option value="${l}" ${l === st.level ? "selected" : ""}>${l} (${fmt(l * sp.ftf, 1)} m)</option>`).join("");
@@ -466,7 +483,7 @@ function renderDesign() {
 function runsOf(pts, gap) { const runs = []; let cur = []; for (const p of pts) { if (cur.length && Math.hypot(p[0] - cur[cur.length - 1][0], p[1] - cur[cur.length - 1][1]) > gap) { runs.push(cur); cur = []; } cur.push(p); } if (cur.length) runs.push(cur); return runs; }
 function renderPlan() {
   const ev = st.sel, l = st.level; if (!ev || l == null) return;
-  const plate = ev.plates[l], core = ev.cores[l], bb = bounds(st.env.concat(plate)), c = [(bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2], half = Math.max(bb[2] - bb[0], bb[3] - bb[1]) / 2 + 6, k = half / 320, svg = $("plan");
+  const tws = ev.towers || [ev], plate = ev.plates[l], core = ev.cores[l], bb = bounds(st.env.concat(...tws.map(t => t.plates[Math.min(l, t.sp.n - 1)] || []))), c = [(bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2], half = Math.max(bb[2] - bb[0], bb[3] - bb[1]) / 2 + 6, k = half / 320, svg = $("plan");
   svg.setAttribute("viewBox", `${c[0] - half} ${-c[1] - half} ${2 * half} ${2 * half}`);
   const out = [`<path d="${pathOf(st.boundary)}" fill="none" stroke="var(--ink-3)" stroke-dasharray="${4 * k} ${3 * k}" stroke-width="${k}"/>`, `<path d="${pathOf(st.env)}" fill="var(--accent-soft)" fill-opacity=".6" stroke="var(--accent)" stroke-width="${k}"/>`];
   for (const u of ev.units.filter(u => u.level === l)) {
@@ -474,8 +491,9 @@ function renderPlan() {
     const lp = centroid(u.mp[0][0]); out.push(`<text x="${lp[0]}" y="${-lp[1]}" font-size="${12 * k}" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none">U${u.id.split("-U")[1]} ${u.cls}</text>`);
     for (const r of u.rooms) { const col = r.room.startsWith("bed") ? "var(--bed)" : r.room === "living" ? "var(--living)" : "var(--service)"; for (const run of runsOf(r.pts, 3.6)) out.push(`<polyline points="${run.map(([x, y]) => `${x},${-y}`).join(" ")}" fill="none" stroke="${col}" stroke-width="${7 * k}" stroke-linecap="round"><title>${u.id} ${r.room}: view ${fmt(r.q, 2)}, sea ${fmt(r.water, 2)}</title></polyline>`); }
   }
-  out.push(`<path d="${pathOf(core)}" fill="var(--ink-2)" stroke="var(--ink)" stroke-width="${k}"/>`);
-  (ev.cols[l] || VT.structure(plate, core, 8).cols).forEach(([x, y]) => out.push(`<rect x="${x - 3 * k}" y="${-y - 3 * k}" width="${6 * k}" height="${6 * k}" fill="var(--ink)"/>`));
+  for (const t of tws) { const pl = t.plates[l], co = t.cores[l]; if (!pl || !co) continue;
+    out.push(`<path d="${pathOf(co)}" fill="var(--ink-2)" stroke="var(--ink)" stroke-width="${k}"/>`);
+    ((t.cols || {})[l] || VT.structure(pl, co, 8).cols).forEach(([x, y]) => out.push(`<rect x="${x - 3 * k}" y="${-y - 3 * k}" width="${6 * k}" height="${6 * k}" fill="var(--ink)"/>`)); }
   svg.innerHTML = out.join("");
 }
 
@@ -495,7 +513,7 @@ function setTab(id) { document.querySelectorAll("nav.tabs button").forEach(b => 
 async function changeSource(v) {
   st.src = v; $("liveBox").hidden = v !== "live"; $("uploadBox").hidden = v !== "upload"; $("oqText").value = GEO.overpassQuery(+$("lat").value, +$("lon").value, +$("rad").value || 900);
   if (v === "live") { initLeaflet(); setTimeout(() => leaf && leaf.invalidateSize(), 50); setInfo("ctxInfo", "Search or click the map, then press “Load context here”."); }
-  if (v === "dadar") await loadDadar();
+  if (SNAPSHOTS[v]) await loadSnapshot(v);
   if (v === "synthetic") loadSynthetic();
 }
 function renderTypos() { $("typos").innerHTML = TYPOS.map((t, i) => `<div class="typo"><input type="checkbox" id="ty-${i}" ${t.on ? "checked" : ""}><label for="ty-${i}" style="font-weight:600">${t.label}</label><div class="ps">${Object.entries(t.f).map(([k, v]) => `<label class="f">${FL[k]}<input type="text" id="ty-${i}-${k}" value="${v}"></label>`).join("")}</div></div>`).join(""); }
@@ -505,23 +523,23 @@ function unitFeatures(ev) { return ev.units.map(u => { const lr = u.rooms.find(r
 function resultsJSON() { return JSON.stringify({ engine_version: VT.fnv(String(VT.evaluateViews) + String(VT.classify) + String(VT.castRay)), data: dataSummary(), view_feedback: st.feedback, selected_units: st.sel ? unitFeatures(st.sel) : [], site: st.siteName, anchor_latlon: st.anchor, envelope_m2: ringArea(st.env), setbacks_m: st.isEnv ? null : st.setbacks, limits: st.C ? { fsi_m2: st.C.fsi, max_height_m: st.C.hmax } : { fsi_m2: +$("fsi").value, max_height_m: +$("hmax").value }, config_used: st.C || null, envelope: st.env, premium_arc_deg: st.field && st.field.arc, options: (st.results || []).map(e => ({ id: e.id, rank: e.rank, spec: e.sp, metrics: e.metrics, checks: e.checks })), rejected: st.rejected.map(e => ({ id: e.id, spec: e.sp, violations: e.viol })) }, (k, v) => typeof v === "number" ? +v.toFixed(4) : v, 1); }
 
 function countSpecs() { if (!st.env || !st.env.length) return 0; try { return buildSpecs(readConfig()).length; } catch (e) { return 0; } }
-window.VTApp = { st, label, readConfig, setBoundary, recomputeEnv, pressEnv, changeSource, loadLive, renderKPIs, setTab, TYPOS, compass, resultsJSON, countSpecs, SCENE_HALF, RES };
+window.VTApp = { st, TW, label, readConfig, setBoundary, recomputeEnv, pressEnv, changeSource, loadLive, renderKPIs, setTab, TYPOS, compass, resultsJSON, countSpecs, SCENE_HALF, RES };
 async function boot() {
   if (!window.THREE || !window.polygonClipping) { setInfo("runInfo", "A required library did not load. Check your connection and reload.", true); return; }
   V3D.init($("stage"));
-  V3D.on("pick", hit => { if (!st.sel || st.running) return; coneAt(hit.level, hit.x, hit.y); });
+  V3D.on("pick", hit => { if (!st.sel || st.running) return; coneAt(hit.level, hit.x, hit.y, hit.tower); });
   V3D.on("exitJump", () => { $("jumpbar").hidden = true; $("stage").querySelector(".tools").hidden = false; $("hudHint").hidden = false; });
   renderTypos();
   document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("click", () => setTab(b.id)));
   document.querySelectorAll("[data-zoom]").forEach(b => b.addEventListener("click", () => setZoom(b.dataset.zoom)));
   $("src").addEventListener("change", e => changeSource(e.target.value));
-  $("btnFetch").addEventListener("click", () => { if (st.src === "live") loadLive(); else if (st.src === "dadar") loadDadar(); else if (st.src === "synthetic") loadSynthetic(); else setInfo("ctxInfo", "Choose a file above.", true); });
+  $("btnFetch").addEventListener("click", () => { if (st.src === "live") loadLive(); else if (SNAPSHOTS[st.src]) loadSnapshot(st.src); else if (st.src === "synthetic") loadSynthetic(); else setInfo("ctxInfo", "Choose a file above.", true); });
   $("btnFind").addEventListener("click", async () => { try { const hits = await GEO.geocode($("placeQ").value); $("placeHits").innerHTML = hits.map((h, i) => `<button type="button" class="chip" data-i="${i}">${esc(h.name.split(",").slice(0, 3).join(","))}</button>`).join("") || "No match."; $("placeHits").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { const h = hits[+b.dataset.i]; setPin(h.lat, h.lon); if (leaf) leaf.setView([h.lat, h.lon], 16); })); } catch (e) { $("placeHits").textContent = "Place search is unavailable here (outside connections are blocked in this preview). Type coordinates instead."; } });
   $("osmFile").addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => loadUpload(String(r.result), f.name); r.readAsText(f); });
   $("btnCopyQ").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("oqText").value); $("btnCopyQ").textContent = "Copied"; } catch (e) { $("oqText").select(); } });
   $("dxfFile").addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => onDXF(String(r.result), f.name); r.readAsText(f); });
   $("geoMode").addEventListener("change", () => { geoModeUI(); }); $("btnGeoApply").addEventListener("click", reprojectDXF); $("bndPick").addEventListener("change", e => { st.dxf.idx = +e.target.value; reprojectDXF(); });
-  $("bIllus").addEventListener("click", () => { st.draw = null; $("drawBox").hidden = true; $("georef").hidden = true; setBoundary(illustrativePlot(st.illusCenter || [0, 0], st.illusAng || 0), st.src === "dadar" ? "Illustrative plot near Shivaji Park (not the project site)" : "Illustrative plot", [6, 6, 6, 6], "illus"); });
+  $("bIllus").addEventListener("click", () => { st.draw = null; $("drawBox").hidden = true; $("georef").hidden = true; setBoundary(st.illusRing || illustrativePlot(st.illusCenter || [0, 0], st.illusAng || 0, ...(st.illusSize || [64, 52])), SNAPSHOTS[st.src] ? SNAPSHOTS[st.src].name : "Illustrative plot", [6, 6, 6, 6], "illus"); });
   $("bDraw").addEventListener("click", () => { st.draw = []; $("drawBox").hidden = false; $("bDraw").setAttribute("aria-pressed", "true"); $("bIllus").setAttribute("aria-pressed", "false"); setTab("t-site"); setZoom("nbhd"); });
   $("drawUndo").addEventListener("click", () => { if (st.draw) { st.draw.pop(); renderMap(); } }); $("drawClear").addEventListener("click", () => { if (st.draw) { st.draw = []; renderMap(); } });
   $("drawDone").addEventListener("click", finishDraw);

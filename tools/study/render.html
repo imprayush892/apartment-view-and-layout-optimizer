@@ -1,0 +1,40 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Study render</title>
+<style>body{margin:0;background:#fff;font-family:system-ui,sans-serif}#stage{width:1000px;height:660px;position:relative}</style></head><body>
+<div id="stage"></div>
+<script src="lib/polygon-clipping.umd.min.js"></script><script src="lib/three.min.js"></script><script src="lib/OrbitControls.js"></script>
+<script src="js/engine.js"></script><script src="js/geo.js"></script><script src="js/view3d.js"></script><script src="js/tokens.js"></script>
+<script>
+/* Image-only renders for the architect study: two 3D views of a neutral massing in its OSM context and
+   a strip of floor plates. No numbers other than floor labels. */
+const R = { ctx: null, city: null, siteKey: null };
+R.load = async city => { if (R.city === city) return; const d = await (await fetch(`data/${city}_osm.json`)).json(); R.ctx = GEO.fromCompact(d, d.anchor, {}); R.city = city; R.siteKey = null; };
+R.site = (ring, env) => { const key = JSON.stringify(ring); if (R.siteKey === key) return; R.siteKey = key;
+  for (const b of R.ctx.buildings) b.excluded = VT.polysIntersect(b.ring, ring) || VT.pip(...VT.centroid(b.ring), ring);
+  const c = VT.centroid(env); R.center = c; R.S = GEO.buildScene(R.ctx, c, 1600, 4, { plot: ring });
+  V3D.setContext(R.ctx, R.S, c, { boundary: ring, env }, { el: document.getElementById("stage"), half: 1600 }); };
+function loadImg(src) { return new Promise(res => { const im = new Image(); im.onload = () => res(im); im.src = src; }); }
+function planSVG(towers, ring, env, levels, W, Hh) {
+  const pts = ring.concat(...towers.map(t => Object.values(t.plates).flat())), bb = VT.bounds(pts), pad = 6, sx = bb[2] - bb[0] + 2 * pad, sy = bb[3] - bb[1] + 2 * pad, sc = Math.min(W / sx, Hh / sy);
+  const P = r => "M" + r.map(([x, y]) => `${((x - bb[0] + pad) * sc).toFixed(1)},${((bb[3] + pad - y) * sc).toFixed(1)}`).join("L") + "Z";
+  let s = `<rect width="${W}" height="${Hh}" fill="#fbfcfc"/><path d="${P(ring)}" fill="none" stroke="#999" stroke-dasharray="6 4"/><path d="${P(env)}" fill="#e8f0f2" stroke="#8fb3bd"/>`;
+  for (const t of towers) { const L = levels(t); s += `<path d="${P(t.plates[L])}" fill="#dfe8ec" stroke="#1f2b2e" stroke-width="1.6"/>`; }
+  return s;
+}
+R.render = async (design) => {
+  const { ring, env, towers: sps, viewAz } = design; R.site(ring, env);
+  const towers = sps.map(sp => { const plates = {}; for (let l = 0; l < sp.n; l++) plates[l] = VT.plateAt(sp, l); return { sp, plates }; });
+  V3D.showMassing(towers, { color: 0xf0c890 }); const H = Math.max(...towers.map(t => t.sp.n * t.sp.ftf)), dist = Math.max(380, H * 3.0);
+  const shots = []; for (const [az, el] of [[viewAz, 38], [viewAz + 180 + 30, 45]]) { V3D.camAt(az, dist, el, H * 0.42); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); shots.push(await loadImg(V3D.snapshot(1000))); }
+  const cv = document.createElement("canvas"); cv.width = 2000; cv.height = 1080; const g = cv.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, 2000, 1080);
+  g.drawImage(shots[0], 0, 0, 1000, 660); g.drawImage(shots[1], 1000, 0, 1000, 660);
+  g.fillStyle = "#15201e"; g.font = "bold 26px system-ui"; g.fillText(design.label || "", 16, 38); g.font = "20px system-ui"; g.fillText("aerial from the main outlook side (proposal in warm tone)", 16, 650); g.fillText("aerial from the opposite side", 1016, 650);
+  // five floor plates
+  const t0 = towers[0], pod = t0.sp.podium, top = t0.sp.n - 1, lvls = [pod, Math.round(pod + (top - pod) * 0.25), Math.round(pod + (top - pod) * 0.5), Math.round(pod + (top - pod) * 0.75), top];
+  for (let i = 0; i < 5; i++) { const L = lvls[i], svg = `<svg xmlns="http://www.w3.org/2000/svg" width="390" height="360">${planSVG(towers, ring, env, t => Math.min(Math.round(L / t0.sp.n * t.sp.n), t.sp.n - 1), 390, 360)}</svg>`;
+    const im = await loadImg("data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg)); g.drawImage(im, 10 + i * 398, 690, 390, 360); g.fillStyle = "#15201e"; g.font = "18px system-ui"; g.fillText(`floor ${L} · ${Math.round(L * t0.sp.ftf)} m`, 18 + i * 398, 1072); }
+  // north arrow on the plan strip
+  g.save(); g.translate(1975, 715); g.fillStyle = "#15201e"; g.beginPath(); g.moveTo(0, -18); g.lineTo(8, 10); g.lineTo(-8, 10); g.closePath(); g.fill(); g.font = "16px system-ui"; g.fillText("N", -5, 28); g.restore();
+  return cv.toDataURL("image/jpeg", 0.86);
+};
+window.R = R; window.READY = true;
+</script></body></html>
