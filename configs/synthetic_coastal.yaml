@@ -1,0 +1,35 @@
+# Example project config on the synthetic coastal site (fictitious — no real data).
+# Generate the DXF first:  viewtower make-synthetic data/synthetic
+site:
+  dxf: ../data/synthetic/synthetic_coastal_site.dxf
+  boundary_is_envelope: false
+  edge_setbacks_m: [9.0, 6.0, 6.0, 9.0]    # S, E, N, W edges in boundary vertex order
+
+limits:
+  max_fsi_area_m2: 30000
+  max_height_m: 165
+
+context:
+  landmarks:
+    - {id: LM-BRIDGE-PYLON, x: -1400.0, y: 1800.0, z: 126.0, weight: 0.5}
+
+view:
+  heights_m: [0, 25, 50, 75, 100]
+
+search:
+  typologies:
+    - {typology: square, width: [26, 30]}
+    - {typology: rectangular, width: [34], depth: [24]}
+    - {typology: chamfered, width: [30], depth: [26], params: {chamfer_m: [4.0]}}
+    - {typology: diamond, width: [36]}
+    - {typology: curved, width: [34], depth: [28], params: {exponent: [2.5]}}
+    - {typology: y_shaped, width: [34], depth: [18], params: {wing_len: [17.0], wing_angle_deg: [120]}}
+    - {typology: cross, width: [36], depth: [16], params: {wing_len: [18.0]}}
+    - {typology: triangular, width: [40], depth: [36], params: {chamfer_m: [4.0]}}
+    - {typology: twisted, width: [28], params: {base: [square], twist_per_floor_deg: [1.2]}}
+    - {typology: tapered, width: [30], params: {base: [square], top_scale: [0.8]}}
+    - {typology: terraced, width: [32], depth: [28], params: {base: [rectangular], step_every: [10], step_m: [2.0], step_side_deg: [270]}}
+  rotation_deg: [0, 30]
+  units_per_floor: [1, 2]
+  podium_floors: [0, 6]
+  eval_every: 4

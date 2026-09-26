@@ -1,0 +1,39 @@
+# Template for a real project. Keep real drawings OUT of the repository (e.g. put them in ./private/,
+# which is git-ignored) and point `site.dxf` at them.
+#
+# 1) viewtower inspect-dxf private/site.dxf      -> confirm boundary, answer
+#    "Is this the buildable envelope?"; if not, give a setback per edge.
+# 2) fill in the three required limits below.
+# 3) viewtower site-view this.yaml               -> multi-height view field, premium arc
+# 4) viewtower run this.yaml --out out/          -> ranked, explainable options
+site:
+  dxf: ../private/site.dxf
+  boundary_is_envelope: true      # or false + edge_setbacks_m
+  edge_setbacks_m: null           # e.g. [6, 9, 6, 12] in the edge order printed by inspect-dxf
+  north_angle_deg: 0.0            # azimuth of true north in the drawing (clockwise from +Y)
+  anchor_latlon: null             # optional [lat, lon]
+
+limits:                           # REQUIRED — supplied by the design team (no statutory rules modelled)
+  max_fsi_area_m2: null           # total consumable FSI / built-up area
+  max_height_m: null
+  reserved_levels: []
+
+context:
+  landmarks: []                   # [{id, x, y, z, weight}] in the local frame
+view:
+  corridors: []                   # user-marked view directions [{from_deg, to_deg, weight, min_distance_m}]
+  weights: {corridor: 0.0}        # raise when corridors are marked
+
+economics:                        # your own assumptions (defaults are synthetic placeholders)
+  base_rate_inr_per_ft2: null
+  construction_cost_inr_per_ft2: null
+
+search:
+  typologies:
+    - {typology: square, width: [26, 28, 30]}
+    - {typology: chamfered, width: [30], depth: [26], params: {chamfer_m: [3.0, 5.0]}}
+    - {typology: twisted, width: [28], params: {base: [square], twist_per_floor_deg: [0.8, 1.2]}}
+  rotation_deg: [0, 15, 30, 45]
+  units_per_floor: [1, 2]
+  podium_floors: [0, 4, 8]
+  eval_every: 4

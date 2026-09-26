@@ -1,0 +1,105 @@
+# Defaults for every run. Project configs override any key (deep merge).
+# Statutory rules are NOT modelled — supply limits yourself (docs/spec/06_development_envelope.md).
+
+site:
+  dxf: null                    # path to DXF (relative to the config file)
+  units_to_m: null             # override DXF $INSUNITS
+  boundary_index: 0            # which proposed boundary polyline (after user confirmation)
+  boundary_is_envelope: true   # answer to "Is this the buildable envelope?"
+  edge_setbacks_m: null        # one per boundary edge when boundary_is_envelope is false
+  use_envelope_layer: true     # use an ENVELOPE layer from the DXF if present
+  north_angle_deg: 0.0         # azimuth of true north in the drawing (clockwise from +Y)
+  anchor_latlon: null          # [lat, lon] of the local origin (optional in synthetic mode)
+
+limits:                        # REQUIRED user inputs
+  max_fsi_area_m2: null        # total consumable FSI / built-up area
+  max_height_m: null
+  reserved_levels: []          # optional non-saleable floors
+
+context:
+  scenario: existing           # existing | future (future = existing + future buildings)
+  evaluate_future: true        # re-check the Pareto front against the future scenario
+  default_height_m: 20.0       # for context polygons without height (flagged 'assumed')
+  landmarks: []                # [{id, x, y, z, weight}]
+
+view:
+  raster_res_m: 4.0
+  heights_m: [0, 25, 50, 75, 100]
+  field_spacing_m: 10.0
+  azimuth_step_deg: 2.0
+  fov_half_angle_deg: 75.0
+  observer_spacing_m: 2.0
+  eye_height_m: 1.5
+  premium_arc_threshold: 0.5
+  corridors: []                # [{from_deg, to_deg, weight, min_distance_m}]
+  rays:
+    max_distance_m: 3000.0
+    min_distance_m: 1.0
+    growth: 0.01
+    water_ref_deg: 1.0
+    distance_ref_m: 50.0
+    privacy_distance_m: 30.0
+    landmark_halfwidth_deg: 3.0
+  weights:                     # directional quality Q(theta) — docs/spec/07 §3
+    water: 0.45
+    distance_score: 0.20
+    sky_openness: 0.15
+    green: 0.10
+    landmark: 0.10
+    corridor: 0.0
+    privacy_penalty: 0.30
+
+core:
+  area_m2: null                # fixed core area, or computed as below
+  fixed_m2: 95.0               # 2 stairs, fire + service lift & lobby, shafts (assumption — set yours)
+  per_unit_m2: 14.0            # private lift shaft + private lobby per unit
+
+structure:
+  perimeter_spacing_m: 8.0
+
+program:
+  split: equal_value           # equal_value | equal_area
+  default: {bedrooms: 3, living_frontage_m: 8.0, bedroom_frontage_m: 4.2, kitchen_frontage_m: 3.0}
+  by_units_per_floor:
+    1: {bedrooms: 5}
+    2: {bedrooms: 4}
+    3: {bedrooms: 3}
+    4: {bedrooms: 3}
+
+economics:                     # SYNTHETIC placeholder values — replace with your own assumptions
+  base_rate_inr_per_ft2: 45000
+  floor_rise_pct: 0.5
+  view_class_multiplier: {premium: 1.15, good: 1.00, neutral: 0.90, compromised: 0.75}
+  size_bands:
+    - {min_ft2: 0, max_ft2: 1500, multiplier: 0.97}
+    - {min_ft2: 1500, max_ft2: 4000, multiplier: 1.00}
+    - {min_ft2: 4000, max_ft2: 1000000000, multiplier: 1.03}
+  carpet_factor: 0.88
+  construction_cost_inr_per_ft2: 12000
+  complexity_cost_factor: 0.15
+
+search:
+  typologies: []
+  rotation_deg: [0]
+  position: centroid           # or {grid_step_m: 4, steps: 1}
+  floor_to_floor_m: [3.6]
+  podium_floors: [0]
+  units_per_floor: [2]
+  core_offset_m: [0.0]
+  n_floors: auto
+  eval_every: 1                # evaluate views every k-th saleable floor (others inherit from below)
+
+ranking:
+  pareto_objectives:
+    - {metric: gdv_inr, sense: max}
+    - {metric: compromised_units, sense: min}
+    - {metric: premium_units, sense: max}
+    - {metric: living_view_mean, sense: max}
+    - {metric: efficiency, sense: max}
+    - {metric: structural_complexity, sense: min}
+  priority:                    # presentation order within Pareto ranks (not an objective)
+    - {metric: compromised_units, equals: 0}
+    - {metric: gdv_inr, sense: max}
+
+rules: {}                      # overrides by rule id, e.g. {GR-DEPTH-01: 12.0}
+report: {top_n: 10, svg_n: 3}

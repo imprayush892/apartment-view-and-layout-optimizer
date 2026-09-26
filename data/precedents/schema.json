@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "viewtower/precedent.schema.json",
+  "title": "View-oriented residential tower precedent",
+  "description": "One record per building. Unknown values MUST be null — never guessed. Numeric values carry the source id that supports them in `field_sources`.",
+  "type": "object",
+  "required": ["id", "name", "city", "country", "typology", "sources", "confidence"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^P-[A-Z0-9-]+$"},
+    "name": {"type": "string"},
+    "city": {"type": "string"},
+    "country": {"type": "string"},
+    "architect": {"type": ["string", "null"]},
+    "completion_year": {"type": ["integer", "null"]},
+    "use": {"enum": ["residential", "mixed_residential", "mixed_other"]},
+    "typology": {"type": "array", "items": {"enum": [
+      "rectangular", "square", "slender", "rotated", "diamond", "triangular", "chamfered",
+      "y_shaped", "t_shaped", "cross", "curved", "cloverleaf", "terraced", "tapered", "twisted",
+      "podium_tower", "stacked_blocks", "pavilions", "undulating_slab"]}},
+    "height_m": {"type": ["number", "null"]},
+    "floors": {"type": ["integer", "null"]},
+    "footprint": {
+      "type": "object",
+      "properties": {
+        "shape": {"type": ["string", "null"]},
+        "width_m": {"type": ["number", "null"]},
+        "depth_m": {"type": ["number", "null"]},
+        "area_m2": {"type": ["number", "null"]}
+      }
+    },
+    "slenderness_h_over_b": {"type": ["number", "null"]},
+    "units_per_floor": {"type": ["string", "null"], "description": "Range or value, e.g. '1', '1-4'"},
+    "total_units": {"type": ["integer", "null"]},
+    "core": {
+      "type": "object",
+      "properties": {
+        "location": {"enum": ["central", "offset", "side", "split", "external", "hub", null]},
+        "type": {"type": ["string", "null"]},
+        "core_to_facade_m": {"type": ["number", "null"]}
+      }
+    },
+    "structural_system": {"type": ["string", "null"]},
+    "rotation_or_twist": {"type": ["string", "null"]},
+    "terracing": {"type": ["string", "null"]},
+    "orientation": {"type": ["string", "null"]},
+    "balcony_strategy": {"type": ["string", "null"]},
+    "window_strategy": {"type": ["string", "null"]},
+    "view_strategy": {"type": ["string", "null"]},
+    "unit_planning_strategy": {"type": ["string", "null"]},
+    "why_geometry_helps_views": {"type": ["string", "null"]},
+    "remaining_compromises": {"type": ["string", "null"]},
+    "extracted_rules": {"type": "array", "items": {"type": "string"}, "description": "Rule ids in data/rules/rules.yaml"},
+    "reproducible_parameters": {"type": "object", "description": "Parameters for the typology generator; null values mean not publicly available"},
+    "reproduction_confidence": {"enum": ["high", "medium", "low", "not_reproducible"]},
+    "sources": {"type": "array", "items": {"type": "object", "required": ["url", "accessed"], "properties": {"url": {"type": "string"}, "accessed": {"type": "string"}, "note": {"type": "string"}}}},
+    "field_sources": {"type": "object"},
+    "confidence": {"enum": ["high", "medium", "low"]},
+    "notes": {"type": ["string", "null"]}
+  }
+}

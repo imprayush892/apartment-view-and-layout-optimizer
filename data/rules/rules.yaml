@@ -1,0 +1,301 @@
+# Rule registry — the single source of truth for every threshold the engine uses.
+# kind: hard (reject candidate) | soft (reported objective / penalty) | commercial (pricing & classing)
+# Configs override `default` by id (see configs/*.yaml -> rules:). Code refers to rules ONLY by id.
+# confidence: high = directly stated by source; medium = inferred from several precedents;
+#             low = engineering assumption, must be confirmed by the design team.
+
+# ---------------- User-supplied envelope (hard) ----------------
+- id: ENV-FSI-01
+  kind: hard
+  definition: Total gross area of saleable floor plates must not exceed the user's consumable FSI area.
+  inputs: [plate_area_m2 per level, max_fsi_area_m2]
+  formula: sum(plate_area_m2[l] for l in saleable_levels) <= max_fsi_area_m2
+  source: user input
+  confidence: high
+  configurable: true
+  default: null
+- id: ENV-HEIGHT-01
+  kind: hard
+  definition: Building height must not exceed the user's maximum height.
+  inputs: [n_floors, floor_to_floor_m, max_height_m]
+  formula: n_floors * floor_to_floor_m <= max_height_m
+  source: user input
+  confidence: high
+  configurable: true
+  default: null
+- id: ENV-ENVELOPE-01
+  kind: hard
+  definition: Every floor plate must lie inside the buildable envelope (tolerance 1 mm).
+  inputs: [plate outline, envelope]
+  formula: envelope.buffer(0.001).contains(plate)
+  source: user input
+  confidence: high
+  configurable: false
+  default: null
+
+# ---------------- Geometric / planning rules ----------------
+- id: GR-DEPTH-01
+  kind: hard
+  definition: Maximum distance from core face to facade (lease depth) — keeps rooms daylit and spans economical.
+  inputs: [core, plate]
+  formula: P90 over facade points p (every 0.5 m) of dist(p, core) <= value  (corner diagonals are the top decile)
+  source: PREC (432 Park, Cayan central-core plates); ASM
+  confidence: medium
+  configurable: true
+  default: 13.5
+- id: GR-DEPTH-02
+  kind: soft
+  definition: Minimum core-to-facade distance so that a habitable room fits between core and facade.
+  inputs: [core, plate]
+  formula: min over facade points of dist(p, core) >= value
+  source: ASM
+  confidence: medium
+  configurable: true
+  default: 6.0
+- id: GR-FRONT-LR-01
+  kind: hard
+  definition: Minimum living-room facade frontage.
+  inputs: [living.frontage_m]
+  formula: living.frontage_m >= value
+  source: ASM (luxury plan survey pending)
+  confidence: low
+  configurable: true
+  default: 6.0
+- id: GR-FRONT-BR-01
+  kind: hard
+  definition: Minimum bedroom facade frontage.
+  inputs: [bed.frontage_m]
+  formula: bed.frontage_m >= value
+  source: ASM
+  confidence: low
+  configurable: true
+  default: 3.6
+- id: GR-FRONT-UNIT-01
+  kind: hard
+  definition: Minimum total unit facade frontage (living + bedrooms must fit).
+  inputs: [unit.frontage_m, n_bedrooms]
+  formula: unit.frontage_m >= GR-FRONT-LR-01 + n_bedrooms * GR-FRONT-BR-01 + service_frontage
+  source: derived
+  confidence: medium
+  configurable: false
+  default: null
+- id: GR-CORE-RATIO-01
+  kind: hard
+  definition: Core area share of plate within bounds (too small = unbuildable, too large = inefficient).
+  inputs: [core_area, plate_area]
+  formula: lo <= core_area / plate_area <= hi
+  source: PREC (slender towers typically 15-30 %); ASM
+  confidence: low
+  configurable: true
+  default: {lo: 0.08, hi: 0.35}
+- id: GR-SPAN-01
+  kind: hard
+  definition: Maximum slab span for a PT flat slab (perimeter column spacing and equivalent span).
+  inputs: [columns, core, plate]
+  formula: max(perimeter column spacing, 2 * max_{slab points} dist(point, nearest column or core)) <= value
+  source: ASM
+  confidence: medium
+  configurable: true
+  default: 12.0
+- id: GR-CANT-01
+  kind: hard
+  definition: Maximum cantilever (terrace / taper / twist overhang relative to the level below's column line).
+  inputs: ["plate[l]", "plate[l-1]"]
+  formula: max overhang distance <= value
+  source: ASM
+  confidence: low
+  configurable: true
+  default: 3.0
+- id: GR-SLEND-01
+  kind: soft
+  definition: Slenderness H/B. >8 flagged (needs wind engineering), >12 flagged severe (damping likely).
+  inputs: [height, min plate width]
+  formula: slenderness = H / B_min
+  source: PREC (432 Park 1:15, 111 W 57th 1:24 — both needed tuned mass dampers)
+  confidence: medium
+  configurable: true
+  default: {warn: 8, severe: 12}
+- id: GR-CORNER-01
+  kind: soft
+  definition: Prefer corner-located living rooms (two-direction view) — count of living rooms touching a plate corner.
+  inputs: [living assignment, plate vertices]
+  formula: living segment within 2 m of a convex vertex
+  source: PREC (432 Park corner units)
+  confidence: medium
+  configurable: true
+  default: 2.0
+- id: GR-UNITS-01
+  kind: commercial
+  definition: Units per floor can fall to 1-2 where the plate's premium arc cannot be shared without compromise.
+  inputs: [premium facade length, units_per_floor]
+  formula: units_per_floor <= floor(premium_frontage / (GR-FRONT-LR-01 + GR-FRONT-BR-01 * min_premium_bedrooms))
+  source: PREC (Altamount, Opus, 111 W 57th, 1000 Museum)
+  confidence: medium
+  configurable: true
+  default: null
+- id: GR-TIER-01
+  kind: soft
+  definition: Unit count per floor may decrease with height (tiered stacking) as the plate or premium arc changes.
+  inputs: [level, units_per_floor]
+  formula: units_per_floor is non-increasing with level
+  source: PREC (World One 6 -> 2)
+  confidence: medium
+  configurable: true
+  default: true
+- id: GR-TWIST-01
+  kind: soft
+  definition: Twist per floor bounded so perimeter columns stay buildable and interior layouts repeat.
+  inputs: [twist_per_floor_deg]
+  formula: 0 <= twist_per_floor_deg <= value
+  source: PREC (Cayan 1.2 deg/floor)
+  confidence: high
+  configurable: true
+  default: 1.5
+- id: GR-REPEAT-01
+  kind: soft
+  definition: Constructability rewards identical (or rigidly transformed) plates.
+  inputs: [plates]
+  formula: repetition = share of levels whose plate is congruent to the most common plate
+  source: PREC (Cayan identical plates)
+  confidence: medium
+  configurable: false
+  default: null
+- id: GR-WING-01
+  kind: soft
+  definition: Winged plans (Y/T/cross) should separate wings by >= 90 deg so each wing owns an outward sector.
+  inputs: [wing angles]
+  formula: min angular gap between wing axes >= value
+  source: PREC (Burj Khalifa 120 deg)
+  confidence: medium
+  configurable: true
+  default: 90
+- id: GR-REENTRANT-01
+  kind: soft
+  definition: Facade segments inside re-entrant corners get a privacy penalty (overlooking of own wings).
+  inputs: [facade segment, own plate]
+  formula: via view engine (own massing is an obstruction)
+  source: PREC (Burj Khalifa, World One)
+  confidence: medium
+  configurable: false
+  default: null
+- id: GR-PRIV-01
+  kind: hard
+  definition: Minimum facing distance between habitable windows of different units / buildings.
+  inputs: [distance_to_obstruction along facade normal, obstruction habitable]
+  formula: d_face >= value
+  source: PREC (Interlace spacing); ASM
+  confidence: low
+  configurable: true
+  default: 18.0
+- id: GR-PODIUM-01
+  kind: soft
+  definition: Place non-view programme (parking, amenity, podium) below the height where the premium view opens.
+  inputs: [view field by height]
+  formula: residential_start_z >= z where median premium-arc water_visibility first exceeds threshold
+  source: PREC (Wallich, Three Sixty West)
+  confidence: medium
+  configurable: true
+  default: 0.5
+- id: GR-TERRACE-01
+  kind: soft
+  definition: Terracing steps should face the premium view arc.
+  inputs: [terrace_side_azimuth, premium arc]
+  formula: terrace azimuth within premium arc
+  source: PREC (111 W 57th, Tour Triangle)
+  confidence: medium
+  configurable: false
+  default: null
+- id: GR-GAP-01
+  kind: soft
+  definition: Orient long facades so their normals pass through gaps between obstructions (view corridors).
+  inputs: [view field]
+  formula: realised via view-weighted orientation search
+  source: PREC (Keppel Bay, Aqua)
+  confidence: medium
+  configurable: false
+  default: null
+- id: GR-BALC-01
+  kind: soft
+  definition: Balcony slab above a window occludes the upper sky; balcony slab below occludes the downward (sea) view.
+  inputs: [balcony_depth_m, floor_to_floor_m]
+  formula: sill_occlusion_deg = atan(balcony_depth / eye_height)
+  source: PREC (Aqua)
+  confidence: medium
+  configurable: true
+  default: 0.0
+- id: GR-EXO-01
+  kind: soft
+  definition: Perimeter structure occludes views in proportion to column width / facade length.
+  inputs: [column width, facade length]
+  formula: column_occlusion = sum(col_w) / facade_len
+  source: PREC (1000 Museum, 432 Park)
+  confidence: medium
+  configurable: true
+  default: 0.8
+- id: GR-CORE-EXT-01
+  kind: soft
+  definition: Offset/external core frees the premium facade — core is pushed away from the premium arc.
+  inputs: [core position, premium arc]
+  formula: core offset direction = opposite of premium arc bisector
+  source: PREC (One Hyde Park)
+  confidence: medium
+  configurable: true
+  default: null
+- id: GR-LOBE-01
+  kind: soft
+  definition: Lobed/cloverleaf plans give each unit a projecting bay with side views.
+  inputs: [typology]
+  formula: typology in {cross, y_shaped}
+  source: PREC (World One)
+  confidence: low
+  configurable: false
+  default: null
+
+# ---------------- View classification (commercial; see docs/spec/08) ----------------
+- id: VC-LR-PREMIUM
+  kind: commercial
+  definition: Living room qualifies as premium when its aperture-weighted water view and quality exceed thresholds.
+  inputs: [living.water_fraction, living.view_score]
+  formula: water_fraction >= w_min and view_score >= q_min
+  source: commercial preference
+  confidence: n/a
+  configurable: true
+  default: {w_min: 0.35, q_min: 0.55}
+- id: VC-BR-PREMIUM
+  kind: commercial
+  definition: Minimum number of bedrooms with a water view (water_fraction >= value).
+  inputs: [bed.water_fraction]
+  formula: count(bed.water_fraction >= w_min) >= n_min
+  source: commercial preference (reference brief — sea views from bedrooms)
+  confidence: n/a
+  configurable: true
+  default: {w_min: 0.20, n_min: 2}
+- id: VC-GOOD
+  kind: commercial
+  definition: Good view — living room quality above threshold, water not required.
+  inputs: [living.view_score, living.distance_score]
+  formula: view_score >= q_min
+  source: commercial preference
+  confidence: n/a
+  configurable: true
+  default: {q_min: 0.40}
+- id: VC-COMPROMISED
+  kind: commercial
+  definition: A unit is compromised if ANY listed condition holds (see docs/spec/08 for maths).
+  inputs: [living.view_score, living.min_obstruction_distance, privacy_penalty, best_room_distance]
+  formula: living.view_score < q_lr_min OR living.d_obs_median < d_min OR unit.privacy_penalty > p_max OR living.horizon_angle_median > alpha_max
+  source: commercial preference
+  confidence: n/a
+  configurable: true
+  default: {q_lr_min: 0.25, d_min: 40.0, p_max: 0.5, alpha_max: 30.0}
+
+# ---------------- Added during implementation ----------------
+- id: GR-CORE-FIT-01
+  kind: hard
+  definition: The core must sit inside the plate with at least `value` metres of slab around it.
+  inputs: [core, plate]
+  formula: plate.buffer(-value).contains(core)
+  source: ASM
+  confidence: medium
+  configurable: true
+  default: 3.0

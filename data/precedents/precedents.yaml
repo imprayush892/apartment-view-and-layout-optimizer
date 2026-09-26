@@ -1,0 +1,497 @@
+# Precedent dataset — schema: data/precedents/schema.json
+# RULES: facts only from cited public sources (accessed 2026-09-26). Unknown => null.
+# Plate dimensions are only given where a source states them; otherwise null and
+# reproduction_confidence is lowered accordingly. Nothing here is copied drawings.
+
+- id: P-NYC-432PARK
+  name: 432 Park Avenue
+  city: New York
+  country: USA
+  architect: Rafael Viñoly Architects
+  completion_year: 2015
+  use: residential
+  typology: [square, slender]
+  height_m: 425.5
+  floors: null            # sources disagree on storey vs. numbered floors; not needed for rules
+  footprint: {shape: square, width_m: 28.3, depth_m: 28.3, area_m2: 801}
+  slenderness_h_over_b: 15
+  units_per_floor: "1-4"
+  total_units: null
+  core: {location: central, type: RC core, core_to_facade_m: null}
+  structural_system: Concrete core + perimeter concrete frame (exposed grid); tuned mass dampers
+  rotation_or_twist: none
+  terracing: none
+  orientation: Four equal facades — omnidirectional (Central Park N, rivers E/W)
+  balcony_strategy: No balconies
+  window_strategy: Repetitive ~3.05 m x 3.05 m (10 ft) punched windows in a concrete grid
+  view_strategy: Height + full-floor/corner units so every unit sees over neighbours
+  unit_planning_strategy: Full- and half-floor units wrapped around a central core
+  why_geometry_helps_views: Small square plate => short core-to-facade depth; every unit gets 2+ orientations
+  remaining_compromises: Grid columns frame views; small plate => high core ratio; wind motion needs damping
+  extracted_rules: [GR-SLEND-01, GR-CORNER-01, GR-UNITS-01]
+  reproducible_parameters: {typology: square, width_m: 28.3, height_m: 425.5, core: central, window_module_m: 3.05}
+  reproduction_confidence: medium
+  sources:
+    - {url: "https://www.skyscraper.org/supertall/building/432-park-avenue", accessed: "2026-09-26", note: "93 ft plate, 1:15 slenderness, 1-4 units/floor, 10x10 ft windows, 12.5 ft ceilings"}
+  confidence: high
+
+- id: P-NYC-111W57
+  name: 111 West 57th Street (Steinway Tower)
+  city: New York
+  country: USA
+  architect: SHoP Architects
+  completion_year: 2021
+  use: residential
+  typology: [slender, terraced]
+  height_m: 435
+  floors: 84
+  footprint: {shape: rectangle, width_m: 18.0, depth_m: 22.9, area_m2: null}   # 59 x 75 ft base per Architectural Digest
+  slenderness_h_over_b: 24
+  units_per_floor: "1-2 (full or half floor)"
+  total_units: null
+  core: {location: side, type: concrete shear walls, core_to_facade_m: null}
+  structural_system: Concrete shear walls on long sides; tuned mass damper
+  rotation_or_twist: none
+  terracing: Feathered stepped setbacks on south face towards Central Park
+  orientation: North (Central Park) and south long views
+  balcony_strategy: Terraces created by setbacks
+  window_strategy: Full glazing on N and S, terracotta/bronze on E/W
+  view_strategy: Extreme slenderness — one unit spans the plate, sees N and S
+  unit_planning_strategy: Floor-through units
+  why_geometry_helps_views: Plate depth equals unit depth, so no unit is single-aspect
+  remaining_compromises: Very small plate efficiency; very high structural and damping cost
+  extracted_rules: [GR-SLEND-01, GR-TERRACE-01, GR-UNITS-01]
+  reproducible_parameters: {typology: terraced, width_m: 18.0, depth_m: 22.9, height_m: 435, terrace_side: S}
+  reproduction_confidence: low
+  sources:
+    - {url: "https://en.wikipedia.org/wiki/111_West_57th_Street", accessed: "2026-09-26"}
+    - {url: "https://www.architecturaldigest.com/story/111-west-57th-street-the-worlds-skinniest-skyscraper", accessed: "2026-09-26", note: "59x75 ft, 24:1"}
+  confidence: medium
+
+- id: P-MUM-WORLDONE
+  name: World One (The World Towers)
+  city: Mumbai
+  country: India
+  architect: Pei Cobb Freed & Partners
+  completion_year: 2020
+  use: residential
+  typology: [cloverleaf, terraced]
+  height_m: 280.2
+  floors: 76
+  footprint: {shape: cloverleaf, width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: "6 (lower tier) / 2 (upper tier)"
+  total_units: null
+  core: {location: central, type: RC core, core_to_facade_m: null}
+  structural_system: null
+  rotation_or_twist: none
+  terracing: Tiered — plan changes between tiers
+  orientation: Sea views to west (Arabian Sea) from upper tier
+  balcony_strategy: null
+  window_strategy: High-performance low-E glazing
+  view_strategy: Cloverleaf lobes give each unit a projecting bay; fewer, larger units higher up where the sea view is guaranteed
+  unit_planning_strategy: Unit count per floor reduces with height (6 -> 2)
+  why_geometry_helps_views: Lobes push living spaces outward so the side windows see past neighbouring lobes
+  remaining_compromises: Lower-tier east-facing units look inland; re-entrant corners create overlooking
+  extracted_rules: [GR-TIER-01, GR-LOBE-01]
+  reproducible_parameters: {typology: cross, lobes: 4, units_per_floor_by_tier: [6, 2]}
+  reproduction_confidence: low
+  sources:
+    - {url: "https://www.pcf-p.com/projects/the-world-towers", accessed: "2026-09-26", note: "cloverleaf plan, 6 residences/floor first tier, 2 villas/floor second tier"}
+    - {url: "https://en.wikipedia.org/wiki/World_One", accessed: "2026-09-26"}
+  confidence: medium
+
+- id: P-MUM-ALTAMOUNT
+  name: Lodha Altamount
+  city: Mumbai
+  country: India
+  architect: Hadi Teherani
+  completion_year: null
+  use: residential
+  typology: [slender]
+  height_m: 195
+  floors: 43
+  footprint: {shape: null, width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: "1"
+  total_units: null
+  core: {location: null, type: null, core_to_facade_m: null}
+  structural_system: null
+  rotation_or_twist: none
+  terracing: null
+  orientation: Sea views (Arabian Sea, west)
+  balcony_strategy: null
+  window_strategy: All-glass facade
+  view_strategy: One apartment per floor => every unit has every view (by construction 0 % compromised)
+  unit_planning_strategy: Full-floor units (some duplex)
+  why_geometry_helps_views: No shared floor — view is allocated vertically, not horizontally
+  remaining_compromises: Maximum core/circulation overhead per unit; lower floors below neighbour heights
+  extracted_rules: [GR-UNITS-01]
+  reproducible_parameters: {units_per_floor: 1}
+  reproduction_confidence: not_reproducible
+  sources:
+    - {url: "https://en.wikipedia.org/wiki/Lodha_Altamount", accessed: "2026-09-26"}
+  confidence: medium
+
+- id: P-MUM-360WEST
+  name: Three Sixty West
+  city: Mumbai
+  country: India
+  architect: Kohn Pedersen Fox
+  completion_year: null
+  use: mixed_residential
+  typology: [podium_tower]
+  height_m: 255.6   # Tower A (residences) per Wikipedia; KPF text differs — see notes
+  floors: 52
+  footprint: {shape: null, width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: null
+  total_units: null
+  core: {location: null, type: null, core_to_facade_m: null}
+  structural_system: null
+  rotation_or_twist: null
+  terracing: null
+  orientation: Sea views from most sides (Worli seaface)
+  balcony_strategy: null
+  window_strategy: null
+  view_strategy: Podium spans site; towers lift residences above context
+  unit_planning_strategy: null
+  why_geometry_helps_views: Podium absorbs low-level non-view programme; residences start high
+  remaining_compromises: null
+  extracted_rules: [GR-PODIUM-01]
+  reproducible_parameters: {}
+  reproduction_confidence: not_reproducible
+  sources:
+    - {url: "https://en.wikipedia.org/wiki/Three_Sixty_West", accessed: "2026-09-26"}
+    - {url: "https://www.kpf.com/project/three-sixty-west", accessed: "2026-09-26"}
+  confidence: low
+  notes: Sources disagree on which tower holds residences and on heights; do not use numbers without verification.
+
+- id: P-DXB-CAYAN
+  name: Cayan Tower
+  city: Dubai
+  country: UAE
+  architect: Skidmore, Owings & Merrill
+  completion_year: 2013
+  use: residential
+  typology: [twisted]
+  height_m: 306
+  floors: 75
+  footprint: {shape: hexagon-like (identical plates), width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: null
+  total_units: null
+  core: {location: central, type: cylindrical RC core ("spindle"), core_to_facade_m: null}
+  structural_system: Cast-in-place high-strength RC columns + central cylindrical core
+  rotation_or_twist: 1.2 deg per floor, 90 deg total
+  terracing: none
+  orientation: Perpendicular to Dubai Marina
+  balcony_strategy: null
+  window_strategy: null
+  view_strategy: Twist rotates every unit's outlook progressively toward marina/gulf
+  unit_planning_strategy: Identical plates => identical internal layouts on all floors
+  why_geometry_helps_views: Twist distributes the premium direction across more units while preserving neighbours' views
+  remaining_compromises: Column geometry complexity; each floor's view differs so pricing is floor-specific
+  extracted_rules: [GR-TWIST-01, GR-REPEAT-01]
+  reproducible_parameters: {typology: twisted, twist_per_floor_deg: 1.2, floors: 75, core: central_cylinder}
+  reproduction_confidence: medium
+  sources:
+    - {url: "https://www.som.com/projects/cayan-tower", accessed: "2026-09-26"}
+    - {url: "https://architizer.com/projects/cayan-tower", accessed: "2026-09-26", note: "75 identical floor plates, 1.2 deg rotation"}
+    - {url: "https://www.architectmagazine.com/design/buildings/cayan-tower-designed-by-skidmore-owings-merrill_o", accessed: "2026-09-26"}
+  confidence: high
+
+- id: P-DXB-BURJ
+  name: Burj Khalifa
+  city: Dubai
+  country: UAE
+  architect: Skidmore, Owings & Merrill
+  completion_year: 2010
+  use: mixed_other
+  typology: [y_shaped, terraced]
+  height_m: 828
+  floors: null
+  footprint: {shape: Y (three wings at 120 deg), width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: null
+  total_units: null
+  core: {location: hub, type: hexagonal central core buttressed by wing corridors, core_to_facade_m: null}
+  structural_system: Buttressed core
+  rotation_or_twist: Spiralling setbacks
+  terracing: Setbacks step in a spiral around the three wings
+  orientation: Three wings — outward views, inward light
+  balcony_strategy: null
+  window_strategy: null
+  view_strategy: Wings maximise facade length per unit area; no unit faces directly into another wing at close range beyond the re-entrant zone
+  unit_planning_strategy: Units along each wing corridor
+  why_geometry_helps_views: 120 deg wing separation gives each wing a distinct outward sector
+  remaining_compromises: Re-entrant corners near hub look at adjacent wing (privacy/overlooking)
+  extracted_rules: [GR-WING-01, GR-REENTRANT-01]
+  reproducible_parameters: {typology: y_shaped, wing_angle_deg: 120}
+  reproduction_confidence: low
+  sources:
+    - {url: "https://www.burjkhalifa.ae/the-tower/structures", accessed: "2026-09-26"}
+  confidence: high
+
+- id: P-MIA-1000MUSEUM
+  name: One Thousand Museum
+  city: Miami
+  country: USA
+  architect: Zaha Hadid Architects
+  completion_year: 2019
+  use: residential
+  typology: [square, slender]
+  height_m: 215
+  floors: 62
+  footprint: {shape: square with curved exoskeleton, width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: "1-2 (half or full floor)"
+  total_units: 84
+  core: {location: central, type: RC core, core_to_facade_m: null}
+  structural_system: Perimeter concrete exoskeleton + core (column-free interiors)
+  rotation_or_twist: none
+  terracing: none
+  orientation: Biscayne Bay (east)
+  balcony_strategy: Recessed within exoskeleton
+  window_strategy: Floor-to-ceiling glazing between exoskeleton members
+  view_strategy: Half/full floor units — every unit has bay view
+  unit_planning_strategy: 4-6 bedroom units spanning half or whole floor
+  why_geometry_helps_views: Structure moved to perimeter so interiors are column-free
+  remaining_compromises: Exoskeleton members occlude parts of views (varies by floor)
+  extracted_rules: [GR-UNITS-01, GR-EXO-01]
+  reproducible_parameters: {typology: square, units_per_floor: [1, 2]}
+  reproduction_confidence: low
+  sources:
+    - {url: "https://en.wikipedia.org/wiki/One_Thousand_Museum", accessed: "2026-09-26"}
+  confidence: high
+
+- id: P-HK-OPUS
+  name: Opus Hong Kong
+  city: Hong Kong
+  country: China (SAR)
+  architect: Gehry Partners
+  completion_year: 2012
+  use: residential
+  typology: [twisted]
+  height_m: null
+  floors: 12
+  footprint: {shape: irregular, width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: "1"
+  total_units: 12
+  core: {location: null, type: null, core_to_facade_m: null}
+  structural_system: null
+  rotation_or_twist: Twisting columns / sculpted glass
+  terracing: null
+  orientation: Victoria Harbour
+  balcony_strategy: null
+  window_strategy: Full-height glazing
+  view_strategy: One unit per floor with 360 deg outlook
+  unit_planning_strategy: Full-floor units 448-640 m2 (sources vary)
+  why_geometry_helps_views: Hillside elevation + 1 unit/floor
+  remaining_compromises: null
+  extracted_rules: [GR-UNITS-01]
+  reproducible_parameters: {units_per_floor: 1}
+  reproduction_confidence: not_reproducible
+  sources:
+    - {url: "https://www.designboom.com/architecture/frank-gehry-opus-hong-kong", accessed: "2026-09-26"}
+  confidence: medium
+
+- id: P-SG-INTERLACE
+  name: The Interlace
+  city: Singapore
+  country: Singapore
+  architect: OMA / Büro Ole Scheeren
+  completion_year: 2013
+  use: residential
+  typology: [stacked_blocks, rotated]
+  height_m: null
+  floors: 24
+  footprint: {shape: 31 six-storey bars stacked in a hexagonal pattern, width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: null
+  total_units: 1040
+  core: {location: null, type: null, core_to_facade_m: null}
+  structural_system: Stacked blocks with transfer at intersections
+  rotation_or_twist: Bars rotated around hexagonal courtyards
+  terracing: Roof gardens on blocks below
+  orientation: Multi-directional
+  balcony_strategy: null
+  window_strategy: null
+  view_strategy: Horizontal bars stacked at angles open long views over courtyards instead of into neighbouring towers
+  unit_planning_strategy: Bar-type units
+  why_geometry_helps_views: Generous spacing between blocks preserves privacy
+  remaining_compromises: Heavy transfer structures; lower blocks overshadowed
+  extracted_rules: [GR-PRIV-01]
+  reproducible_parameters: {}
+  reproduction_confidence: not_reproducible
+  sources:
+    - {url: "https://archello.com/project/the-interlace", accessed: "2026-09-26"}
+  confidence: medium
+
+- id: P-SG-KEPPEL
+  name: Reflections at Keppel Bay
+  city: Singapore
+  country: Singapore
+  architect: Studio Libeskind
+  completion_year: 2011
+  use: residential
+  typology: [curved]
+  height_m: null
+  floors: null
+  footprint: {shape: curved slab towers, width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: null
+  total_units: null
+  core: {location: null, type: null, core_to_facade_m: null}
+  structural_system: null
+  rotation_or_twist: Curving profiles
+  terracing: Alternating heights
+  orientation: Waterfront, Sentosa, Mount Faber
+  balcony_strategy: null
+  window_strategy: Curved glass
+  view_strategy: Carefully placed curving towers of alternating heights create gaps and vistas
+  unit_planning_strategy: null
+  why_geometry_helps_views: Curvature and spacing open diagonal view corridors between towers
+  remaining_compromises: null
+  extracted_rules: [GR-GAP-01]
+  reproducible_parameters: {}
+  reproduction_confidence: not_reproducible
+  sources:
+    - {url: "https://www.designboom.com/architecture/daniel-libeskind-reflections-at-keppel-bay", accessed: "2026-09-26"}
+  confidence: medium
+
+- id: P-SG-WALLICH
+  name: Wallich Residence (Guoco Tower)
+  city: Singapore
+  country: Singapore
+  architect: SOM (Guoco Tower)
+  completion_year: 2016
+  use: mixed_residential
+  typology: [podium_tower]
+  height_m: 290
+  floors: null
+  footprint: {shape: null, width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: null
+  total_units: 181
+  core: {location: null, type: null, core_to_facade_m: null}
+  structural_system: null
+  rotation_or_twist: null
+  terracing: null
+  orientation: Sea and city
+  balcony_strategy: null
+  window_strategy: Wrap-around glass
+  view_strategy: Residences stacked on top of office floors (floors 39-64), starting ~180 m up
+  unit_planning_strategy: null
+  why_geometry_helps_views: Non-view programme placed below residences — lifts all units above context
+  remaining_compromises: null
+  extracted_rules: [GR-PODIUM-01]
+  reproducible_parameters: {}
+  reproduction_confidence: not_reproducible
+  sources:
+    - {url: "https://www.enewproperty.com/wallich-residence", accessed: "2026-09-26"}
+  confidence: medium
+
+- id: P-LDN-ONEHYDEPARK
+  name: One Hyde Park
+  city: London
+  country: UK
+  architect: Rogers Stirk Harbour + Partners
+  completion_year: 2010
+  use: residential
+  typology: [pavilions]
+  height_m: null
+  floors: null
+  footprint: {shape: four linked pavilions, width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: null
+  total_units: 86
+  core: {location: external, type: fully glazed circulation cores between pavilions, core_to_facade_m: null}
+  structural_system: null
+  rotation_or_twist: none
+  terracing: none
+  orientation: Hyde Park (north) and Knightsbridge (south)
+  balcony_strategy: null
+  window_strategy: Full glazing on park faces
+  view_strategy: Cores pulled out between pavilions so both park and street faces are habitable
+  unit_planning_strategy: Floor-through apartments per pavilion
+  why_geometry_helps_views: Removing the core from the plate centre gives dual aspect
+  remaining_compromises: Pavilion side faces look at neighbouring pavilion
+  extracted_rules: [GR-CORE-EXT-01, GR-PRIV-01]
+  reproducible_parameters: {}
+  reproduction_confidence: not_reproducible
+  sources:
+    - {url: "https://rshp.com/projects/residential/one-hyde-park", accessed: "2026-09-26"}
+  confidence: medium
+
+- id: P-PAR-TRIANGLE
+  name: Tour Triangle
+  city: Paris
+  country: France
+  architect: Herzog & de Meuron
+  completion_year: 2026
+  use: mixed_other
+  typology: [triangular, terraced]
+  height_m: 180
+  floors: 42
+  footprint: {shape: trapezoid (thin end toward central Paris), width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: null
+  total_units: null
+  core: {location: null, type: null, core_to_facade_m: null}
+  structural_system: null
+  rotation_or_twist: none
+  terracing: Successive setbacks create terraces on the north edge on every floor
+  orientation: Oriented to minimise shadow and maximise viewing angles
+  balcony_strategy: Terraces from setbacks
+  window_strategy: Large glass modules
+  view_strategy: Triangular section — terraces face the view
+  unit_planning_strategy: null
+  why_geometry_helps_views: Setbacks convert roof area into view terraces on every floor
+  remaining_compromises: Floor plate shrinks with height (non-repetitive)
+  extracted_rules: [GR-TERRACE-01]
+  reproducible_parameters: {typology: terraced}
+  reproduction_confidence: low
+  sources:
+    - {url: "https://www.herzogdemeuron.com/projects/307-triangle", accessed: "2026-09-26"}
+    - {url: "https://www.dezeen.com/2026/05/11/tour-triangle-skyscraper-herzog-de-meuron-tops-out-paris", accessed: "2026-09-26"}
+  confidence: medium
+  notes: Office/hotel-led; included for terracing-for-view rule, not for unit planning.
+
+- id: P-CHI-AQUA
+  name: Aqua Tower
+  city: Chicago
+  country: USA
+  architect: Studio Gang
+  completion_year: 2009
+  use: mixed_residential
+  typology: [undulating_slab]
+  height_m: null
+  floors: null
+  footprint: {shape: rectangle with per-floor sculpted slab edges, width_m: null, depth_m: null, area_m2: null}
+  slenderness_h_over_b: null
+  units_per_floor: null
+  total_units: null
+  core: {location: central, type: null, core_to_facade_m: null}
+  structural_system: RC flat slabs; balconies are slab extensions
+  rotation_or_twist: none (plate constant; slab edges vary)
+  terracing: none
+  orientation: Lakefront + city
+  balcony_strategy: Balcony depth varies per floor to "navigate sight lines around corners and through gaps between existing buildings"
+  window_strategy: null
+  view_strategy: Slab edge shaped by per-floor view analysis
+  unit_planning_strategy: Repetitive units; variation only in slab edge
+  why_geometry_helps_views: Cheap, per-floor variation (slab edge only) aimed at specific gaps
+  remaining_compromises: Balconies above occlude upward views; balcony slabs occlude downward views
+  extracted_rules: [GR-BALC-01]
+  reproducible_parameters: {}
+  reproduction_confidence: not_reproducible
+  sources:
+    - {url: "https://studiogang.com/projects/aqua-tower", accessed: "2026-09-26"}
+  confidence: medium
+
+# ---- Research gaps (explicit) ----
+# Ahmedabad / Gujarat: this research pass found no publicly documented view-driven residential
+# tower with enough geometric information to extract rules (only press mentions of towers of
+# ~100-222 m in GIFT City / Ahmedabad). Left as an open task in docs/spec/12_roadmap.md.
