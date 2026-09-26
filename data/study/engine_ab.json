@@ -1,0 +1,3024 @@
+{
+ "summary": {
+  "designs": 120,
+  "E1_skyline": {
+   "premiumShare_base": 0.43213965751114536,
+   "premiumShare_seaOnly": 0.13703651153167465,
+   "livingView_base": 0.5598383777137127,
+   "livingView_seaOnly": 0.379096070435102
+  },
+  "E2_rules": {
+   "compromisedShare_dense": 0.26655070523334123,
+   "compromisedShare_coastal": 0.5536515498997466,
+   "designsWithZeroCompromised_dense": 26,
+   "designsWithZeroCompromised_coastal": 4
+  },
+  "E3_privacy": {
+   "rejectedUnderHard18m": 10,
+   "rejectedAdvisory": 0,
+   "medianClosestFacing_m": 49.25
+  }
+ },
+ "rows": [
+  {
+   "id": "A003",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 126,
+    "premium": 74,
+    "compromised": 39,
+    "livingView": 0.5692200608170871,
+    "closest": 57
+   },
+   "seaOnly": {
+    "units": 126,
+    "premium": 0,
+    "compromised": 53,
+    "livingView": 0.2513084671278405,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 126,
+    "premium": 64,
+    "compromised": 62,
+    "livingView": 0.556319073968411,
+    "closest": 57
+   }
+  },
+  {
+   "id": "A008",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 142,
+    "premium": 96,
+    "compromised": 46,
+    "livingView": 0.6256208641932285,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 142,
+    "premium": 0,
+    "compromised": 50,
+    "livingView": 0.2678600498218032,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 142,
+    "premium": 56,
+    "compromised": 86,
+    "livingView": 0.6202597947346056,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A002",
+   "city": "nyc_lower",
+   "base": {
+    "units": 268,
+    "premium": 260,
+    "compromised": 1,
+    "livingView": 0.7436817555599966,
+    "closest": 1017.25
+   },
+   "seaOnly": {
+    "units": 268,
+    "premium": 132,
+    "compromised": 0,
+    "livingView": 0.7290683042705434,
+    "closest": 241.3937651527145
+   },
+   "coastal": {
+    "units": 268,
+    "premium": 217,
+    "compromised": 49,
+    "livingView": 0.7453312517729993,
+    "closest": 1017.25
+   }
+  },
+  {
+   "id": "A005",
+   "city": "ldn_canary",
+   "base": {
+    "units": 96,
+    "premium": 79,
+    "compromised": 0,
+    "livingView": 0.6971938969377565,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 96,
+    "premium": 66,
+    "compromised": 0,
+    "livingView": 0.6630796206611606,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 96,
+    "premium": 79,
+    "compromised": 10,
+    "livingView": 0.69562338189909,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A013",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 140,
+    "premium": 71,
+    "compromised": 65,
+    "livingView": 0.5352316716308266,
+    "closest": 27.75
+   },
+   "seaOnly": {
+    "units": 140,
+    "premium": 0,
+    "compromised": 74,
+    "livingView": 0.21887825624427643,
+    "closest": 29
+   },
+   "coastal": {
+    "units": 140,
+    "premium": 51,
+    "compromised": 89,
+    "livingView": 0.5277856847476332,
+    "closest": 27.75
+   }
+  },
+  {
+   "id": "A018",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 146,
+    "premium": 102,
+    "compromised": 33,
+    "livingView": 0.6050954236068989,
+    "closest": 19.5
+   },
+   "seaOnly": {
+    "units": 146,
+    "premium": 0,
+    "compromised": 55,
+    "livingView": 0.2531471699904187,
+    "closest": 20
+   },
+   "coastal": {
+    "units": 146,
+    "premium": 71,
+    "compromised": 75,
+    "livingView": 0.5986067675362496,
+    "closest": 19.5
+   }
+  },
+  {
+   "id": "A007",
+   "city": "nyc_lower",
+   "base": {
+    "units": 280,
+    "premium": 258,
+    "compromised": 4,
+    "livingView": 0.7267849137126039,
+    "closest": 10
+   },
+   "seaOnly": {
+    "units": 280,
+    "premium": 132,
+    "compromised": 27,
+    "livingView": 0.6298453673497966,
+    "closest": 8
+   },
+   "coastal": {
+    "units": 280,
+    "premium": 208,
+    "compromised": 70,
+    "livingView": 0.7282292954199664,
+    "closest": 10
+   }
+  },
+  {
+   "id": "A023",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 98,
+    "premium": 7,
+    "compromised": 84,
+    "livingView": 0.4222795441890854,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 98,
+    "premium": 0,
+    "compromised": 95,
+    "livingView": 0.18931419777382977,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 98,
+    "premium": 3,
+    "compromised": 95,
+    "livingView": 0.4211837420446499,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A010",
+   "city": "ldn_canary",
+   "base": {
+    "units": 54,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.487141285619749,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 54,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.40925745770353855,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 54,
+    "premium": 0,
+    "compromised": 5,
+    "livingView": 0.5001419054936658,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A004",
+   "city": "ldn_city",
+   "base": {
+    "units": 440,
+    "premium": 117,
+    "compromised": 6,
+    "livingView": 0.5311699738520801,
+    "closest": 18.75
+   },
+   "seaOnly": {
+    "units": 440,
+    "premium": 0,
+    "compromised": 21,
+    "livingView": 0.3470443004389846,
+    "closest": 31.75
+   },
+   "coastal": {
+    "units": 440,
+    "premium": 117,
+    "compromised": 61,
+    "livingView": 0.5319330406782043,
+    "closest": 19
+   }
+  },
+  {
+   "id": "A012",
+   "city": "nyc_lower",
+   "base": {
+    "units": 108,
+    "premium": 36,
+    "compromised": 60,
+    "livingView": 0.4898576570380363,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 108,
+    "premium": 0,
+    "compromised": 70,
+    "livingView": 0.28980499832906154,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 108,
+    "premium": 23,
+    "compromised": 85,
+    "livingView": 0.48115864783433415,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A028",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 88,
+    "premium": 55,
+    "compromised": 17,
+    "livingView": 0.5891188850570047,
+    "closest": 140.5
+   },
+   "seaOnly": {
+    "units": 88,
+    "premium": 0,
+    "compromised": 41,
+    "livingView": 0.2501639718562332,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 88,
+    "premium": 30,
+    "compromised": 58,
+    "livingView": 0.5744889528864718,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A009",
+   "city": "ldn_city",
+   "base": {
+    "units": 68,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.5189835403317354,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 68,
+    "premium": 0,
+    "compromised": 6,
+    "livingView": 0.31851577063832087,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 68,
+    "premium": 0,
+    "compromised": 68,
+    "livingView": 0.5189835403317354,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A017",
+   "city": "nyc_lower",
+   "base": {
+    "units": 112,
+    "premium": 108,
+    "compromised": 3,
+    "livingView": 0.7421042523358924,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 112,
+    "premium": 55,
+    "compromised": 0,
+    "livingView": 0.6979093497993313,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 112,
+    "premium": 84,
+    "compromised": 27,
+    "livingView": 0.7437270127845224,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A033",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 162,
+    "premium": 130,
+    "compromised": 29,
+    "livingView": 0.6269335539396368,
+    "closest": 41
+   },
+   "seaOnly": {
+    "units": 162,
+    "premium": 0,
+    "compromised": 49,
+    "livingView": 0.2681434822045285,
+    "closest": 41
+   },
+   "coastal": {
+    "units": 162,
+    "premium": 82,
+    "compromised": 80,
+    "livingView": 0.617409059949786,
+    "closest": 41
+   }
+  },
+  {
+   "id": "A022",
+   "city": "nyc_lower",
+   "base": {
+    "units": 74,
+    "premium": 34,
+    "compromised": 40,
+    "livingView": 0.6279660848160783,
+    "closest": 45.5
+   },
+   "seaOnly": {
+    "units": 74,
+    "premium": 26,
+    "compromised": 40,
+    "livingView": 0.512476875064144,
+    "closest": 27.25
+   },
+   "coastal": {
+    "units": 74,
+    "premium": 20,
+    "compromised": 54,
+    "livingView": 0.6177653500035003,
+    "closest": 45.5
+   }
+  },
+  {
+   "id": "A038",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 74,
+    "premium": 27,
+    "compromised": 30,
+    "livingView": 0.5413521499348255,
+    "closest": 40.25
+   },
+   "seaOnly": {
+    "units": 74,
+    "premium": 0,
+    "compromised": 45,
+    "livingView": 0.21672960534375008,
+    "closest": 33
+   },
+   "coastal": {
+    "units": 74,
+    "premium": 6,
+    "compromised": 68,
+    "livingView": 0.5248953716870643,
+    "closest": 40.25
+   }
+  },
+  {
+   "id": "A015",
+   "city": "ldn_canary",
+   "base": {
+    "units": 112,
+    "premium": 65,
+    "compromised": 38,
+    "livingView": 0.6148501557731229,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 112,
+    "premium": 34,
+    "compromised": 42,
+    "livingView": 0.49037228401508465,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 112,
+    "premium": 55,
+    "compromised": 57,
+    "livingView": 0.6085298933379575,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A014",
+   "city": "ldn_city",
+   "base": {
+    "units": 110,
+    "premium": 91,
+    "compromised": 0,
+    "livingView": 0.6759869942625294,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 110,
+    "premium": 90,
+    "compromised": 0,
+    "livingView": 0.6798245841868993,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 110,
+    "premium": 91,
+    "compromised": 2,
+    "livingView": 0.6768820848549609,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A027",
+   "city": "nyc_lower",
+   "base": {
+    "units": 52,
+    "premium": 0,
+    "compromised": 52,
+    "livingView": 0.17781328420380613,
+    "closest": 17
+   },
+   "seaOnly": {
+    "units": 52,
+    "premium": 0,
+    "compromised": 52,
+    "livingView": 0.0843223391726055,
+    "closest": 17
+   },
+   "coastal": {
+    "units": 52,
+    "premium": 0,
+    "compromised": 52,
+    "livingView": 0.17781328420380613,
+    "closest": 17
+   }
+  },
+  {
+   "id": "A043",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 96,
+    "premium": 50,
+    "compromised": 37,
+    "livingView": 0.54199424176662,
+    "closest": 36
+   },
+   "seaOnly": {
+    "units": 96,
+    "premium": 0,
+    "compromised": 44,
+    "livingView": 0.2292979262000123,
+    "closest": 46
+   },
+   "coastal": {
+    "units": 96,
+    "premium": 18,
+    "compromised": 78,
+    "livingView": 0.5263385127379098,
+    "closest": 36
+   }
+  },
+  {
+   "id": "A032",
+   "city": "nyc_lower",
+   "base": {
+    "units": 68,
+    "premium": 0,
+    "compromised": 61,
+    "livingView": 0.34448466861254673,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 68,
+    "premium": 0,
+    "compromised": 62,
+    "livingView": 0.15262754348123586,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 68,
+    "premium": 0,
+    "compromised": 68,
+    "livingView": 0.3382962924751295,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A019",
+   "city": "ldn_city",
+   "base": {
+    "units": 176,
+    "premium": 81,
+    "compromised": 6,
+    "livingView": 0.5646772539922157,
+    "closest": 29
+   },
+   "seaOnly": {
+    "units": 176,
+    "premium": 72,
+    "compromised": 9,
+    "livingView": 0.5105588850643893,
+    "closest": 29
+   },
+   "coastal": {
+    "units": 176,
+    "premium": 81,
+    "compromised": 28,
+    "livingView": 0.5649293777481205,
+    "closest": 29
+   }
+  },
+  {
+   "id": "A048",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 192,
+    "premium": 75,
+    "compromised": 74,
+    "livingView": 0.509270765445777,
+    "closest": 14
+   },
+   "seaOnly": {
+    "units": 192,
+    "premium": 0,
+    "compromised": 111,
+    "livingView": 0.21900975894502173,
+    "closest": 26
+   },
+   "coastal": {
+    "units": 192,
+    "premium": 26,
+    "compromised": 166,
+    "livingView": 0.4971335995588267,
+    "closest": 14
+   }
+  },
+  {
+   "id": "A037",
+   "city": "nyc_lower",
+   "base": {
+    "units": 96,
+    "premium": 22,
+    "compromised": 44,
+    "livingView": 0.47010790851682455,
+    "closest": 16
+   },
+   "seaOnly": {
+    "units": 96,
+    "premium": 0,
+    "compromised": 44,
+    "livingView": 0.325366736647916,
+    "closest": 20.5
+   },
+   "coastal": {
+    "units": 96,
+    "premium": 12,
+    "compromised": 84,
+    "livingView": 0.4542735165574285,
+    "closest": 16
+   }
+  },
+  {
+   "id": "A020",
+   "city": "ldn_canary",
+   "base": {
+    "units": 128,
+    "premium": 63,
+    "compromised": 3,
+    "livingView": 0.5656710937340276,
+    "closest": 27
+   },
+   "seaOnly": {
+    "units": 128,
+    "premium": 7,
+    "compromised": 20,
+    "livingView": 0.3619050337730419,
+    "closest": 36
+   },
+   "coastal": {
+    "units": 128,
+    "premium": 14,
+    "compromised": 114,
+    "livingView": 0.5555948739465542,
+    "closest": 27
+   }
+  },
+  {
+   "id": "A024",
+   "city": "ldn_city",
+   "base": {
+    "units": 72,
+    "premium": 4,
+    "compromised": 11,
+    "livingView": 0.5173967897660303,
+    "closest": 49.25
+   },
+   "seaOnly": {
+    "units": 72,
+    "premium": 0,
+    "compromised": 10,
+    "livingView": 0.31416540373900365,
+    "closest": 39.5
+   },
+   "coastal": {
+    "units": 72,
+    "premium": 4,
+    "compromised": 47,
+    "livingView": 0.5173725393662071,
+    "closest": 49.25
+   }
+  },
+  {
+   "id": "A042",
+   "city": "nyc_lower",
+   "base": {
+    "units": 82,
+    "premium": 73,
+    "compromised": 1,
+    "livingView": 0.6873068989019386,
+    "closest": 60.75
+   },
+   "seaOnly": {
+    "units": 82,
+    "premium": 37,
+    "compromised": 1,
+    "livingView": 0.6587521144687619,
+    "closest": 24
+   },
+   "coastal": {
+    "units": 82,
+    "premium": 40,
+    "compromised": 41,
+    "livingView": 0.6877606648076128,
+    "closest": 60.75
+   }
+  },
+  {
+   "id": "A029",
+   "city": "ldn_city",
+   "base": {
+    "units": 74,
+    "premium": 2,
+    "compromised": 0,
+    "livingView": 0.5238931583296835,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 74,
+    "premium": 1,
+    "compromised": 4,
+    "livingView": 0.3941371703115072,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 74,
+    "premium": 2,
+    "compromised": 41,
+    "livingView": 0.5272465042807967,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A047",
+   "city": "nyc_lower",
+   "base": {
+    "units": 88,
+    "premium": 86,
+    "compromised": 2,
+    "livingView": 0.7658316742764032,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 88,
+    "premium": 75,
+    "compromised": 1,
+    "livingView": 0.726848770786467,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 88,
+    "premium": 60,
+    "compromised": 28,
+    "livingView": 0.7601046301923927,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A053",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 192,
+    "premium": 49,
+    "compromised": 98,
+    "livingView": 0.49890484150962605,
+    "closest": 36.75
+   },
+   "seaOnly": {
+    "units": 192,
+    "premium": 0,
+    "compromised": 145,
+    "livingView": 0.19374599912272425,
+    "closest": 35
+   },
+   "coastal": {
+    "units": 192,
+    "premium": 13,
+    "compromised": 177,
+    "livingView": 0.48841466768056846,
+    "closest": 36.75
+   }
+  },
+  {
+   "id": "A025",
+   "city": "ldn_canary",
+   "base": {
+    "units": 70,
+    "premium": 32,
+    "compromised": 7,
+    "livingView": 0.5577644489585285,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 70,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.49579497822719665,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 70,
+    "premium": 32,
+    "compromised": 30,
+    "livingView": 0.5493980568336512,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A034",
+   "city": "ldn_city",
+   "base": {
+    "units": 46,
+    "premium": 0,
+    "compromised": 8,
+    "livingView": 0.4649704185190203,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 46,
+    "premium": 0,
+    "compromised": 7,
+    "livingView": 0.35211728622506583,
+    "closest": 18
+   },
+   "coastal": {
+    "units": 46,
+    "premium": 0,
+    "compromised": 29,
+    "livingView": 0.46531004316416363,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A058",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 104,
+    "premium": 40,
+    "compromised": 48,
+    "livingView": 0.4908385778518501,
+    "closest": 22
+   },
+   "seaOnly": {
+    "units": 104,
+    "premium": 0,
+    "compromised": 53,
+    "livingView": 0.22021047610912112,
+    "closest": 24
+   },
+   "coastal": {
+    "units": 104,
+    "premium": 3,
+    "compromised": 100,
+    "livingView": 0.48700908823355876,
+    "closest": 22
+   }
+  },
+  {
+   "id": "A052",
+   "city": "nyc_lower",
+   "base": {
+    "units": 146,
+    "premium": 67,
+    "compromised": 71,
+    "livingView": 0.593718965593763,
+    "closest": 29
+   },
+   "seaOnly": {
+    "units": 146,
+    "premium": 40,
+    "compromised": 71,
+    "livingView": 0.441375773854654,
+    "closest": 31
+   },
+   "coastal": {
+    "units": 146,
+    "premium": 63,
+    "compromised": 81,
+    "livingView": 0.5880175721130738,
+    "closest": 29
+   }
+  },
+  {
+   "id": "A063",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 88,
+    "premium": 40,
+    "compromised": 34,
+    "livingView": 0.5293465853441707,
+    "closest": 38
+   },
+   "seaOnly": {
+    "units": 88,
+    "premium": 0,
+    "compromised": 56,
+    "livingView": 0.20733723742545307,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 88,
+    "premium": 1,
+    "compromised": 87,
+    "livingView": 0.510410507861379,
+    "closest": 38
+   }
+  },
+  {
+   "id": "A039",
+   "city": "ldn_city",
+   "base": {
+    "units": 138,
+    "premium": 7,
+    "compromised": 0,
+    "livingView": 0.4857173460154258,
+    "closest": 45
+   },
+   "seaOnly": {
+    "units": 138,
+    "premium": 1,
+    "compromised": 6,
+    "livingView": 0.3829729484771552,
+    "closest": 33
+   },
+   "coastal": {
+    "units": 138,
+    "premium": 7,
+    "compromised": 27,
+    "livingView": 0.48785551509495273,
+    "closest": 45
+   }
+  },
+  {
+   "id": "A030",
+   "city": "ldn_canary",
+   "base": {
+    "units": 38,
+    "premium": 6,
+    "compromised": 22,
+    "livingView": 0.5587358626605563,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 38,
+    "premium": 0,
+    "compromised": 2,
+    "livingView": 0.3424819932847896,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 38,
+    "premium": 0,
+    "compromised": 38,
+    "livingView": 0.5333042683921824,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A068",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 52,
+    "premium": 39,
+    "compromised": 12,
+    "livingView": 0.6599435336139131,
+    "closest": 28
+   },
+   "seaOnly": {
+    "units": 52,
+    "premium": 0,
+    "compromised": 9,
+    "livingView": 0.2695578617810541,
+    "closest": 24
+   },
+   "coastal": {
+    "units": 52,
+    "premium": 0,
+    "compromised": 52,
+    "livingView": 0.6563455431170457,
+    "closest": 28
+   }
+  },
+  {
+   "id": "A057",
+   "city": "nyc_lower",
+   "base": {
+    "units": 156,
+    "premium": 139,
+    "compromised": 14,
+    "livingView": 0.737108470340897,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 156,
+    "premium": 54,
+    "compromised": 5,
+    "livingView": 0.5016480432048761,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 156,
+    "premium": 94,
+    "compromised": 62,
+    "livingView": 0.7353959839061122,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A073",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 98,
+    "premium": 60,
+    "compromised": 30,
+    "livingView": 0.568916666819913,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 98,
+    "premium": 0,
+    "compromised": 36,
+    "livingView": 0.26216438269853404,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 98,
+    "premium": 35,
+    "compromised": 63,
+    "livingView": 0.5481550421122694,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A062",
+   "city": "nyc_lower",
+   "base": {
+    "units": 92,
+    "premium": 30,
+    "compromised": 52,
+    "livingView": 0.3972283353710793,
+    "closest": 26
+   },
+   "seaOnly": {
+    "units": 92,
+    "premium": 3,
+    "compromised": 52,
+    "livingView": 0.2968855885121563,
+    "closest": 25
+   },
+   "coastal": {
+    "units": 92,
+    "premium": 27,
+    "compromised": 65,
+    "livingView": 0.4014754441922338,
+    "closest": 26
+   }
+  },
+  {
+   "id": "A078",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 108,
+    "premium": 28,
+    "compromised": 70,
+    "livingView": 0.3452666192718774,
+    "closest": 28
+   },
+   "seaOnly": {
+    "units": 108,
+    "premium": 0,
+    "compromised": 74,
+    "livingView": 0.17291365406732162,
+    "closest": 29
+   },
+   "coastal": {
+    "units": 108,
+    "premium": 25,
+    "compromised": 83,
+    "livingView": 0.3264331542331849,
+    "closest": 28
+   }
+  },
+  {
+   "id": "A044",
+   "city": "ldn_city",
+   "base": {
+    "units": 124,
+    "premium": 9,
+    "compromised": 25,
+    "livingView": 0.4752175737136653,
+    "closest": 45
+   },
+   "seaOnly": {
+    "units": 124,
+    "premium": 0,
+    "compromised": 37,
+    "livingView": 0.3526970392545474,
+    "closest": 27
+   },
+   "coastal": {
+    "units": 124,
+    "premium": 9,
+    "compromised": 63,
+    "livingView": 0.4636900885897113,
+    "closest": 45
+   }
+  },
+  {
+   "id": "A067",
+   "city": "nyc_lower",
+   "base": {
+    "units": 118,
+    "premium": 85,
+    "compromised": 33,
+    "livingView": 0.6822215143215891,
+    "closest": 15.75
+   },
+   "seaOnly": {
+    "units": 118,
+    "premium": 55,
+    "compromised": 34,
+    "livingView": 0.5576684006428863,
+    "closest": 15
+   },
+   "coastal": {
+    "units": 118,
+    "premium": 63,
+    "compromised": 55,
+    "livingView": 0.6677200356541596,
+    "closest": 20
+   }
+  },
+  {
+   "id": "A035",
+   "city": "ldn_canary",
+   "base": {
+    "units": 84,
+    "premium": 42,
+    "compromised": 16,
+    "livingView": 0.5916621544789757,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 84,
+    "premium": 8,
+    "compromised": 21,
+    "livingView": 0.41467745099759473,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 84,
+    "premium": 22,
+    "compromised": 62,
+    "livingView": 0.5787950536291838,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A083",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 138,
+    "premium": 90,
+    "compromised": 30,
+    "livingView": 0.5962135287173168,
+    "closest": 32
+   },
+   "seaOnly": {
+    "units": 138,
+    "premium": 0,
+    "compromised": 53,
+    "livingView": 0.24962945461158698,
+    "closest": 30
+   },
+   "coastal": {
+    "units": 138,
+    "premium": 25,
+    "compromised": 113,
+    "livingView": 0.586697943379155,
+    "closest": 32
+   }
+  },
+  {
+   "id": "A049",
+   "city": "ldn_city",
+   "base": {
+    "units": 64,
+    "premium": 2,
+    "compromised": 0,
+    "livingView": 0.5196095783513116,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 64,
+    "premium": 0,
+    "compromised": 3,
+    "livingView": 0.4061033088336612,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 64,
+    "premium": 2,
+    "compromised": 8,
+    "livingView": 0.520857403629721,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A089",
+   "city": "ldn_city",
+   "base": {
+    "units": 76,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.5231551152247501,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 76,
+    "premium": 0,
+    "compromised": 3,
+    "livingView": 0.33346640607039235,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 76,
+    "premium": 0,
+    "compromised": 67,
+    "livingView": 0.5246959714625498,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A072",
+   "city": "nyc_lower",
+   "base": {
+    "units": 84,
+    "premium": 7,
+    "compromised": 70,
+    "livingView": 0.42570180545264624,
+    "closest": 23
+   },
+   "seaOnly": {
+    "units": 84,
+    "premium": 0,
+    "compromised": 67,
+    "livingView": 0.1990363633318365,
+    "closest": 27.5
+   },
+   "coastal": {
+    "units": 84,
+    "premium": 7,
+    "compromised": 77,
+    "livingView": 0.420839116480254,
+    "closest": 23
+   }
+  },
+  {
+   "id": "A077",
+   "city": "nyc_lower",
+   "base": {
+    "units": 90,
+    "premium": 90,
+    "compromised": 0,
+    "livingView": 0.8505943869312615,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 90,
+    "premium": 90,
+    "compromised": 0,
+    "livingView": 0.8751554935325766,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 90,
+    "premium": 45,
+    "compromised": 45,
+    "livingView": 0.8505943869312615,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A094",
+   "city": "ldn_city",
+   "base": {
+    "units": 96,
+    "premium": 83,
+    "compromised": 0,
+    "livingView": 0.6740371194508047,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 96,
+    "premium": 82,
+    "compromised": 0,
+    "livingView": 0.6507907812741781,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 96,
+    "premium": 83,
+    "compromised": 0,
+    "livingView": 0.6740371194508047,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A040",
+   "city": "ldn_canary",
+   "base": {
+    "units": 56,
+    "premium": 0,
+    "compromised": 32,
+    "livingView": 0.33044857820765633,
+    "closest": 11
+   },
+   "seaOnly": {
+    "units": 56,
+    "premium": 0,
+    "compromised": 32,
+    "livingView": 0.26386834846775353,
+    "closest": 11
+   },
+   "coastal": {
+    "units": 56,
+    "premium": 0,
+    "compromised": 41,
+    "livingView": 0.34727647893219854,
+    "closest": 11
+   }
+  },
+  {
+   "id": "A099",
+   "city": "ldn_city",
+   "base": {
+    "units": 76,
+    "premium": 0,
+    "compromised": 2,
+    "livingView": 0.524328849082719,
+    "closest": 17
+   },
+   "seaOnly": {
+    "units": 76,
+    "premium": 0,
+    "compromised": 2,
+    "livingView": 0.36417631699918757,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 76,
+    "premium": 0,
+    "compromised": 9,
+    "livingView": 0.5071098219530458,
+    "closest": 21.75
+   }
+  },
+  {
+   "id": "A082",
+   "city": "nyc_lower",
+   "base": {
+    "units": 76,
+    "premium": 37,
+    "compromised": 17,
+    "livingView": 0.539063771124879,
+    "closest": 18.75
+   },
+   "seaOnly": {
+    "units": 76,
+    "premium": 0,
+    "compromised": 26,
+    "livingView": 0.2716601924364831,
+    "closest": 22.75
+   },
+   "coastal": {
+    "units": 76,
+    "premium": 25,
+    "compromised": 51,
+    "livingView": 0.5190763208163801,
+    "closest": 22.75
+   }
+  },
+  {
+   "id": "A088",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 66,
+    "premium": 0,
+    "compromised": 62,
+    "livingView": 0.25162229254990737,
+    "closest": 12.75
+   },
+   "seaOnly": {
+    "units": 66,
+    "premium": 0,
+    "compromised": 66,
+    "livingView": 0.10917260682407663,
+    "closest": 14.75
+   },
+   "coastal": {
+    "units": 66,
+    "premium": 0,
+    "compromised": 66,
+    "livingView": 0.23943103666478097,
+    "closest": 12.75
+   }
+  },
+  {
+   "id": "A054",
+   "city": "ldn_city",
+   "base": {
+    "units": 196,
+    "premium": 50,
+    "compromised": 16,
+    "livingView": 0.5689849065323216,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 196,
+    "premium": 1,
+    "compromised": 1,
+    "livingView": 0.4961551270696869,
+    "closest": 118.75
+   },
+   "coastal": {
+    "units": 196,
+    "premium": 50,
+    "compromised": 81,
+    "livingView": 0.5680080218446912,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A093",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 138,
+    "premium": 95,
+    "compromised": 36,
+    "livingView": 0.5800511212673666,
+    "closest": 25
+   },
+   "seaOnly": {
+    "units": 138,
+    "premium": 0,
+    "compromised": 53,
+    "livingView": 0.25354777694502767,
+    "closest": 26.75
+   },
+   "coastal": {
+    "units": 138,
+    "premium": 62,
+    "compromised": 76,
+    "livingView": 0.5663083018745256,
+    "closest": 28
+   }
+  },
+  {
+   "id": "A059",
+   "city": "ldn_city",
+   "base": {
+    "units": 54,
+    "premium": 37,
+    "compromised": 0,
+    "livingView": 0.5988154173989173,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 54,
+    "premium": 33,
+    "compromised": 0,
+    "livingView": 0.5658425891641505,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 54,
+    "premium": 37,
+    "compromised": 0,
+    "livingView": 0.5988154173989173,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A045",
+   "city": "ldn_canary",
+   "base": {
+    "units": 104,
+    "premium": 91,
+    "compromised": 0,
+    "livingView": 0.6809944147667343,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 104,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.4556352528075286,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 104,
+    "premium": 88,
+    "compromised": 16,
+    "livingView": 0.6809125171475118,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A098",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 164,
+    "premium": 99,
+    "compromised": 61,
+    "livingView": 0.550628092313363,
+    "closest": 34.5
+   },
+   "seaOnly": {
+    "units": 164,
+    "premium": 0,
+    "compromised": 62,
+    "livingView": 0.25444358672375594,
+    "closest": 35.5
+   },
+   "coastal": {
+    "units": 164,
+    "premium": 81,
+    "compromised": 83,
+    "livingView": 0.54666855419647,
+    "closest": 34.5
+   }
+  },
+  {
+   "id": "A104",
+   "city": "ldn_city",
+   "base": {
+    "units": 320,
+    "premium": 14,
+    "compromised": 0,
+    "livingView": 0.5016360721216924,
+    "closest": 87.5
+   },
+   "seaOnly": {
+    "units": 320,
+    "premium": 0,
+    "compromised": 15,
+    "livingView": 0.33444461754576926,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 320,
+    "premium": 14,
+    "compromised": 109,
+    "livingView": 0.505335647844484,
+    "closest": 87.5
+   }
+  },
+  {
+   "id": "A103",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 96,
+    "premium": 23,
+    "compromised": 65,
+    "livingView": 0.4642844737150149,
+    "closest": 20
+   },
+   "seaOnly": {
+    "units": 96,
+    "premium": 0,
+    "compromised": 82,
+    "livingView": 0.1861235482086978,
+    "closest": 27
+   },
+   "coastal": {
+    "units": 96,
+    "premium": 1,
+    "compromised": 95,
+    "livingView": 0.45633000150756925,
+    "closest": 20
+   }
+  },
+  {
+   "id": "A064",
+   "city": "ldn_city",
+   "base": {
+    "units": 216,
+    "premium": 0,
+    "compromised": 42,
+    "livingView": 0.44389551598685845,
+    "closest": 35
+   },
+   "seaOnly": {
+    "units": 216,
+    "premium": 0,
+    "compromised": 44,
+    "livingView": 0.2926891243832012,
+    "closest": 33
+   },
+   "coastal": {
+    "units": 216,
+    "premium": 0,
+    "compromised": 126,
+    "livingView": 0.4404159183108372,
+    "closest": 40.75
+   }
+  },
+  {
+   "id": "A109",
+   "city": "ldn_city",
+   "base": {
+    "units": 88,
+    "premium": 12,
+    "compromised": 0,
+    "livingView": 0.5388417256221525,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 88,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.4247446071182432,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 88,
+    "premium": 12,
+    "compromised": 1,
+    "livingView": 0.5388417256221525,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A050",
+   "city": "ldn_canary",
+   "base": {
+    "units": 106,
+    "premium": 83,
+    "compromised": 0,
+    "livingView": 0.6555575317472675,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 106,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.4339165383378398,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 106,
+    "premium": 69,
+    "compromised": 30,
+    "livingView": 0.6527144664289983,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A114",
+   "city": "ldn_city",
+   "base": {
+    "units": 104,
+    "premium": 15,
+    "compromised": 0,
+    "livingView": 0.527706447383106,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 104,
+    "premium": 0,
+    "compromised": 3,
+    "livingView": 0.37105257741217706,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 104,
+    "premium": 15,
+    "compromised": 22,
+    "livingView": 0.5295995190750434,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A069",
+   "city": "ldn_city",
+   "base": {
+    "units": 176,
+    "premium": 39,
+    "compromised": 0,
+    "livingView": 0.5059631769812047,
+    "closest": 88.5
+   },
+   "seaOnly": {
+    "units": 176,
+    "premium": 0,
+    "compromised": 1,
+    "livingView": 0.38805114952076775,
+    "closest": 81.75
+   },
+   "coastal": {
+    "units": 176,
+    "premium": 39,
+    "compromised": 4,
+    "livingView": 0.5059631769812047,
+    "closest": 88.5
+   }
+  },
+  {
+   "id": "A108",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 240,
+    "premium": 119,
+    "compromised": 97,
+    "livingView": 0.5454245825968841,
+    "closest": 20
+   },
+   "seaOnly": {
+    "units": 240,
+    "premium": 0,
+    "compromised": 116,
+    "livingView": 0.23153847695208896,
+    "closest": 22
+   },
+   "coastal": {
+    "units": 240,
+    "premium": 78,
+    "compromised": 158,
+    "livingView": 0.5379068742966083,
+    "closest": 22
+   }
+  },
+  {
+   "id": "A074",
+   "city": "ldn_city",
+   "base": {
+    "units": 54,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.5022969146272003,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 54,
+    "premium": 0,
+    "compromised": 3,
+    "livingView": 0.34710694366401035,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 54,
+    "premium": 0,
+    "compromised": 16,
+    "livingView": 0.524657129161518,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A119",
+   "city": "ldn_city",
+   "base": {
+    "units": 64,
+    "premium": 0,
+    "compromised": 22,
+    "livingView": 0.45310382108147484,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 64,
+    "premium": 0,
+    "compromised": 12,
+    "livingView": 0.3669941463277883,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 64,
+    "premium": 0,
+    "compromised": 30,
+    "livingView": 0.45112849745466355,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A113",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 114,
+    "premium": 71,
+    "compromised": 43,
+    "livingView": 0.647918488270721,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 114,
+    "premium": 0,
+    "compromised": 43,
+    "livingView": 0.2839079639158997,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 114,
+    "premium": 8,
+    "compromised": 106,
+    "livingView": 0.6482618906313556,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A124",
+   "city": "ldn_city",
+   "base": {
+    "units": 82,
+    "premium": 32,
+    "compromised": 2,
+    "livingView": 0.5717799167359833,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 82,
+    "premium": 27,
+    "compromised": 3,
+    "livingView": 0.4946651141269352,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 82,
+    "premium": 32,
+    "compromised": 35,
+    "livingView": 0.5633078176303391,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A055",
+   "city": "ldn_canary",
+   "base": {
+    "units": 120,
+    "premium": 83,
+    "compromised": 15,
+    "livingView": 0.665951169044695,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 120,
+    "premium": 39,
+    "compromised": 0,
+    "livingView": 0.5114121584570392,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 120,
+    "premium": 74,
+    "compromised": 46,
+    "livingView": 0.6679297006861706,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A118",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 162,
+    "premium": 120,
+    "compromised": 32,
+    "livingView": 0.6273479749140944,
+    "closest": 29.75
+   },
+   "seaOnly": {
+    "units": 162,
+    "premium": 0,
+    "compromised": 44,
+    "livingView": 0.2885539254942788,
+    "closest": 31.25
+   },
+   "coastal": {
+    "units": 162,
+    "premium": 81,
+    "compromised": 81,
+    "livingView": 0.6211512208825184,
+    "closest": 29.75
+   }
+  },
+  {
+   "id": "A079",
+   "city": "ldn_city",
+   "base": {
+    "units": 144,
+    "premium": 2,
+    "compromised": 12,
+    "livingView": 0.5131815967367623,
+    "closest": 35.75
+   },
+   "seaOnly": {
+    "units": 144,
+    "premium": 0,
+    "compromised": 15,
+    "livingView": 0.29922561581036017,
+    "closest": 44
+   },
+   "coastal": {
+    "units": 144,
+    "premium": 2,
+    "compromised": 65,
+    "livingView": 0.520179428702278,
+    "closest": 34.5
+   }
+  },
+  {
+   "id": "A123",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 50,
+    "premium": 2,
+    "compromised": 30,
+    "livingView": 0.38645057912195424,
+    "closest": 6
+   },
+   "seaOnly": {
+    "units": 50,
+    "premium": 0,
+    "compromised": 46,
+    "livingView": 0.16354728158311102,
+    "closest": 17
+   },
+   "coastal": {
+    "units": 50,
+    "premium": 0,
+    "compromised": 50,
+    "livingView": 0.3688901493410979,
+    "closest": 6
+   }
+  },
+  {
+   "id": "A129",
+   "city": "ldn_city",
+   "base": {
+    "units": 32,
+    "premium": 16,
+    "compromised": 1,
+    "livingView": 0.5850287918706623,
+    "closest": 24
+   },
+   "seaOnly": {
+    "units": 32,
+    "premium": 16,
+    "compromised": 3,
+    "livingView": 0.5420076061717432,
+    "closest": 21.75
+   },
+   "coastal": {
+    "units": 32,
+    "premium": 16,
+    "compromised": 9,
+    "livingView": 0.588230700079517,
+    "closest": 24
+   }
+  },
+  {
+   "id": "A060",
+   "city": "ldn_canary",
+   "base": {
+    "units": 68,
+    "premium": 68,
+    "compromised": 0,
+    "livingView": 0.7456948733027877,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 68,
+    "premium": 68,
+    "compromised": 0,
+    "livingView": 0.7003699578574345,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 68,
+    "premium": 59,
+    "compromised": 9,
+    "livingView": 0.756572069361456,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A130",
+   "city": "ldn_canary",
+   "base": {
+    "units": 104,
+    "premium": 68,
+    "compromised": 34,
+    "livingView": 0.6264523585367328,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 104,
+    "premium": 19,
+    "compromised": 46,
+    "livingView": 0.4761128278017894,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 104,
+    "premium": 49,
+    "compromised": 55,
+    "livingView": 0.6261161434216113,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A134",
+   "city": "ldn_city",
+   "base": {
+    "units": 120,
+    "premium": 33,
+    "compromised": 7,
+    "livingView": 0.5297257232169883,
+    "closest": 32
+   },
+   "seaOnly": {
+    "units": 120,
+    "premium": 30,
+    "compromised": 11,
+    "livingView": 0.4696346999044845,
+    "closest": 33
+   },
+   "coastal": {
+    "units": 120,
+    "premium": 33,
+    "compromised": 47,
+    "livingView": 0.5329448621886634,
+    "closest": 32
+   }
+  },
+  {
+   "id": "A139",
+   "city": "ldn_city",
+   "base": {
+    "units": 90,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.4830169460068632,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 90,
+    "premium": 0,
+    "compromised": 6,
+    "livingView": 0.32428158927035233,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 90,
+    "premium": 0,
+    "compromised": 6,
+    "livingView": 0.4830169460068632,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A065",
+   "city": "ldn_canary",
+   "base": {
+    "units": 98,
+    "premium": 34,
+    "compromised": 45,
+    "livingView": 0.568818471024681,
+    "closest": 37.75
+   },
+   "seaOnly": {
+    "units": 98,
+    "premium": 0,
+    "compromised": 41,
+    "livingView": 0.3801825808433773,
+    "closest": 39.5
+   },
+   "coastal": {
+    "units": 98,
+    "premium": 31,
+    "compromised": 65,
+    "livingView": 0.5687603808012573,
+    "closest": 37.75
+   }
+  },
+  {
+   "id": "A085",
+   "city": "ldn_canary",
+   "base": {
+    "units": 318,
+    "premium": 198,
+    "compromised": 31,
+    "livingView": 0.637126578743282,
+    "closest": 27
+   },
+   "seaOnly": {
+    "units": 318,
+    "premium": 49,
+    "compromised": 80,
+    "livingView": 0.44804455985062125,
+    "closest": 25
+   },
+   "coastal": {
+    "units": 318,
+    "premium": 152,
+    "compromised": 163,
+    "livingView": 0.6309727114359829,
+    "closest": 27
+   }
+  },
+  {
+   "id": "A144",
+   "city": "ldn_city",
+   "base": {
+    "units": 68,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.5240258453846239,
+    "closest": 34
+   },
+   "seaOnly": {
+    "units": 68,
+    "premium": 0,
+    "compromised": 3,
+    "livingView": 0.3968036420241917,
+    "closest": 30.75
+   },
+   "coastal": {
+    "units": 68,
+    "premium": 0,
+    "compromised": 15,
+    "livingView": 0.5265807405859179,
+    "closest": 34
+   }
+  },
+  {
+   "id": "A135",
+   "city": "ldn_canary",
+   "base": {
+    "units": 76,
+    "premium": 28,
+    "compromised": 14,
+    "livingView": 0.5792872712121245,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 76,
+    "premium": 4,
+    "compromised": 10,
+    "livingView": 0.4558265117115459,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 76,
+    "premium": 28,
+    "compromised": 22,
+    "livingView": 0.570029443989553,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A149",
+   "city": "ldn_city",
+   "base": {
+    "units": 148,
+    "premium": 8,
+    "compromised": 2,
+    "livingView": 0.4815182054894932,
+    "closest": 29.5
+   },
+   "seaOnly": {
+    "units": 148,
+    "premium": 0,
+    "compromised": 10,
+    "livingView": 0.33108306791589903,
+    "closest": 31
+   },
+   "coastal": {
+    "units": 148,
+    "premium": 8,
+    "compromised": 47,
+    "livingView": 0.49032851252214227,
+    "closest": 29.5
+   }
+  },
+  {
+   "id": "A140",
+   "city": "ldn_canary",
+   "base": {
+    "units": 64,
+    "premium": 25,
+    "compromised": 0,
+    "livingView": 0.609979365086265,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 64,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.438656276192714,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 64,
+    "premium": 25,
+    "compromised": 0,
+    "livingView": 0.609979365086265,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A090",
+   "city": "ldn_canary",
+   "base": {
+    "units": 276,
+    "premium": 37,
+    "compromised": 125,
+    "livingView": 0.5099384783170589,
+    "closest": 35
+   },
+   "seaOnly": {
+    "units": 276,
+    "premium": 0,
+    "compromised": 72,
+    "livingView": 0.369970624397552,
+    "closest": 31.75
+   },
+   "coastal": {
+    "units": 276,
+    "premium": 31,
+    "compromised": 184,
+    "livingView": 0.5105675772482751,
+    "closest": 35
+   }
+  },
+  {
+   "id": "A070",
+   "city": "ldn_canary",
+   "base": {
+    "units": 416,
+    "premium": 176,
+    "compromised": 9,
+    "livingView": 0.6280453610865043,
+    "closest": 29
+   },
+   "seaOnly": {
+    "units": 416,
+    "premium": 0,
+    "compromised": 26,
+    "livingView": 0.39186364533477863,
+    "closest": 30.75
+   },
+   "coastal": {
+    "units": 416,
+    "premium": 110,
+    "compromised": 157,
+    "livingView": 0.6269091642268236,
+    "closest": 29
+   }
+  },
+  {
+   "id": "A145",
+   "city": "ldn_canary",
+   "base": {
+    "units": 84,
+    "premium": 55,
+    "compromised": 0,
+    "livingView": 0.6584556006017301,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 84,
+    "premium": 22,
+    "compromised": 0,
+    "livingView": 0.5369196800105094,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 84,
+    "premium": 55,
+    "compromised": 0,
+    "livingView": 0.6584556006017301,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A095",
+   "city": "ldn_canary",
+   "base": {
+    "units": 98,
+    "premium": 90,
+    "compromised": 0,
+    "livingView": 0.758777095505036,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 98,
+    "premium": 81,
+    "compromised": 0,
+    "livingView": 0.7546143707602164,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 98,
+    "premium": 90,
+    "compromised": 8,
+    "livingView": 0.758777095505036,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A075",
+   "city": "ldn_canary",
+   "base": {
+    "units": 62,
+    "premium": 30,
+    "compromised": 1,
+    "livingView": 0.6908022871124457,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 62,
+    "premium": 10,
+    "compromised": 0,
+    "livingView": 0.5750874420070216,
+    "closest": 42
+   },
+   "coastal": {
+    "units": 62,
+    "premium": 28,
+    "compromised": 12,
+    "livingView": 0.6769963232431055,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A150",
+   "city": "ldn_canary",
+   "base": {
+    "units": 50,
+    "premium": 26,
+    "compromised": 9,
+    "livingView": 0.5944597679275305,
+    "closest": 20.75
+   },
+   "seaOnly": {
+    "units": 50,
+    "premium": 26,
+    "compromised": 13,
+    "livingView": 0.5432894658649743,
+    "closest": 19
+   },
+   "coastal": {
+    "units": 50,
+    "premium": 26,
+    "compromised": 16,
+    "livingView": 0.5920469462292882,
+    "closest": 21
+   }
+  },
+  {
+   "id": "A100",
+   "city": "ldn_canary",
+   "base": {
+    "units": 56,
+    "premium": 33,
+    "compromised": 3,
+    "livingView": 0.5946470591516949,
+    "closest": 71.5
+   },
+   "seaOnly": {
+    "units": 56,
+    "premium": 0,
+    "compromised": 0,
+    "livingView": 0.4135604666749531,
+    "closest": 71.5
+   },
+   "coastal": {
+    "units": 56,
+    "premium": 33,
+    "compromised": 20,
+    "livingView": 0.5880430018970655,
+    "closest": 71.5
+   }
+  },
+  {
+   "id": "A080",
+   "city": "ldn_canary",
+   "base": {
+    "units": 108,
+    "premium": 92,
+    "compromised": 15,
+    "livingView": 0.731241903281269,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 108,
+    "premium": 17,
+    "compromised": 11,
+    "livingView": 0.5246821326025529,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 108,
+    "premium": 64,
+    "compromised": 44,
+    "livingView": 0.7251649132156515,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A087",
+   "city": "nyc_lower",
+   "base": {
+    "units": 74,
+    "premium": 47,
+    "compromised": 22,
+    "livingView": 0.6681588909196885,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 74,
+    "premium": 0,
+    "compromised": 15,
+    "livingView": 0.36100533210904623,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 74,
+    "premium": 10,
+    "compromised": 64,
+    "livingView": 0.663574837425187,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A105",
+   "city": "ldn_canary",
+   "base": {
+    "units": 70,
+    "premium": 45,
+    "compromised": 13,
+    "livingView": 0.6064617868232028,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 70,
+    "premium": 12,
+    "compromised": 18,
+    "livingView": 0.470252969437916,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 70,
+    "premium": 36,
+    "compromised": 23,
+    "livingView": 0.6103648810345031,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A092",
+   "city": "nyc_lower",
+   "base": {
+    "units": 98,
+    "premium": 16,
+    "compromised": 70,
+    "livingView": 0.41161491440775133,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 98,
+    "premium": 0,
+    "compromised": 79,
+    "livingView": 0.20562789798248343,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 98,
+    "premium": 4,
+    "compromised": 94,
+    "livingView": 0.39837373420236255,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A097",
+   "city": "nyc_lower",
+   "base": {
+    "units": 96,
+    "premium": 92,
+    "compromised": 0,
+    "livingView": 0.7341994557804433,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 96,
+    "premium": 46,
+    "compromised": 0,
+    "livingView": 0.7246056777076503,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 96,
+    "premium": 58,
+    "compromised": 37,
+    "livingView": 0.7325762467222243,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A102",
+   "city": "nyc_lower",
+   "base": {
+    "units": 140,
+    "premium": 59,
+    "compromised": 74,
+    "livingView": 0.5128047216975345,
+    "closest": 21.75
+   },
+   "seaOnly": {
+    "units": 140,
+    "premium": 17,
+    "compromised": 80,
+    "livingView": 0.3310675666746613,
+    "closest": 21
+   },
+   "coastal": {
+    "units": 140,
+    "premium": 53,
+    "compromised": 87,
+    "livingView": 0.505264141184376,
+    "closest": 21.75
+   }
+  },
+  {
+   "id": "A110",
+   "city": "ldn_canary",
+   "base": {
+    "units": 360,
+    "premium": 114,
+    "compromised": 132,
+    "livingView": 0.540835538954172,
+    "closest": 32.75
+   },
+   "seaOnly": {
+    "units": 360,
+    "premium": 0,
+    "compromised": 63,
+    "livingView": 0.36902348095962545,
+    "closest": 25.75
+   },
+   "coastal": {
+    "units": 360,
+    "premium": 32,
+    "compromised": 244,
+    "livingView": 0.5375610159752859,
+    "closest": 33
+   }
+  },
+  {
+   "id": "A107",
+   "city": "nyc_lower",
+   "base": {
+    "units": 150,
+    "premium": 80,
+    "compromised": 53,
+    "livingView": 0.5831301357297295,
+    "closest": 66.25
+   },
+   "seaOnly": {
+    "units": 150,
+    "premium": 8,
+    "compromised": 99,
+    "livingView": 0.3089217708992618,
+    "closest": 67.25
+   },
+   "coastal": {
+    "units": 150,
+    "premium": 34,
+    "compromised": 116,
+    "livingView": 0.5841993917097711,
+    "closest": 66.25
+   }
+  },
+  {
+   "id": "A112",
+   "city": "nyc_lower",
+   "base": {
+    "units": 76,
+    "premium": 76,
+    "compromised": 0,
+    "livingView": 0.8243400212014163,
+    "closest": 53.75
+   },
+   "seaOnly": {
+    "units": 76,
+    "premium": 75,
+    "compromised": 0,
+    "livingView": 0.8100097749967556,
+    "closest": 53.75
+   },
+   "coastal": {
+    "units": 76,
+    "premium": 57,
+    "compromised": 19,
+    "livingView": 0.8270560217224776,
+    "closest": 53
+   }
+  },
+  {
+   "id": "A115",
+   "city": "ldn_canary",
+   "base": {
+    "units": 110,
+    "premium": 76,
+    "compromised": 24,
+    "livingView": 0.6295272978242992,
+    "closest": 34
+   },
+   "seaOnly": {
+    "units": 110,
+    "premium": 2,
+    "compromised": 19,
+    "livingView": 0.433644402257396,
+    "closest": 32
+   },
+   "coastal": {
+    "units": 110,
+    "premium": 58,
+    "compromised": 52,
+    "livingView": 0.6253151453966566,
+    "closest": 34
+   }
+  },
+  {
+   "id": "A117",
+   "city": "nyc_lower",
+   "base": {
+    "units": 164,
+    "premium": 101,
+    "compromised": 46,
+    "livingView": 0.6464769731520799,
+    "closest": 25
+   },
+   "seaOnly": {
+    "units": 164,
+    "premium": 80,
+    "compromised": 56,
+    "livingView": 0.5196815219155901,
+    "closest": 27
+   },
+   "coastal": {
+    "units": 164,
+    "premium": 46,
+    "compromised": 118,
+    "livingView": 0.6354684652973237,
+    "closest": 27
+   }
+  },
+  {
+   "id": "A122",
+   "city": "nyc_lower",
+   "base": {
+    "units": 102,
+    "premium": 61,
+    "compromised": 32,
+    "livingView": 0.6114686515017379,
+    "closest": 24
+   },
+   "seaOnly": {
+    "units": 102,
+    "premium": 14,
+    "compromised": 32,
+    "livingView": 0.42353693026448697,
+    "closest": 20
+   },
+   "coastal": {
+    "units": 102,
+    "premium": 56,
+    "compromised": 46,
+    "livingView": 0.605644937162348,
+    "closest": 24
+   }
+  },
+  {
+   "id": "A120",
+   "city": "ldn_canary",
+   "base": {
+    "units": 60,
+    "premium": 46,
+    "compromised": 14,
+    "livingView": 0.6496409070413338,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 60,
+    "premium": 0,
+    "compromised": 36,
+    "livingView": 0.3791643477041664,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 60,
+    "premium": 0,
+    "compromised": 60,
+    "livingView": 0.6434946816841004,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A127",
+   "city": "nyc_lower",
+   "base": {
+    "units": 96,
+    "premium": 18,
+    "compromised": 73,
+    "livingView": 0.41807174896841687,
+    "closest": 26
+   },
+   "seaOnly": {
+    "units": 96,
+    "premium": 0,
+    "compromised": 80,
+    "livingView": 0.2039965743499087,
+    "closest": 30
+   },
+   "coastal": {
+    "units": 96,
+    "premium": 1,
+    "compromised": 95,
+    "livingView": 0.41306145239608516,
+    "closest": 26
+   }
+  },
+  {
+   "id": "A133",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 112,
+    "premium": 67,
+    "compromised": 36,
+    "livingView": 0.5721628765565312,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 112,
+    "premium": 0,
+    "compromised": 52,
+    "livingView": 0.2426765158380854,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 112,
+    "premium": 26,
+    "compromised": 86,
+    "livingView": 0.560960893568269,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A138",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 96,
+    "premium": 26,
+    "compromised": 56,
+    "livingView": 0.4428621915845115,
+    "closest": 31
+   },
+   "seaOnly": {
+    "units": 96,
+    "premium": 0,
+    "compromised": 75,
+    "livingView": 0.17037713561127135,
+    "closest": 32
+   },
+   "coastal": {
+    "units": 96,
+    "premium": 8,
+    "compromised": 88,
+    "livingView": 0.435034705197135,
+    "closest": 31
+   }
+  },
+  {
+   "id": "A125",
+   "city": "ldn_canary",
+   "base": {
+    "units": 124,
+    "premium": 29,
+    "compromised": 52,
+    "livingView": 0.5051205308756301,
+    "closest": 32.75
+   },
+   "seaOnly": {
+    "units": 124,
+    "premium": 0,
+    "compromised": 62,
+    "livingView": 0.2986664848182141,
+    "closest": 35.75
+   },
+   "coastal": {
+    "units": 124,
+    "premium": 4,
+    "compromised": 99,
+    "livingView": 0.4986613867284018,
+    "closest": 32.75
+   }
+  },
+  {
+   "id": "A132",
+   "city": "nyc_lower",
+   "base": {
+    "units": 78,
+    "premium": 5,
+    "compromised": 69,
+    "livingView": 0.38434664072043406,
+    "closest": 27
+   },
+   "seaOnly": {
+    "units": 78,
+    "premium": 0,
+    "compromised": 60,
+    "livingView": 0.19384568600854524,
+    "closest": 27
+   },
+   "coastal": {
+    "units": 78,
+    "premium": 5,
+    "compromised": 70,
+    "livingView": 0.38434664072043406,
+    "closest": 27
+   }
+  },
+  {
+   "id": "A143",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 124,
+    "premium": 35,
+    "compromised": 83,
+    "livingView": 0.48038796749768803,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 124,
+    "premium": 0,
+    "compromised": 83,
+    "livingView": 0.21432782578880516,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 124,
+    "premium": 32,
+    "compromised": 92,
+    "livingView": 0.47644337987134106,
+    "closest": 999
+   }
+  },
+  {
+   "id": "A137",
+   "city": "nyc_lower",
+   "base": {
+    "units": 90,
+    "premium": 2,
+    "compromised": 83,
+    "livingView": 0.36809671697922497,
+    "closest": 25
+   },
+   "seaOnly": {
+    "units": 90,
+    "premium": 0,
+    "compromised": 83,
+    "livingView": 0.19158572154785106,
+    "closest": 25.5
+   },
+   "coastal": {
+    "units": 90,
+    "premium": 0,
+    "compromised": 89,
+    "livingView": 0.36717092256404177,
+    "closest": 25
+   }
+  },
+  {
+   "id": "A148",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 268,
+    "premium": 204,
+    "compromised": 57,
+    "livingView": 0.6351223949030212,
+    "closest": 23
+   },
+   "seaOnly": {
+    "units": 268,
+    "premium": 0,
+    "compromised": 83,
+    "livingView": 0.28230738325431887,
+    "closest": 20
+   },
+   "coastal": {
+    "units": 268,
+    "premium": 133,
+    "compromised": 135,
+    "livingView": 0.6317737165481487,
+    "closest": 25
+   }
+  },
+  {
+   "id": "A142",
+   "city": "nyc_lower",
+   "base": {
+    "units": 78,
+    "premium": 24,
+    "compromised": 54,
+    "livingView": 0.41422870971599796,
+    "closest": 10
+   },
+   "seaOnly": {
+    "units": 78,
+    "premium": 0,
+    "compromised": 60,
+    "livingView": 0.15284757718340566,
+    "closest": 10
+   },
+   "coastal": {
+    "units": 78,
+    "premium": 0,
+    "compromised": 78,
+    "livingView": 0.40335400960180007,
+    "closest": 10
+   }
+  },
+  {
+   "id": "A153",
+   "city": "nyc_midtown",
+   "base": {
+    "units": 92,
+    "premium": 18,
+    "compromised": 57,
+    "livingView": 0.44433640044956296,
+    "closest": 21
+   },
+   "seaOnly": {
+    "units": 92,
+    "premium": 0,
+    "compromised": 66,
+    "livingView": 0.21254766203248857,
+    "closest": 26
+   },
+   "coastal": {
+    "units": 92,
+    "premium": 7,
+    "compromised": 85,
+    "livingView": 0.4386787959197483,
+    "closest": 21
+   }
+  },
+  {
+   "id": "A147",
+   "city": "nyc_lower",
+   "base": {
+    "units": 108,
+    "premium": 50,
+    "compromised": 55,
+    "livingView": 0.47026117368516795,
+    "closest": 28
+   },
+   "seaOnly": {
+    "units": 108,
+    "premium": 0,
+    "compromised": 64,
+    "livingView": 0.20324841457599802,
+    "closest": 25.5
+   },
+   "coastal": {
+    "units": 108,
+    "premium": 8,
+    "compromised": 100,
+    "livingView": 0.4642711801087582,
+    "closest": 28
+   }
+  },
+  {
+   "id": "A152",
+   "city": "nyc_lower",
+   "base": {
+    "units": 100,
+    "premium": 68,
+    "compromised": 28,
+    "livingView": 0.6477354162202341,
+    "closest": 999
+   },
+   "seaOnly": {
+    "units": 100,
+    "premium": 18,
+    "compromised": 40,
+    "livingView": 0.42492634785287026,
+    "closest": 999
+   },
+   "coastal": {
+    "units": 100,
+    "premium": 15,
+    "compromised": 85,
+    "livingView": 0.6489893858822313,
+    "closest": 999
+   }
+  }
+ ]
+}
