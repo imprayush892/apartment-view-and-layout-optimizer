@@ -238,11 +238,11 @@ function coreFits(plate, core, margin) {
 }
 
 /* ------------------------------------------------------------------ units */
-function splitCuts(scores, s, per, n) {
+function splitCuts(scores, s, per, n, mode) {
   let startI = 0; for (let i = 1; i < scores.length; i++) if (scores[i] < scores[startI]) startI = i;
   if (n === 1) return [s[startI]];
   const order = []; for (let i = startI; i < s.length; i++) order.push(i); for (let i = 0; i < startI; i++) order.push(i);
-  const sOrd = order.map(i => mod(s[i] - s[startI], per)), w = order.map(i => Math.max(scores[i], 1e-3)), tot = w.reduce((a, b) => a + b, 0);
+  const sOrd = order.map(i => mod(s[i] - s[startI], per)), w = order.map(i => mode === "equal_area" ? 1 : Math.max(scores[i], 1e-3)), tot = w.reduce((a, b) => a + b, 0);
   const cum = []; let acc = 0; for (const v of w) { acc += v; cum.push(acc / tot); }
   const cuts = [0]; for (let u = 1; u < n; u++) { let k = cum.findIndex(c => c >= u / n); if (k < 0) k = cum.length - 1; cuts.push(sOrd[Math.min(k, sOrd.length - 1)]); }
   return cuts.map(c => mod(s[startI] + c, per));
@@ -282,8 +282,8 @@ function assignRooms(idx, spacing, ap, prog, pts) {
   if (rest.length) rooms.push(mk("kitchen_service", rest)); else if (prog.kitchen > 0) viol.push("GR-FRONT-UNIT-01");
   return { rooms, viol };
 }
-function buildUnits(level, z, plate, core, pp, spacing, ap, n, prog) {
-  const cuts = splitCuts(ap.quality, pp.s, pp.per, n), envs = unitEnvelopes(plate, core, cuts), units = [], viol = new Set();
+function buildUnits(level, z, plate, core, pp, spacing, ap, n, prog, mode) {
+  const cuts = splitCuts(ap.quality, pp.s, pp.per, n, mode), envs = unitEnvelopes(plate, core, cuts), units = [], viol = new Set();
   envs.forEach((e, u) => {
     const idx = pp.s.map((_, i) => i).filter(i => n === 1 || mod(pp.s[i] - e.a, pp.per) < e.b - e.a);
     idx.sort((i, j) => mod(pp.s[i] - e.a, pp.per) - mod(pp.s[j] - e.a, pp.per));
@@ -367,7 +367,7 @@ function evaluateViews(ev, S, C, V) {
     const plate = ev.plates[l], core = ev.cores[l], pp = perimeterPoints(plate, spacing), z = l * sp.ftf + 1.5;
     const obs = pp.pts.map(([x, y], i) => [x + 0.75 * Math.sin(pp.normals[i] * D2R), y + 0.75 * Math.cos(pp.normals[i] * D2R), z]);
     const ap = evalApertures(S, obs, pp.normals, { ring: plate, bb: bounds(plate), top }, V);
-    const { units, viol: v } = buildUnits(l, l * sp.ftf, plate, core, pp, spacing, ap, sp.upf, prog); v.forEach(x => viol.add(x));
+    const { units, viol: v } = buildUnits(l, l * sp.ftf, plate, core, pp, spacing, ap, sp.upf, prog, C.split); v.forEach(x => viol.add(x));
     for (const u of units) for (const r of u.rooms) if (r.room !== "kitchen_service" && r.dMed < R.priv && r.privacy > 0) privFail = Math.max(privFail, R.priv - r.dMed);
     byLevel[l] = units;
   }
