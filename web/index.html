@@ -84,7 +84,8 @@ nav.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--a
 .card h3{font-size:15px;font-stretch:88%}
 .two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:12px}
 @media (max-width:1150px){.two{grid-template-columns:minmax(0,1fr)}}
-svg.map{width:100%;height:auto;aspect-ratio:1/1;max-height:640px;display:block;background:var(--surface);border-radius:6px;touch-action:manipulation}
+svg.map{width:100%;height:auto;aspect-ratio:1/1;max-height:640px;display:block;background:var(--surface);border-radius:6px;touch-action:none;user-select:none}
+#plan{touch-action:manipulation}
 svg text{fill:var(--ink);font-family:var(--mono)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink-2)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
@@ -172,7 +173,7 @@ tbody tr.on{background:var(--accent-soft)}
       <button type="button" class="chip" id="bDraw" aria-pressed="false">Draw on plan</button>
       <label class="chip" style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;padding:3px 9px;font-size:12px;font-weight:600;cursor:pointer">Upload DXF<input type="file" id="dxfFile" accept=".dxf" style="width:0;height:0;opacity:0;position:absolute"></label>
     </div>
-    <div id="drawBox" hidden><p class="hint">In the Site plan tab, click to add corners. Finish when done.</p><div class="row"><button type="button" class="chip" id="drawDone">Finish outline</button><button type="button" class="chip" id="drawUndo">Undo point</button><button type="button" class="chip" id="drawClear">Clear</button></div></div>
+    <div id="drawBox" hidden><p class="hint">In the Site plan tab, pan and zoom to the spot, then click to add corners. Click the first corner (or Finish) to close the outline.</p><div class="row"><button type="button" class="chip" id="drawDone">Finish outline</button><button type="button" class="chip" id="drawUndo">Undo point</button><button type="button" class="chip" id="drawClear">Clear</button></div></div>
     <div id="georef" hidden>
       <label class="f">DXF coordinates are
         <select id="geoMode"><option value="anchor">Local drawing units: place a reference point</option><option value="utm">UTM easting / northing (WGS84)</option></select>
@@ -293,7 +294,8 @@ tbody tr.on{background:var(--accent-soft)}
     <div class="two">
       <div class="card">
         <div class="row" style="justify-content:space-between"><h3>Site plan</h3>
-          <div class="row" role="group" aria-label="Zoom"><button class="chip" data-zoom="plot" aria-pressed="true" type="button">Plot</button><button class="chip" data-zoom="nbhd" aria-pressed="false" type="button">Neighbourhood</button><button class="chip" data-zoom="district" aria-pressed="false" type="button">District</button></div></div>
+          <div class="row" role="group" aria-label="Zoom"><button class="chip" data-zoom="plot" aria-pressed="true" type="button">Plot</button><button class="chip" data-zoom="nbhd" aria-pressed="false" type="button">Neighbourhood</button><button class="chip" data-zoom="district" aria-pressed="false" type="button">District</button><button class="chip" id="mapIn" type="button" aria-label="Zoom in">+</button><button class="chip" id="mapOut" type="button" aria-label="Zoom out">−</button><button class="chip" id="mapFit" type="button">Fit plot</button></div></div>
+        <p class="hint">Drag to pan, scroll to zoom. The whole loaded area (about 1 km around the pin) can be browsed.</p>
         <svg class="map" id="map" viewBox="0 0 100 100" role="img" aria-label="Site plan"></svg>
         <div class="legend"><span><i style="background:var(--sea)"></i>Water</span><span><i style="background:var(--park)"></i>Park</span><span><i style="background:var(--bldg)"></i>Buildings (darker = taller)</span><span><i style="background:var(--accent-soft);border:1px solid var(--accent)"></i>Envelope</span><span><i style="background:var(--signal);opacity:.4"></i>Premium arc</span></div>
       </div>

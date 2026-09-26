@@ -90,12 +90,15 @@ function rebuildScene() {
   const nb = st.ctx.buildings.length, est = st.ctx.buildings.filter(b => b.hsrc === "estimated").length;
   const ll = st.anchor ? GEO.toLatLon(c[0], c[1], st.anchor) : null;
   setInfo("ctxInfo", `${nb.toLocaleString("en-IN")} buildings${est ? ` (${Math.round(100 * est / nb)}% with estimated heights)` : ""}, ${st.ctx.roads.length} street segments${st.S.W.some(v => v) ? ", sea/water traced" : ", no water in range"}.${st.S.warnings.length ? " " + st.S.warnings.join(" ") : ""}`);
-  setInfo("siteInfo", `${esc(st.siteName)} · plot ${fmtInt(ringArea(st.boundary))} m²${ll ? ` · centre ${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}` : " · not georeferenced (synthetic)"}${removed ? ` · ${removed} existing building(s) on the plot removed` : ""}.`);
+  let wet = 0, tot = 0; { const [a, b2, cc2, d] = bounds(st.boundary); for (let y = b2; y < d; y += 4) for (let x = a; x < cc2; x += 4) if (pip(x, y, st.boundary)) { tot++; const j = Math.floor((x - st.S.x0) / st.S.res), i = Math.floor((y - st.S.y0) / st.S.res); if (st.S.W[i * st.S.nx + j]) wet++; } }
+  const wetWarn = tot && wet / tot > 0.3 ? ` <span class="warnline">About ${Math.round(100 * wet / tot)}% of this plot is on water. Check the location.</span>` : "";
+  setInfo("siteInfo", `${esc(st.siteName)} · plot ${fmtInt(ringArea(st.boundary))} m²${ll ? ` · centre ${ll[0].toFixed(5)}, ${ll[1].toFixed(5)}` : " · not georeferenced (synthetic)"}${removed ? ` · ${removed} existing building(s) on the plot removed` : ""}.${wetWarn}`);
   $("dataNote").textContent = st.dataNote || "";
   $("attrib").hidden = st.src === "synthetic";
   st.results = null; st.sel = null; st.rejected = []; st.cone = null; hideCone();
   V3D.setContext(st.ctx, st.S, c, { boundary: st.boundary, env: [] }, { el: $("stage") });
   V3D.clearDesign && V3D.clearDesign();
+  if (st.bSource !== "draw" || !st.view) st.view = null;
   updateEnvelope(); renderOptions(); renderDesign(); renderKPIs();
 }
 function polyInside(r, outer) { return r.every(p => pip(p[0], p[1], outer)); }
@@ -271,6 +274,7 @@ function renderCone() {
     <text x="${x0 + w}" y="${y0 + 10}" font-size="10" text-anchor="end" fill="#1f6fd1">sea share</text><text x="${x0 + w}" y="${y0 + 22}" font-size="10" text-anchor="end">view quality (dashed)</text>`;
 }
 function sectors(list) { const out = []; let cur = null; for (const [a, on] of list) { if (on) { if (!cur) cur = [a, a]; else cur[1] = a; } else if (cur) { out.push(cur); cur = null; } } if (cur) out.push(cur); return out; }
+const arcWidth = a => (a[0] === 0 && a[1] === 360) ? "360" : fmt(mod(a[1] - a[0], 360), 0);
 const compass = az => ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(mod(az, 360) / 45) % 8];
 function hideCone() { $("coneCard").hidden = true; $("vJump").hidden = true; $("vClear").hidden = true; V3D.clearCone && V3D.clearCone(); }
 function jump() { const c = st.cone, ev = st.sel; if (!c || !ev) return; V3D.jumpIn({ x: c.x, y: c.y, az: c.az, floorZ: c.level * ev.sp.ftf }, ev.plates[c.level], ev.sp.ftf); $("jumpbar").hidden = false; $("jumpText").textContent = `Floor ${c.level} · ${fmt(c.level * ev.sp.ftf + 1.6, 1)} m eye height · facing ${compass(c.az)}`; $("stage").querySelector(".tools").hidden = true; $("hudHint").hidden = true; }
@@ -280,18 +284,53 @@ function setInfo(id, html, warn) { const el = $(id); el.innerHTML = html; el.cla
 function renderKPIs() {
   const f = st.field, best = st.results && st.results[0], k = [];
   k.push(`<div class="kpi"><span>Buildable envelope</span><b>${st.env && st.env.length ? fmtInt(ringArea(st.env)) : "–"} m²</b><em>${st.isEnv ? "given" : "after setbacks"}</em></div>`);
-  k.push(`<div class="kpi"><span>Premium sea arc</span><b>${f && f.arc ? fmt(mod(f.arc[1] - f.arc[0], 360), 0) + "°" : "none"}</b><em>${f && f.arc ? `${fmt(f.arc[0], 0)}°–${fmt(f.arc[1], 0)}°, opens at ${f.opening ?? ">100"} m` : "no clear sea direction"}</em></div>`);
+  k.push(`<div class="kpi"><span>Premium sea arc</span><b>${f && f.arc ? arcWidth(f.arc) + "°" : "none"}</b><em>${f && f.arc ? `${fmt(f.arc[0], 0)}°–${fmt(f.arc[1], 0)}°, opens at ${f.opening ?? ">100"} m` : "no clear sea direction"}</em></div>`);
   if (best) { const m = best.metrics; k.push(`<div class="kpi"><span>Top option</span><b>${esc(label(best.sp))}</b><em>${best.sp.upf}/floor · ${best.sp.n} floors · ${fmt(m.height, 0)} m</em></div>`, `<div class="kpi"><span>GDV (placeholder rates)</span><b>₹${fmtInt(m.gdvCr)} cr</b><em>${fmtInt(m.carpet)} m² carpet</em></div>`, `<div class="kpi"><span>Compromised units</span><b style="color:${m.compromised ? "var(--bad)" : "var(--ok)"}">${m.compromised}</b><em>${m.futureComp != null ? `${m.futureComp} with future neighbours` : "existing context"}</em></div>`, `<div class="kpi"><span>Premium units</span><b>${m.premium} / ${m.units}</b><em>${fmt(100 * m.premiumShare, 0)}% of inventory</em></div>`); }
   $("kpis").innerHTML = k.join("");
 }
 const pathOf = r => "M" + r.map(([x, y]) => `${x.toFixed(2)},${(-y).toFixed(2)}`).join("L") + "Z";
 const lineOf = r => "M" + r.map(([x, y]) => `${x.toFixed(1)},${(-y).toFixed(1)}`).join("L");
-function setZoom(z) { st.zoom = z; document.querySelectorAll("[data-zoom]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.zoom === z))); renderMap(); }
+function setZoom(z) {
+  st.zoom = z; document.querySelectorAll("[data-zoom]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.zoom === z)));
+  if (st.boundary) { const c = centroid(st.boundary), bb = bounds(st.boundary); st.view = { cx: c[0], cy: c[1], half: z === "plot" ? Math.max(bb[2] - bb[0], bb[3] - bb[1]) * 0.62 + 8 : z === "nbhd" ? 260 : 900 }; }
+  renderMap();
+}
+const MAP_MAX_HALF = 2800, MAP_MIN_HALF = 15;
+function applyView() { const v = st.view; $("map").setAttribute("viewBox", `${v.cx - v.half} ${-v.cy - v.half} ${2 * v.half} ${2 * v.half}`); }
+function zoomMap(f, px, py) { // f < 1 zooms in; (px, py) world point kept under the cursor
+  const v = st.view, h = Math.max(MAP_MIN_HALF, Math.min(MAP_MAX_HALF, v.half * f)), r = h / v.half;
+  if (px != null) { v.cx = px - (px - v.cx) * r; v.cy = py - (py - v.cy) * r; } v.half = h;
+  document.querySelectorAll("[data-zoom]").forEach(b => b.setAttribute("aria-pressed", "false"));
+  applyView(); scheduleMapRender();
+}
+function scheduleMapRender() { clearTimeout(scheduleMapRender.t); scheduleMapRender.t = setTimeout(renderMap, 140); }
+function svgPoint(e) { const svg = $("map"), p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); return [q.x, -q.y]; }
+function bindMapNav() {
+  const svg = $("map"); let drag = null;
+  svg.addEventListener("wheel", e => { if (!st.view) return; e.preventDefault(); const [x, y] = svgPoint(e); zoomMap(e.deltaY > 0 ? 1.18 : 1 / 1.18, x, y); }, { passive: false });
+  svg.addEventListener("pointerdown", e => { if (!st.view || e.button > 0) return; drag = { x: e.clientX, y: e.clientY, cx: st.view.cx, cy: st.view.cy, moved: false, id: e.pointerId }; });
+  svg.addEventListener("pointermove", e => {
+    if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 5) return;
+    if (!drag.moved) { drag.moved = true; svg.setPointerCapture(drag.id); svg.style.cursor = "grabbing"; }
+    const r = svg.getBoundingClientRect(), s = 2 * st.view.half / Math.min(r.width, r.height);
+    st.view.cx = drag.cx - dx * s; st.view.cy = drag.cy + dy * s; applyView();
+  });
+  const end = e => { if (!drag) return; const moved = drag.moved; drag = null; svg.style.cursor = st.draw ? "crosshair" : ""; if (moved) { st.justPanned = true; setTimeout(() => st.justPanned = false, 0); scheduleMapRender(); } };
+  svg.addEventListener("pointerup", end); svg.addEventListener("pointercancel", end);
+  svg.addEventListener("click", e => {
+    if (st.justPanned || !st.draw) return; const p = svgPoint(e), d = st.draw;
+    if (d.length >= 3 && Math.hypot(p[0] - d[0][0], p[1] - d[0][1]) < 10 * st.view.half / 320) return finishDraw();
+    d.push(p); renderMap();
+  });
+}
+function finishDraw() { if (!st.draw || st.draw.length < 3) return setInfo("siteInfo", "Add at least three corners.", true); const r = st.draw; st.draw = null; $("drawBox").hidden = true; setBoundary(r, "Drawn plot", null, "draw"); setZoom("plot"); }
 function renderMap() {
   const svg = $("map"); if (!st.boundary || !st.ctx) return;
-  const c = centroid(st.boundary), bb = bounds(st.boundary), half = st.zoom === "plot" ? Math.max(bb[2] - bb[0], bb[3] - bb[1]) * 0.62 + 8 : st.zoom === "nbhd" ? 260 : 900, k = half / 320, out = [];
-  svg.setAttribute("viewBox", `${c[0] - half} ${-c[1] - half} ${2 * half} ${2 * half}`);
-  const inView = r => { const b = bounds(r); return b[2] > c[0] - half && b[0] < c[0] + half && b[3] > c[1] - half && b[1] < c[1] + half; };
+  if (!st.view) { st.zoom = st.zoom || "plot"; const z = st.zoom; setZoom(z); return; }
+  const bc = centroid(st.boundary), c = [st.view.cx, st.view.cy], half = st.view.half, k = half / 320, out = [], cull = half * 1.6;
+  applyView();
+  const inView = r => { const b = bounds(r); return b[2] > c[0] - cull && b[0] < c[0] + cull && b[3] > c[1] - cull && b[1] < c[1] + cull; };
   if (st.S) { // water from the raster, as coarse rects (merged runs)
     const S = st.S, j0 = Math.max(0, Math.floor((c[0] - half - S.x0) / S.res)), j1 = Math.min(S.nx, Math.ceil((c[0] + half - S.x0) / S.res)), i0 = Math.max(0, Math.floor((c[1] - half - S.y0) / S.res)), i1 = Math.min(S.ny, Math.ceil((c[1] + half - S.y0) / S.res)), stp = Math.max(1, Math.round(half / 320 / S.res * 2));
     let d = ""; for (let i = i0; i < i1; i += stp) { let run = -1; for (let j = j0; j <= j1; j += stp) { const w = j < j1 && S.W[i * S.nx + j]; if (w && run < 0) run = j; if (!w && run >= 0) { const x = S.x0 + run * S.res, y = S.y0 + i * S.res; d += `M${x},${-(y + stp * S.res)}h${(j - run) * S.res}v${stp * S.res}h${-(j - run) * S.res}Z`; run = -1; } } }
@@ -304,14 +343,14 @@ function renderMap() {
   out.push(`<path d="${pathOf(st.boundary)}" fill="none" stroke="var(--ink-2)" stroke-width="${1.2 * k}" stroke-dasharray="${5 * k} ${3 * k}"/>`);
   if (st.env.length) out.push(`<path d="${pathOf(st.env)}" fill="var(--accent-soft)" fill-opacity=".85" stroke="var(--accent)" stroke-width="${1.5 * k}"/>`);
   const ev = st.sel; if (ev) { const l = ev.evaluated[Math.floor(ev.evaluated.length / 2)]; out.push(`<path d="${pathOf(ev.plates[l])}" fill="var(--premium)" fill-opacity=".5" stroke="var(--ink)" stroke-width="${k}"/><path d="${pathOf(ev.cores[l])}" fill="var(--ink-2)"/>`); }
-  if (!st.isEnv && st.zoom === "plot" && !st.draw) st.boundary.forEach((a, i) => { const b = st.boundary[(i + 1) % st.boundary.length], m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], dx = c[0] - m[0], dy = c[1] - m[1], L = Math.hypot(dx, dy) || 1, lp = [m[0] - dx / L * 11 * k, m[1] - dy / L * 11 * k], on = st.selEdge === i;
+  if (!st.isEnv && st.zoom === "plot" && !st.draw) st.boundary.forEach((a, i) => { const b = st.boundary[(i + 1) % st.boundary.length], m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], dx = bc[0] - m[0], dy = bc[1] - m[1], L = Math.hypot(dx, dy) || 1, lp = [m[0] - dx / L * 11 * k, m[1] - dy / L * 11 * k], on = st.selEdge === i;
     out.push(`<line x1="${a[0]}" y1="${-a[1]}" x2="${b[0]}" y2="${-b[1]}" stroke="${on ? "var(--signal)" : "var(--accent)"}" stroke-opacity="${on ? 1 : .4}" stroke-width="${(on ? 5 : 3) * k}" stroke-linecap="round"/><line x1="${a[0]}" y1="${-a[1]}" x2="${b[0]}" y2="${-b[1]}" stroke="transparent" stroke-width="${22 * k}" data-edge="${i}" style="cursor:pointer" tabindex="0" role="button" aria-label="Side E${i}, setback ${st.setbacks[i]} m"><title>Set the setback for E${i}</title></line><text x="${lp[0]}" y="${-lp[1]}" font-size="${11 * k}" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none">E${i} · ${st.setbacks[i]} m</text>`); });
-  if (st.draw) { const d = st.draw; if (d.length) out.push(`<path d="${lineOf(d)}" fill="none" stroke="var(--signal)" stroke-width="${2 * k}"/>`); d.forEach(([x, y]) => out.push(`<circle cx="${x}" cy="${-y}" r="${3 * k}" fill="var(--signal)"/>`)); out.push(`<rect x="${c[0] - half}" y="${-c[1] - half}" width="${2 * half}" height="${2 * half}" fill="transparent" id="drawHit" style="cursor:crosshair"/>`); }
+  if (st.draw) { const d = st.draw; if (d.length) out.push(`<path d="${lineOf(d)}" fill="none" stroke="var(--signal)" stroke-width="${2 * k}"/>`); d.forEach(([x, y], i) => out.push(`<circle cx="${x}" cy="${-y}" r="${(i === 0 && d.length >= 3 ? 6 : 3) * k}" fill="${i === 0 && d.length >= 3 ? "none" : "var(--signal)"}" stroke="var(--signal)" stroke-width="${1.5 * k}"><title>${i === 0 ? "Click here to close the outline" : ""}</title></circle>`)); }
   const n0 = [c[0] + half * 0.86, c[1] + half * 0.84]; out.push(`<g style="pointer-events:none"><path d="M${n0[0]},${-n0[1] - 14 * k}L${n0[0] - 6 * k},${-n0[1] + 4 * k}L${n0[0]},${-n0[1]}L${n0[0] + 6 * k},${-n0[1] + 4 * k}Z" fill="var(--ink)"/><text x="${n0[0]}" y="${-n0[1] + 16 * k}" font-size="${11 * k}" text-anchor="middle">N</text></g>`);
   const bar = st.zoom === "plot" ? 10 : st.zoom === "nbhd" ? 100 : 500, bx = c[0] - half * 0.92, by = -(c[1] - half * 0.9); out.push(`<g style="pointer-events:none"><line x1="${bx}" y1="${by}" x2="${bx + bar}" y2="${by}" stroke="var(--ink)" stroke-width="${2 * k}"/><text x="${bx}" y="${by - 6 * k}" font-size="${10 * k}">${bar} m</text></g>`);
   svg.innerHTML = out.join("");
-  svg.querySelectorAll("[data-edge]").forEach(el => { const f = () => { st.selEdge = +el.dataset.edge; const inp = $("sb-" + st.selEdge); if (inp) { inp.focus(); inp.select(); } recomputeEnv(); }; el.addEventListener("click", f); el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); f(); } }); });
-  const hit = $("drawHit"); if (hit) hit.addEventListener("click", e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); st.draw.push([q.x, -q.y]); renderMap(); });
+  svg.querySelectorAll("[data-edge]").forEach(el => { const f = () => { if (st.justPanned) return; st.selEdge = +el.dataset.edge; const inp = $("sb-" + st.selEdge); if (inp) { inp.focus(); inp.select(); } recomputeEnv(); }; el.addEventListener("click", f); el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); f(); } }); });
+  svg.style.cursor = st.draw ? "crosshair" : "";
 }
 function renderField() {
   const f = st.field; if (!f) return;
@@ -324,7 +363,7 @@ function renderField() {
   [["N", 0], ["E", 90], ["S", 180], ["W", 270]].forEach(([t, a]) => out.push(`<text x="${(R + 24) * Math.sin(a * D2R)}" y="${-(R + 24) * Math.cos(a * D2R)}" font-size="12" text-anchor="middle" dominant-baseline="middle">${t}</text>`));
   $("rose").innerHTML = out.join("");
   $("fieldTbl").innerHTML = `<thead><tr><th>Height</th><th class="n">Mean view</th><th class="n">Mean sea</th><th class="n">Best direction</th></tr></thead><tbody>${f.heights.map(z => { const rz = f.rose[z]; let bi = 0; rz.quality.forEach((v, i) => { if (v > rz.quality[bi]) bi = i; }); return `<tr><td class="n">${z} m</td><td class="n">${fmt(mean(Array.from(rz.quality)), 3)}</td><td class="n">${fmt(mean(Array.from(rz.water)), 3)}</td><td class="n">${f.az[bi]}° ${compass(f.az[bi])}</td></tr>`; }).join("")}</tbody>`;
-  setInfo("fieldInfo", f.arc ? `Premium sea arc ${fmt(f.arc[0], 0)}°–${fmt(f.arc[1], 0)}° (${fmt(mod(f.arc[1] - f.arc[0], 360), 0)}° wide) at 100 m. Sea view opens at ${f.opening != null ? f.opening + " m" : "above 100 m"}.` : "No direction has a clear sea view from the envelope up to 100 m.");
+  setInfo("fieldInfo", f.arc ? `Premium sea arc ${fmt(f.arc[0], 0)}°–${fmt(f.arc[1], 0)}° (${arcWidth(f.arc)}° wide) at 100 m. Sea view opens at ${f.opening != null ? f.opening + " m" : "above 100 m"}.` : "No direction has a clear sea view from the envelope up to 100 m.");
 }
 function classBar(m) { const t = Math.max(m.units, 1); return `<div class="bar" title="${m.premium} premium · ${m.good} good · ${m.neutral} neutral · ${m.compromised} compromised">${["premium", "good", "neutral", "compromised"].map(c => `<i style="width:${100 * m[c] / t}%;background:var(--${c})"></i>`).join("")}</div>`; }
 function renderOptions() {
@@ -402,7 +441,9 @@ async function boot() {
   $("bIllus").addEventListener("click", () => { st.draw = null; $("drawBox").hidden = true; $("georef").hidden = true; setBoundary(illustrativePlot(st.illusCenter || [0, 0], st.illusAng || 0), st.src === "dadar" ? "Illustrative plot near Shivaji Park (not the project site)" : "Illustrative plot", [6, 6, 6, 6], "illus"); });
   $("bDraw").addEventListener("click", () => { st.draw = []; $("drawBox").hidden = false; $("bDraw").setAttribute("aria-pressed", "true"); $("bIllus").setAttribute("aria-pressed", "false"); setTab("t-site"); setZoom("nbhd"); });
   $("drawUndo").addEventListener("click", () => { if (st.draw) { st.draw.pop(); renderMap(); } }); $("drawClear").addEventListener("click", () => { if (st.draw) { st.draw = []; renderMap(); } });
-  $("drawDone").addEventListener("click", () => { if (!st.draw || st.draw.length < 3) return setInfo("siteInfo", "Add at least three corners.", true); const r = st.draw; st.draw = null; $("drawBox").hidden = true; setBoundary(r, "Drawn plot", null, "draw"); setZoom("plot"); });
+  $("drawDone").addEventListener("click", finishDraw);
+  bindMapNav();
+  $("mapIn").addEventListener("click", () => zoomMap(1 / 1.5)); $("mapOut").addEventListener("click", () => zoomMap(1.5)); $("mapFit").addEventListener("click", () => setZoom("plot"));
   $("envYes").addEventListener("click", () => { st.isEnv = true; pressEnv(); recomputeEnv(); });
   $("envNo").addEventListener("click", () => { st.isEnv = false; pressEnv(); recomputeEnv(); setTab("t-site"); setZoom("plot"); });
   $("btnRun").addEventListener("click", runSearch);
