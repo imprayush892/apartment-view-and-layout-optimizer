@@ -9,7 +9,7 @@
   --ground:#eef1f0; --surface:#fbfcfc; --surface-2:#e3e8e6; --line:#c9d1ce; --ink:#15201e; --ink-2:#4a5854; --ink-3:#72807c;
   --accent:#0d5e78; --accent-ink:#ffffff; --accent-soft:#d3e6ec; --signal:#c7702a;
   --sea:#bcd9e3; --sea-deep:#7fb3c6; --park:#cfe0c2; --bldg:#5b6763; --bldg-future:#c7702a; --road:#ffffff;
-  --premium:#1b7f5b; --good:#78ad62; --neutral:#c9a53a; --compromised:#bf4d37;
+  --premium:#5e3c99; --good:#a99bd0; --neutral:#f2b45c; --compromised:#d4520b;
   --living:#1d4f9c; --bed:#2aa0c4; --service:#9aa3a0; --ok:#1b7f5b; --bad:#bf4d37; --warn:#9a7412;
   --display:"Archivo",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -19,14 +19,14 @@
     --ground:#0e1413; --surface:#151d1c; --surface-2:#1e2826; --line:#2c3836; --ink:#e3ebe8; --ink-2:#aab8b3; --ink-3:#7f8f8a;
     --accent:#56b6d3; --accent-ink:#06222b; --accent-soft:#16333c; --signal:#e39150;
     --sea:#173744; --sea-deep:#2a5f73; --park:#1f3320; --bldg:#9aa7a3; --bldg-future:#e39150; --road:#2b3533;
-    --premium:#3fb484; --good:#8fc377; --neutral:#d8b54c; --compromised:#e0694f;
+    --premium:#9a82d6; --good:#c7bce8; --neutral:#f2b45c; --compromised:#f07030;
     --living:#6f9ee6; --bed:#4cc1e2; --service:#6d7875; --ok:#3fb484; --bad:#e0694f; --warn:#d8b54c; }
 }
 :root[data-theme="dark"]{ color-scheme:dark;
   --ground:#0e1413; --surface:#151d1c; --surface-2:#1e2826; --line:#2c3836; --ink:#e3ebe8; --ink-2:#aab8b3; --ink-3:#7f8f8a;
   --accent:#56b6d3; --accent-ink:#06222b; --accent-soft:#16333c; --signal:#e39150;
   --sea:#173744; --sea-deep:#2a5f73; --park:#1f3320; --bldg:#9aa7a3; --bldg-future:#e39150; --road:#2b3533;
-  --premium:#3fb484; --good:#8fc377; --neutral:#d8b54c; --compromised:#e0694f;
+  --premium:#9a82d6; --good:#c7bce8; --neutral:#f2b45c; --compromised:#f07030;
   --living:#6f9ee6; --bed:#4cc1e2; --service:#6d7875; --ok:#3fb484; --bad:#e0694f; --warn:#d8b54c; }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -98,7 +98,7 @@ tbody tr.pick{cursor:pointer}
 tbody tr.pick:hover{background:var(--surface-2)}
 tbody tr.on{background:var(--accent-soft)}
 .pill{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:99px;color:#fff}
-.pill.premium{background:var(--premium)}.pill.good{background:var(--good)}.pill.neutral{background:var(--neutral);color:#1d1a0c}.pill.compromised{background:var(--compromised)}
+.pill.premium{background:var(--premium)}.pill.good{background:var(--good);color:#1d1533}.pill.neutral{background:var(--neutral);color:#1d1a0c}.pill.compromised{background:var(--compromised)}
 .pill.front{background:var(--accent);color:var(--accent-ink)}.pill.r{background:var(--surface-2);color:var(--ink-2)}
 .bar{display:flex;height:9px;border-radius:3px;overflow:hidden;min-width:90px;background:var(--surface-2)}
 .bar i{display:block;height:100%}
@@ -127,16 +127,53 @@ tbody tr.on{background:var(--accent-soft)}
 @media (max-width:700px){.conecard,.grid3{grid-template-columns:minmax(0,1fr)}}
 #leaf{height:260px;border-radius:6px;border:1px solid var(--line)}
 .dotlist{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink-2)}
+/* round-2 additions */
+.verdict{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.verdict p{margin:0;font-size:14.5px;max-width:95ch}
+.badge{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2)}
+.badge.high{border-color:var(--ok);color:var(--ok)}.badge.medium{border-color:var(--warn);color:var(--warn)}.badge.low{border-color:var(--bad);color:var(--bad)}
+.exportbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.exportbar .lab{font-size:12px;color:var(--ink-3);margin-right:2px}
+.pill.bf{background:var(--accent-soft);color:var(--ink);font-weight:500}
+table.sortable th{cursor:pointer}table.sortable th[aria-sort=ascending]::after{content:" ▲"}table.sortable th[aria-sort=descending]::after{content:" ▼"}
+table.sens td.neg{color:var(--bad);font-weight:600}
+.hudclose{position:absolute;right:4px;top:2px;border:none;background:none;padding:2px 6px;font-size:14px;color:#4a5854}
+#hudHint{position:relative;padding-right:24px}.stage.nohint #hudHint{display:none!important}
+.jpad{display:grid;grid-template-columns:repeat(3,34px);gap:4px}.jpad button{padding:4px 0;font-size:14px;touch-action:none}
+.compass{width:34px;height:34px;border-radius:50%;border:2px solid #fff;position:relative;flex:none}
+.compass i{position:absolute;left:50%;top:3px;width:0;height:0;margin-left:-5px;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:13px solid #e0584f;transform-origin:5px 14px}
+.compass::after{content:"N";position:absolute;left:50%;top:-15px;transform:translateX(-50%);font-size:10px}
+.glossary{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:6px 14px;font-size:13px;margin:0}.glossary dt{font-weight:700}.glossary dd{margin:0;color:var(--ink-2)}
+.mobnav{display:none}
+@media (max-width:960px){
+  .shell{display:flex;flex-direction:column;align-items:stretch}
+  body{padding-bottom:84px}
+  header.top p{font-size:13px}
+  header.top{flex-wrap:wrap}
+  main.work{order:-1}
+  .stage{height:62vh;min-height:340px}
+  .mobnav{display:flex;position:fixed;left:50%;bottom:12px;transform:translateX(-50%);gap:6px;z-index:20;background:rgba(21,32,30,.88);padding:6px;border-radius:99px}
+  .mobnav a{color:#fff;text-decoration:none;font-size:13px;font-weight:600;padding:6px 14px;border-radius:99px}
+  .hud{max-width:calc(100% - 120px)}
+  nav.tabs{scroll-snap-type:x mandatory;mask-image:linear-gradient(90deg,#000 85%,transparent)}
+  nav.tabs button{scroll-snap-align:start}
+  .glossary{grid-template-columns:1fr}
+}
+body.present aside.controls, body.present nav.tabs, body.present .exportbar, body.present header.top p, body.present .mobnav, body.present #kpis{display:none!important}
+body.present .shell{grid-template-columns:minmax(0,1fr)}
+body.present .stage{height:78vh}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 
 <header class="top">
   <h1>Viewtower <span>Studio</span></h1>
   <p>Pin a location or upload a georeferenced DXF, confirm the buildable envelope and limits, then search tower typologies in a 3D city model. Click any floor of a result to see its view cone, or jump in to stand at the window.</p>
+  <button type="button" class="chip" id="btnPresent" aria-pressed="false" title="Hide the inputs and show the tower and its verdict full width, for a client or buyer">Present</button>
 </header>
+<nav class="mobnav" aria-label="Jump to"><a href="#results">Results</a><a href="#inputs">Inputs</a></nav>
 
 <div class="shell">
-<aside class="controls" aria-label="Inputs">
+<aside class="controls" aria-label="Inputs" id="inputs">
   <section class="step">
     <h2><b>1</b>Location and context</h2>
     <label class="f">Context data
@@ -160,7 +197,7 @@ tbody tr.on{background:var(--accent-soft)}
     <div class="grid3">
       <label class="f">Latitude<input type="number" id="lat" step="0.0001" value="19.0280"></label>
       <label class="f">Longitude<input type="number" id="lon" step="0.0001" value="72.8375"></label>
-      <label class="f">Radius (m)<input type="number" id="rad" value="900" min="300" max="2000" step="100"></label>
+      <label class="f">Radius (m)<input type="number" id="rad" value="1500" min="300" max="2500" step="100"></label>
     </div>
     <div class="row"><button type="button" id="btnFetch" class="primary">Load context here</button><label class="f" style="flex:1 1 120px">Unknown heights (m)<input type="number" id="defH" value="" placeholder="by building type"></label></div>
     <p class="status" id="ctxInfo"></p>
@@ -216,6 +253,8 @@ tbody tr.on{background:var(--accent-soft)}
 
   <section class="step">
     <h2><b>5</b>Options to explore</h2>
+    <div class="row" role="group" aria-label="Search size"><span class="hint">Search size:</span><button type="button" class="chip" data-preset="quick" aria-pressed="false">Quick</button><button type="button" class="chip" data-preset="standard" aria-pressed="true">Standard</button><button type="button" class="chip" data-preset="thorough" aria-pressed="false">Thorough</button></div>
+    <p class="hint" id="presetInfo">Quick tests 2 shapes in about a minute; Thorough tests every shape, rotation and flat count.</p>
     <div class="typos" id="typos"></div>
     <div class="grid2">
       <label class="f">Rotations (°)<input type="text" id="rots" value="0, 30"></label>
@@ -225,7 +264,7 @@ tbody tr.on{background:var(--accent-soft)}
       <label class="f">Core offset from sea (m)<input type="text" id="coff" value="0"></label>
       <label class="f">View check every n floors<input type="number" id="evalEvery" value="4" min="1" max="10"></label>
     </div>
-    <label class="row" style="font-size:12px;color:var(--ink-2);gap:6px"><input type="checkbox" id="autoFit" checked> Shrink towers that don't fit the envelope (not below 16 m)</label>
+    <label class="row" style="font-size:12px;color:var(--ink-2);gap:6px;flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" id="autoFit" checked> Shrink towers that don't fit the envelope (not below 16 m)</label>
     <details class="adv"><summary>Core, programme, thresholds and rates</summary>
       <div class="grid2">
         <label class="f">Core fixed area (m²)<input type="number" id="coreFixed" value="95"></label>
@@ -239,15 +278,16 @@ tbody tr.on{background:var(--accent-soft)}
         <label class="f">Bedroom frontage (m)<input type="number" id="pBed" value="4.2" step="0.1"></label>
         <label class="f">Bedrooms for 1 / 2 / 3+ units<input type="text" id="pBeds" value="5, 4, 3"></label>
       </div>
-      <p class="hint">Compromised if any: living view &lt; <input type="number" id="cQ" value="0.25" step="0.05" style="width:62px">, obstruction within <input type="number" id="cD" value="40" style="width:62px"> m, horizon angle &gt; <input type="number" id="cA" value="30" style="width:62px">°, privacy &gt; <input type="number" id="cP" value="0.5" step="0.05" style="width:62px">.</p>
-      <p class="hint">Premium: living sea ≥ <input type="number" id="prW" value="0.35" step="0.05" style="width:62px"> and view ≥ <input type="number" id="prQ" value="0.55" step="0.05" style="width:62px">, plus <input type="number" id="prN" value="2" style="width:52px"> bedrooms with sea ≥ <input type="number" id="prBW" value="0.2" step="0.05" style="width:62px">.</p>
+      <p class="hint">Compromised if any: living view &lt; <input type="number" id="cQ" value="0.25" step="0.05" style="width:62px">, obstruction within <input type="number" id="cD" value="100" style="width:62px"> m, horizon angle &gt; <input type="number" id="cA" value="10" style="width:62px">°, privacy &gt; <input type="number" id="cP" value="0.35" step="0.05" style="width:62px">.</p>
+      <p class="hint">Premium: living sea ≥ <input type="number" id="prW" value="0.45" step="0.05" style="width:62px"> and view ≥ <input type="number" id="prQ" value="0.6" step="0.05" style="width:62px">, plus at least <input type="number" id="prShare" value="50" step="5" style="width:58px"> % of bedrooms with sea ≥ <input type="number" id="prBW" value="0.3" step="0.05" style="width:62px">. Thresholds calibrated on Dadar test plots (seafront ≈ 75 % premium, 600 m inland ≈ 25 %, 900 m ≈ 10 %).</p>
       <div class="grid2">
         <label class="f">Base rate (₹/ft² carpet)<input type="number" id="eRate" value="45000" step="500"></label>
         <label class="f">Construction (₹/ft² BUA)<input type="number" id="eCost" value="12000" step="500"></label>
         <label class="f">Floor rise (% per floor)<input type="number" id="eRise" value="0.5" step="0.1"></label>
+        <label class="f">Pricing<select id="ePricing"><option value="continuous" selected>Continuous in living-room view</option><option value="class">By class</option></select></label>
         <label class="f">Premium / good / neutral / compromised ×<input type="text" id="eMult" value="1.15, 1.00, 0.90, 0.75"></label>
       </div>
-      <p class="hint">Rates are placeholders for comparing options, not market figures.</p>
+      <p class="hint">Rates are placeholders for comparing options, not market figures. Continuous pricing: multiplier = 0.655 + 0.69 × living-room view, kept within 0.80–1.20 (compromised units 0.75), so two nearly identical flats are never a whole class apart in price.</p>
     </details>
     <button type="button" class="primary" id="btnRun">Run search</button>
     <div class="progress" aria-hidden="true"><i id="prog"></i></div>
@@ -255,8 +295,17 @@ tbody tr.on{background:var(--accent-soft)}
   </section>
 </aside>
 
-<main class="work">
+<main class="work" id="results">
+  <div id="verdict"></div>
   <div class="summary" id="kpis"></div>
+  <div class="exportbar" role="group" aria-label="Export and share"><span class="lab">Export &amp; share:</span>
+    <button type="button" class="chip" id="xBoard" title="One HTML page with the verdict, 3D view, flat mix, economics and assumptions; print it to PDF">Board pack</button>
+    <button type="button" class="chip" id="xCSV" title="Every flat with class, price, view values and the reasons, plus the assumptions">Units CSV</button>
+    <button type="button" class="chip" id="xCAD" title="Zip with a DXF (floor plates, cores, units by class) and an OBJ massing with context">CAD massing (DXF + OBJ)</button>
+    <button type="button" class="chip" id="xJSON" title="Save the site, envelope, inputs and results to a file">Save scenario</button>
+    <label class="chip" style="display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:99px;padding:3px 9px;font-size:12px;font-weight:600;cursor:pointer;background:var(--surface-2)">Load scenario<input type="file" id="xLoad" accept=".json" style="width:0;height:0;opacity:0;position:absolute"></label>
+    <button type="button" class="chip" id="xLink" title="Copy a link that opens this site, envelope and inputs">Copy share link</button>
+    <span class="status" id="exportInfo"></span></div>
   <nav class="tabs" role="tablist">
     <button role="tab" id="t-3d" aria-selected="true" data-p="p-3d">3D</button>
     <button role="tab" id="t-site" aria-selected="false" data-p="p-site">Site plan &amp; views</button>
@@ -269,7 +318,7 @@ tbody tr.on{background:var(--accent-soft)}
     <div class="stage" id="stage">
       <div class="hud">
         <div class="hudbox" id="hudSearch" hidden><div id="hudText"></div><div class="progress"><i id="hudProg"></i></div></div>
-        <div class="hudbox" id="hudHint">Drag to orbit · right-drag or two fingers to pan · scroll to zoom. Press Run search to generate towers; then click any floor to see its view cone.</div>
+        <div class="hudbox" id="hudHint"><span id="hudHintText">Drag to orbit · right-drag or two fingers to pan · scroll to zoom. Press Run search to generate towers; then click any floor to see its view cone.</span><button type="button" class="hudclose" id="hudClose" aria-label="Hide the help text">×</button></div>
       </div>
       <div class="tools">
         <button type="button" id="vReset">Reset view</button>
@@ -277,7 +326,7 @@ tbody tr.on{background:var(--accent-soft)}
         <button type="button" id="vClear" hidden>Clear view cone</button>
         <button type="button" id="vJump" class="primary" hidden>Jump in</button>
       </div>
-      <div class="jumpbar" id="jumpbar" hidden><span id="jumpText"></span><span>Drag to look · W A S D to step · scroll to zoom</span><button type="button" id="jumpExit">Exit (Esc)</button></div>
+      <div class="jumpbar" id="jumpbar" hidden><span class="compass" aria-hidden="true"><i id="jumpNeedle"></i></span><span><span id="jumpText"></span><br>Looking <b id="jumpHeading"></b> · drag to look · W A S D or the pad to step</span><div class="jpad"><button type="button" data-jturn="-20" aria-label="Turn left">⟲</button><button type="button" data-jkey="w" aria-label="Step forward">▲</button><button type="button" data-jturn="20" aria-label="Turn right">⟳</button><button type="button" data-jkey="a" aria-label="Step left">◀</button><button type="button" data-jkey="s" aria-label="Step back">▼</button><button type="button" data-jkey="d" aria-label="Step right">▶</button></div><button type="button" id="jumpSea">Face the sea</button><button type="button" id="jumpExit">Exit (Esc)</button></div>
       <div class="attrib" id="attrib">© OpenStreetMap contributors</div>
     </div>
     <div class="card" id="coneCard" hidden>
@@ -314,7 +363,7 @@ tbody tr.on{background:var(--accent-soft)}
   <section class="panel" id="p-opts" role="tabpanel" hidden>
     <div class="card">
       <div class="row" style="justify-content:space-between"><h3>Ranked options</h3><button type="button" id="btnCopy" class="chip">Copy results JSON</button></div>
-      <p class="hint">Rank 0 is the Pareto front on GDV, compromised units, premium units, living-room view, efficiency and structural complexity. Within a rank: zero compromised first, then GDV. Click a row to show it in 3D.</p>
+      <p class="hint">“Best” options are best trade-offs: no other option beats them on every measure (sales value minus construction cost, fewer compromised flats, more premium flats, living-room views, efficiency, simpler structure). Lower numbers are further from that front. Click a column heading to sort, or a row to show it in 3D.</p>
       <div class="tablewrap scroll"><table id="optTbl"></table></div>
     </div>
     <div class="card"><h3>Rejected options</h3><div class="tablewrap scroll"><table id="rejTbl"></table></div></div>
@@ -328,7 +377,19 @@ tbody tr.on{background:var(--accent-soft)}
         <div class="legend"><span><i style="background:var(--premium)"></i>Premium</span><span><i style="background:var(--good)"></i>Good</span><span><i style="background:var(--neutral)"></i>Neutral</span><span><i style="background:var(--compromised)"></i>Compromised</span><span><i style="background:var(--living)"></i>Living</span><span><i style="background:var(--bed)"></i>Bedrooms</span><span><i style="background:var(--service)"></i>Kitchen / service</span></div></div>
       <div class="card"><h3>Rule checks</h3><div class="checks" id="checks"></div><h3>Why this result</h3><ul class="explain" id="explain"></ul></div>
     </div>
-    <div class="card"><h3>Units</h3><div class="tablewrap scroll"><table id="unitTbl"></table></div></div>
+    <div class="two">
+      <div class="card"><div class="row" style="justify-content:space-between"><h3>Economics</h3><span class="badge r">Placeholder rates</span></div>
+        <div class="grid2">
+          <label class="f">Land cost (₹ cr)<input type="number" id="xLand" value="" placeholder="enter to include" min="0" step="10"></label>
+          <label class="f">Soft costs (% of construction)<input type="number" id="xSoft" value="15" step="1"></label>
+          <label class="f">Sales &amp; marketing (% of GDV)<input type="number" id="xSales" value="3" step="0.5"></label>
+          <label class="f">Target margin (% of GDV)<input type="number" id="xTarget" value="20" step="1"></label>
+        </div>
+        <p class="hint">Construction uses the ₹/ft² built-up rate in step 5 (advanced) times the whole tower incl. podium, plus a premium for structurally complex shapes.</p>
+        <div id="econOut"></div></div>
+      <div class="card"><div class="row" style="justify-content:space-between"><h3>Building-height uncertainty</h3><button type="button" class="chip" id="btnHeight">Test this tower</button></div><div id="htOut"></div></div>
+    </div>
+    <div class="card"><h3>Units</h3><p class="hint">Click a column heading to sort.</p><div class="tablewrap scroll"><table id="unitTbl"></table></div></div>
   </section>
 
   <section class="panel" id="p-method" role="tabpanel" hidden>
@@ -341,6 +402,19 @@ tbody tr.on{background:var(--accent-soft)}
         <li>Each typology is generated floor by floor. Options are checked against the hard rules, then views are evaluated on sampled floors in parallel Web Workers. The facade is split into units at its worst point, rooms take the best frontage, and each unit is classed with its reasons.</li>
         <li>Options are ranked by Pareto front without collapsing to one score. The top options are re-checked against future neighbours when the data includes them.</li>
       </ol>
+      <h3>Glossary</h3>
+      <dl class="glossary">
+        <dt>Premium flat</dt><dd>The living room has a strong sea view (at least 45% of the reference sea view and view score ≥ 0.6) and at least half the bedrooms see the sea.</dd>
+        <dt>Good / ordinary</dt><dd>Good: view score ≥ 0.4 but not premium. Ordinary (neutral): below that, usually lower floors or inland faces.</dd>
+        <dt>Compromised flat</dt><dd>The living room looks at a nearby wall (closer than 100 m), up at a steep skyline (over 10°), into another home, or has a poor view score (&lt; 0.25). The goal is zero.</dd>
+        <dt>View score (0–1)</dt><dd>Combines how much sea is visible, how far away the nearest building is, open sky, parks and landmarks, minus a privacy penalty. A tower alone in an empty field scores about 0.35.</dd>
+        <dt>Sea share</dt><dd>How much of the reference sea view a window gets; 1.0 means a band of sea at least 5° tall across the view.</dd>
+        <dt>Premium sea arc</dt><dd>The compass directions from the plot with a clear sea view at 100 m height.</dd>
+        <dt>GDV</dt><dd>Gross development value: the total sales value of all flats at the placeholder rates.</dd>
+        <dt>Efficiency</dt><dd>Carpet area divided by the gross floor area of the saleable floors.</dd>
+        <dt>Best trade-off</dt><dd>An option no other option beats on every measure at once (also called the Pareto front).</dd>
+        <dt>Estimated height</dt><dd>OpenStreetMap had no height or floor count for that building, so it was guessed from its type and calibrated against tagged buildings nearby. Use the height test to see how much it matters.</dd>
+      </dl>
       <p class="scope" id="envNote">Statutory rules are not modelled; you supply consumable FSI, maximum height and the buildable envelope. Low-confidence rule defaults (core size, depths, frontages) are assumptions for the design team to confirm. Rates are placeholders. The illustrative Dadar plot is not the project site.</p>
       <p class="hint" id="dataNote"></p>
     </div>
@@ -356,3 +430,4 @@ tbody tr.on{background:var(--accent-soft)}
 <script src="js/geo.js"></script>
 <script src="js/view3d.js"></script>
 <script src="js/app.js"></script>
+<script src="js/extras.js"></script>

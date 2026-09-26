@@ -3,7 +3,7 @@
 "use strict";
 const { D2R, ccw, centroid, bounds, pip, perimeterPoints, mod } = G.VT;
 const COL = { land: "#c9c5bb", sea: "#4f93b3", beach: "#e3d3a4", park: "#8fb77f", road: "#f4f3ef", roadEdge: "#a9a598", plot: "#c7702a", env: "#0d5e78",
-  bldg: 0xc9ced1, bldgEst: 0xd9dcdd, ghost: 0x2aa0c4, core: 0x4a5854, podium: 0x9aa3a0, premium: 0x1b7f5b, good: 0x78ad62, neutral: 0xc9a53a, compromised: 0xbf4d37,
+  bldg: 0xc9ced1, bldgEst: 0xd9dcdd, ghost: 0x2aa0c4, core: 0x4a5854, podium: 0x9aa3a0, premium: 0x5e3c99, good: 0xa99bd0, neutral: 0xf2b45c, compromised: 0xd4520b,
   raySea: 0x1f6fd1, rayBlock: 0xd24b3a, rayOpen: 0x8a948f };
 let T = null;
 
@@ -19,12 +19,13 @@ function init(el) {
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; controls.dampingFactor = 0.12; controls.screenSpacePanning = true; controls.maxPolarAngle = Math.PI * 0.495; controls.minDistance = 20; controls.maxDistance = 5000;
   T = { el, renderer, scene, camera, controls, groups: {}, designMeshes: [], ctr: [0, 0], mode: "orbit", jump: null, raycaster: new THREE.Raycaster(), listeners: {} };
-  new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight; if (!w || !h) return; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }).observe(el);
-  const loop = () => { requestAnimationFrame(loop); if (T.mode === "orbit") controls.update(); else stepJump(); if (T.groups.ghost) T.groups.ghost.children.forEach(m => { if (m.material) m.material.opacity = 0.28 + 0.14 * Math.sin(performance.now() / 260); }); renderer.render(scene, camera); };
+  new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight; if (!w || !h) return; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); T.dirty = true; }).observe(el);
+  // render only when something changed (camera, scene, animated ghost, first-person) to spare CPU and battery
+  const loop = () => { requestAnimationFrame(loop); let moved = false; if (T.mode === "orbit") moved = controls.update(); else { stepJump(); moved = true; } if (T.groups.ghost) { moved = true; T.groups.ghost.children.forEach(m => { if (m.material) m.material.opacity = 0.28 + 0.14 * Math.sin(performance.now() / 260); }); } if (moved || T.dirty) { T.dirty = false; renderer.render(scene, camera); } };
   loop(); bindPointer(); return T;
 }
 const W3 = (x, y, z = 0) => new THREE.Vector3(x - T.ctr[0], z, -(y - T.ctr[1]));
-function setGroup(name, obj) { if (T.groups[name]) { T.scene.remove(T.groups[name]); dispose(T.groups[name]); } T.groups[name] = obj; if (obj) T.scene.add(obj); }
+function setGroup(name, obj) { if (T) T.dirty = true; if (T.groups[name]) { T.scene.remove(T.groups[name]); dispose(T.groups[name]); } T.groups[name] = obj; if (obj) T.scene.add(obj); }
 function dispose(o) { o.traverse(c => { if (c.geometry) c.geometry.dispose(); if (c.material) { (Array.isArray(c.material) ? c.material : [c.material]).forEach(m => { if (m.map) m.map.dispose(); m.dispose(); }); } }); }
 
 /* ---------- context: ground texture + merged buildings */
@@ -182,6 +183,7 @@ function stepJump() {
   const J = T.jump; if (!J) return; const k = J.keys, sp = 0.12, f = new THREE.Vector3(Math.sin(J.yaw * D2R), 0, -Math.cos(J.yaw * D2R)), r = new THREE.Vector3(-f.z, 0, f.x);
   if (k.w || k.arrowup) J.pos.addScaledVector(f, sp); if (k.s || k.arrowdown) J.pos.addScaledVector(f, -sp); if (k.d || k.arrowright) J.pos.addScaledVector(r, sp); if (k.a || k.arrowleft) J.pos.addScaledVector(r, -sp);
   T.camera.position.copy(J.pos);
+  if (T.listeners.heading && Math.abs((J.lastYaw ?? 1e9) - J.yaw) > 0.5) { J.lastYaw = J.yaw; T.listeners.heading(mod(J.yaw, 360)); }
   const cp = Math.cos(J.pitch * D2R), dir = new THREE.Vector3(Math.sin(J.yaw * D2R) * cp, Math.sin(J.pitch * D2R), -Math.cos(J.yaw * D2R) * cp);
   T.camera.lookAt(J.pos.clone().add(dir));
 }
@@ -191,9 +193,18 @@ function exitJump() {
   window.removeEventListener("keydown", J.kd); window.removeEventListener("keyup", J.ku);
   setGroup("room", null); if (T.groups.design) T.groups.design.visible = true; if (T.groups.cone) T.groups.cone.visible = true;
   T.mode = "orbit"; T.jump = null; T.controls.enabled = true; T.camera.fov = T.saved.fov; T.camera.updateProjectionMatrix(); T.camera.position.copy(T.saved.pos); T.controls.target.copy(T.saved.target);
-  T.listeners.exitJump && T.listeners.exitJump();
+  T.dirty = true; T.listeners.exitJump && T.listeners.exitJump();
 }
 function on(name, fn) { if (T) T.listeners[name] = fn; }
+/* first-person helpers for on-screen controls: turn to a bearing, hold a step key */
+function setYaw(az) { if (T && T.jump) { T.jump.yaw = az; T.jump.pitch = -2; } }
+function setKey(k, down) { if (T && T.jump) T.jump.keys[k] = down; }
+function turn(d) { if (T && T.jump) T.jump.yaw += d; }
+/* PNG of the current 3D view (rendered now so no preserved drawing buffer is needed) */
+function snapshot(w = 1200) {
+  if (!T) return null; T.renderer.render(T.scene, T.camera); const src = T.renderer.domElement, c = document.createElement("canvas");
+  c.width = w; c.height = Math.round(w * src.height / src.width); c.getContext("2d").drawImage(src, 0, 0, c.width, c.height); return c.toDataURL("image/png");
+}
 
-G.V3D = { init, setSeaAz, frameTower, setContext, updateSite, showGhost, clearGhost, showDesign, clearDesign, showCone, clearCone, snapToFacade, resetView, topView, jumpIn, exitJump, on, get state() { return T; } };
+G.V3D = { init, setSeaAz, frameTower, setContext, updateSite, showGhost, clearGhost, showDesign, clearDesign, showCone, clearCone, snapToFacade, resetView, topView, jumpIn, exitJump, on, setYaw, setKey, turn, snapshot, COL, get state() { return T; } };
 })(window);
