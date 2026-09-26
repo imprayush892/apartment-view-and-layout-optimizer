@@ -1,0 +1,108 @@
+{
+ "created": "2026-09-26T23:39:16.094Z",
+ "designsCritiqued": 912,
+ "moveCounts": {
+  "splay_or_offset_to_avoid_facing": 155,
+  "podium_or_base_changes": 207,
+  "terrace_toward_outlook": 167,
+  "spread_towers_apart": 22,
+  "crown_or_top_articulation": 164,
+  "taper_more": 127,
+  "corner_gardens_or_cutouts": 246,
+  "chamfer_or_round_corners": 108,
+  "rotate_plate_to_outlook": 221,
+  "stagger_or_cantilever": 90,
+  "twist_more": 83,
+  "simplify_for_constructability": 56,
+  "more_slender": 49,
+  "taller": 90,
+  "lower": 15,
+  "add_variety_between_floors": 52,
+  "fewer_towers": 30,
+  "lean_toward_outlook": 26,
+  "none": 1,
+  "twist_less_or_remove": 56,
+  "terrace_away": 7,
+  "remove_stagger": 7,
+  "less_slender_or_wider": 29,
+  "taper_less": 8,
+  "split_into_more_towers": 4
+ },
+ "prior": {
+  "base": {
+   "square": 0.0909,
+   "rectangular": 0.0909,
+   "chamfered": 0.1391,
+   "curved": 0.1391,
+   "diamond": 0.0909,
+   "triangular": 0.1275,
+   "y_shaped": 0.1397,
+   "cross": 0.0909,
+   "t_shaped": 0.0909
+  },
+  "twist": {
+   "none": 0.2965,
+   "linear": 0.3023,
+   "band": 0.1667,
+   "ease": 0.2345
+  },
+  "taper": {
+   "none": 0.18,
+   "linear": 0.4312,
+   "frustum": 0.2221,
+   "bulge": 0.1667
+  },
+  "shift": {
+   "none": 0.184,
+   "stagger": 0.259,
+   "lean": 0.1753,
+   "wave": 0.1429,
+   "pixel": 0.2389
+  },
+  "terrace": {
+   "none": 0.4031,
+   "view": 0.5969
+  },
+  "cut": {
+   "none": 0.3846,
+   "cut": 0.6154
+  },
+  "podium": {
+   "none": 0.3846,
+   "street": 0.6154
+  },
+  "crown": {
+   "none": 0.2,
+   "crown": 0.4,
+   "crown_turn": 0.4
+  }
+ },
+ "numPrior": {
+  "size": [
+   27.92,
+   5
+  ],
+  "rate": [
+   1.21,
+   0.8
+  ],
+  "top": [
+   0.849,
+   0.12
+  ],
+  "rot": [
+   0,
+   21.6
+  ]
+ },
+ "W": {
+  "q": 1,
+  "prize": 0.6,
+  "priv": 0.7,
+  "complexity": 0.1275,
+  "appeal": 0.3
+ },
+ "towerSplay": 15,
+ "rotationRefine": true,
+ "notes": "Derived from architects' image-only critiques; see docs/spec/14_architect_study.md"
+}

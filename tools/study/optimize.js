@@ -17,6 +17,7 @@ if (isMainThread) {
 } else {
   const C = require("./common.js"), L = C.TOK.library(), model = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "web", "data", "typology_model.json"), "utf8"));
   const hyb = fs.existsSync(path.join(DIR, "hybrid_weights.json")) ? JSON.parse(fs.readFileSync(path.join(DIR, "hybrid_weights.json"), "utf8")) : null;
+  const appealF = path.join(__dirname, "..", "..", "web", "data", "appeal_model.json"), appeal = fs.existsSync(appealF) ? JSON.parse(fs.readFileSync(appealF, "utf8")) : null;
   for (const a of workerData.archs) {
     const f = path.join(DIR, "results", a.id + ".json"), prev = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : { id: a.id };
     const P = C.prepare(a.site, { evalEvery: 8 }); if (!P) { fs.writeFileSync(f, JSON.stringify({ ...prev, error: "no envelope" })); parentPort.postMessage(1); continue; }
@@ -38,10 +39,15 @@ if (isMainThread) {
       }
       if (mode === "prob" || mode === "hyb") { // probabilistic: cross-entropy over tokens scored by the learned model; hybrid adds architect-feedback weights and seeds from det
         const opts = { check: sp => !!C.layoutChecked(P, sp, 1), C: { ...P.C, fsi: P.C.fsi / N0 }, S: P.S, V: P.V, seed: parseInt(a.id.slice(1)) * 7 + (mode === "hyb" ? 99 : 0), pop: 60, iters: 5, top: 20, ctxH: P.ctxH, dense: P.dense, position: P.pos };
-        if (mode === "hyb" && hyb) { opts.W = hyb.W; opts.prior = hyb.prior; opts.numPrior = hyb.numPrior; }
+        if (mode === "hyb" && hyb) { opts.W = hyb.W; opts.prior = hyb.prior; opts.numPrior = hyb.numPrior; opts.appeal = appeal; opts.towers = N0; P.C.towerSplay = hyb.towerSplay || 0; }
         const gen = C.TOK.generate(model, P.field, P.env, opts.C, opts).map(g => ({ ...g.sp, lib: g.typ.id }));
-        if (mode === "hyb" && prev.det && prev.det.best) gen.push({ ...prev.det.best.towers[0], position: P.pos, n: 0, lib: prev.det.best.lib + "+refit" });
-        prev[mode] = run(gen.map(sp => sp.n === 0 ? C.VT.resolveFloors(sp, P.C) : sp), mode === "hyb" ? "hybrid" : "probabilistic");
+        if (mode === "hyb" && prev.det && prev.det.best) gen.push({ ...prev.det.best.towers[0], position: P.pos, n: 0, lib: prev.det.best.lib + "+seed" });
+        let res = run(gen.map(sp => sp.n === 0 ? C.VT.resolveFloors(sp, P.C) : sp), mode === "hyb" ? "hybrid" : "probabilistic");
+        // hybrid: local rotation search around the winner (architects asked to turn plates to the outlook)
+        if (mode === "hyb" && hyb && hyb.rotationRefine && res.best) { const b0 = res.best.towers[0], tries = [-12, 12].map(d => ({ ...b0, rotation: +(((b0.rotation + d) % 90 + 90) % 90).toFixed(1), position: P.pos, n: 0, lib: res.best.lib + `+rot${d > 0 ? "+" : ""}${d}` })).map(sp => C.VT.resolveFloors(sp, P.C));
+          const alt = run(tries, "hybrid-rot"); if (alt.best) { const cand = [res.best, alt.best].map(x => ({ metrics: { ...x.metrics, gdv: x.metrics.gdvCr * 1e7, margin: x.metrics.marginCr * 1e7, compromised: x.metrics.compromised, premium: x.metrics.premium, livingView: x.metrics.livingView, efficiency: x.metrics.efficiency, structural: x.metrics.structural }, x, id: x.lib, feasible: true }));
+            C.VT.paretoRanks(cand); cand.sort(C.VT.cmpKey); if (cand[0].x === alt.best) { res = { ...res, best: alt.best, rotated: true }; } res.alts = res.alts.concat(alt.alts); } }
+        prev[mode] = res;
       }
     }
     fs.writeFileSync(f, JSON.stringify(prev)); parentPort.postMessage(1);

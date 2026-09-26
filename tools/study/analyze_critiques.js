@@ -3,10 +3,11 @@
 const fs = require("fs"), path = require("path"), DIR = path.join(__dirname, "..", "..", "data", "study");
 const [journal, sysArg, outFile] = process.argv.slice(2), systems = sysArg.split(",");
 const blind = JSON.parse(fs.readFileSync(path.join(DIR, "blind.json"), "utf8")), archs = Object.fromEntries(JSON.parse(fs.readFileSync(path.join(DIR, "architects.json"), "utf8")).map(a => [a.id, a]));
+const WIN1 = fs.existsSync(path.join(DIR, "win1.json")) ? JSON.parse(fs.readFileSync(path.join(DIR, "win1.json"), "utf8")) : {};
 const crit = []; for (const l of fs.readFileSync(journal, "utf8").split("\n")) { if (!l.trim()) continue; const e = JSON.parse(l); if (e.type === "result" && e.result && e.result.architects) crit.push(...e.result.architects); }
 const seen = new Set(), rows = [];
 for (const c of crit) { if (seen.has(c.id) || !archs[c.id]) continue; seen.add(c.id); const order = blind[c.id + ":" + systems.join(",")]; if (!order) continue;
-  const r = JSON.parse(fs.readFileSync(path.join(DIR, "results", c.id + ".json"), "utf8")), bySys = {}; order.forEach((s, i) => { bySys[s] = { ...c["AB"[i]], engine: r[s] && r[s].best ? r[s].best.metrics : null }; });
+  const r = JSON.parse(fs.readFileSync(path.join(DIR, "results", c.id + ".json"), "utf8")), bySys = {}; order.forEach((s, i) => { bySys[s] = { ...c["AB"[i]], engine: (s === "win1" ? r[WIN1[c.id]] : r[s]) && (s === "win1" ? r[WIN1[c.id]] : r[s]).best ? (s === "win1" ? r[WIN1[c.id]] : r[s]).best.metrics : null }; });
   rows.push({ id: c.id, city: archs[c.id].site.city, influences: archs[c.id].influences, pref: c.preference === "equal" ? "equal" : order["AB".indexOf(c.preference)], reason: c.preference_reason, quote: c.quote, bySys }); }
 const mean = v => v.length ? v.reduce((a, b) => a + b, 0) / v.length : NaN, K = ["overall", "view_capture", "privacy_overlooking", "massing_silhouette", "proportion", "context_fit", "constructability"];
 const S = { architects: rows.length, preference: {}, ratings: {}, byCity: {}, topMoves: {}, agreement: {} };

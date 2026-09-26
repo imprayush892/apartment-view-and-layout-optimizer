@@ -196,6 +196,8 @@ function clipHalf(poly, ux, uy, cut) { const out = [], n = poly.length, f = p =>
 const hash01 = (a, b) => { let h = Math.imul(a * 73856093 ^ b * 19349663, 0x9E3779B1) >>> 0; h ^= h >>> 15; return (h >>> 0) / 4294967296; };
 function tokenPlate(sp, level) {
   const p = sp.p, first = sp.podium, n = Math.max(sp.n, first + 2), k = Math.max(level - first, 0), t = level >= first ? k / Math.max(1, n - 1 - first) : 0;
+  // base token: a podium that fills the site to the street wall (local ring stored at spec creation)
+  if (level < first && p.podiumWorld && p.podiumWorld.length >= 3) return rot(tr(p.podiumWorld, -sp.position[0], -sp.position[1]), sp.rotation || 0);
   let poly = baseShape(p.base || "square", sp.width, sp.depth, p);
   const tp = p.taper; if (tp && level >= first) { const A = (tp.top ?? 1) - 1; let sc = 1;
     if (tp.mode === "frustum") { const P = Math.max(2, tp.period || 10), ph = (k % (2 * P)) / P; sc = 1 + A * (ph <= 1 ? ph : 2 - ph); } else if (tp.mode === "bulge") sc = 1 + A * Math.sin(Math.PI * t); else sc = 1 + A * t;
@@ -204,6 +206,8 @@ function tokenPlate(sp, level) {
     poly = clipHalf(poly, sx / Math.SQRT2, sy / Math.SQRT2, (sx * (sx > 0 ? cx[1] : cx[0]) + sy * (sy > 0 ? cy[1] : cy[0])) / Math.SQRT2 - s0); }
   const te = p.terrace; if (te && level >= first) { const every = Math.max(1, Math.round(te.every || 6)), side = ((te.dir ?? 0) - (sp.rotation || 0)) * D2R, ux = Math.sin(side), uy = Math.cos(side), proj = poly.map(q => q[0] * ux + q[1] * uy), lo = Math.min(...proj), hi = Math.max(...proj);
     const retreat = Math.min((te.step ?? 3) * Math.floor(k / every), te.max ?? 0.35 * (hi - lo)); if (retreat > 0) poly = clipHalf(poly, ux, uy, Math.max(hi - retreat, lo + 12)); }
+  // crown token: the top floors narrow and may turn (a resolved top instead of a flat cut-off)
+  const cr = p.crown; if (cr && level >= first) { const F = Math.max(2, Math.round(cr.floors || 6)), s0 = n - F; if (level >= s0) { const f = (level - s0 + 1) / F; poly = rot(scl(poly, 1 + ((cr.scale ?? 0.7) - 1) * f), -(cr.rot || 0) * f); } }
   const tw = p.twist; if (tw && level >= first) { let ang = 0; const r = tw.rate || 0;
     if (tw.mode === "band") { const B = Math.max(2, tw.band || 6); ang = r * B * Math.floor(k / B); } else if (tw.mode === "ease") { const T = r * (n - 1 - first); ang = T * (3 * t * t - 2 * t * t * t); } else ang = r * k;
     poly = rot(poly, -ang); }
@@ -504,7 +508,12 @@ function siteLayout(sp0, N, env, C) {
       let best = null, bd = -1; for (const c of cands) { if (chosen.includes(c)) continue; const m = Math.min(...chosen.map(o => polyDistance(o.fp, c.fp))); if (m >= sep && m > bd) { bd = m; best = c; } }
       if (!best) break; chosen.push(best);
     }
-    if (chosen.length === N) return { sps: chosen.map((c, j) => ({ ...c.q, tower: j, count: N })), note: k < 1 ? `scaled to ${Math.round(k * 100)}% to fit ${N} towers` : "" };
+    if (chosen.length === N) { const plain = chosen.map((c, j) => ({ ...c.q, tower: j, count: N }));
+      // splay: turn alternate towers so their faces do not look straight at each other; keep only if it still fits
+      if (C.towerSplay && N > 1) { const spl = plain.map((q, j) => ({ ...q, rotation: +(q.rotation + (j % 2 ? 1 : -1) * C.towerSplay * Math.ceil(j / 2)).toFixed(2) }));
+        const okFit = spl.every(q => fitsAt(q, env)), fps = spl.map(q => plateAt(q, q.podium)); let okSep = true; for (let a = 0; a < N && okSep; a++) for (let b = a + 1; b < N; b++) if (polyDistance(fps[a], fps[b]) < sep) { okSep = false; break; }
+        if (okFit && okSep) return { sps: spl, note: (k < 1 ? `scaled to ${Math.round(k * 100)}% to fit ${N} towers; ` : "") + `towers splayed ±${C.towerSplay}°` }; }
+      return { sps: plain, note: k < 1 ? `scaled to ${Math.round(k * 100)}% to fit ${N} towers` : "" }; }
   }
   return null;
 }

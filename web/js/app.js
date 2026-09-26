@@ -220,7 +220,7 @@ function validateConfig(C) {
 /* Token search (see docs/spec/13): "library" screens the 540-typology library with a fixed hand rule;
    "generative" samples token designs by cross-entropy, scored by the open segment model; "hybrid" uses
    the generator with weights adjusted from the architect study. Returns the shortlist to evaluate. */
-let MODEL = null, HYB = null;
+let MODEL = null, HYB = null, APPEAL = null;
 async function tokenSpecs(C, mode) {
   if (!st.field) computeField(); const f = st.field, env = st.env, viewAz = TOK.viewAzOf(f), pos = bestCenter(env), N = C.towers || 1, Ci = { ...C, fsi: C.fsi / N };
   const ok = sp => { if (sp.n <= sp.podium || !VT.fitsAt(sp, env)) return false; return VT.checkCandidate(sp, env, Ci, f.arc).feasible; };
@@ -234,17 +234,18 @@ async function tokenSpecs(C, mode) {
     return out;
   }
   if (!MODEL) MODEL = await (await fetch("data/typology_model.json")).json();
-  if (mode === "hybrid" && !HYB) { try { HYB = await (await fetch("data/hybrid_weights.json")).json(); } catch (e) { HYB = {}; } }
+  if (mode === "hybrid" && !HYB) { try { HYB = await (await fetch("data/hybrid_weights.json")).json(); } catch (e) { HYB = {}; } try { APPEAL = await (await fetch("data/appeal_model.json")).json(); } catch (e) { APPEAL = null; } }
   const ctxH = TOK.contextHeight(st.S, ...pos), opts = { S: st.S, V: VT.viewSettings({ res: RES, lmOn: !!(st.ctx.landmarks && st.ctx.landmarks.length) }), check: ok, seed: 1 + (st.runToken % 97), pop: 60, iters: 5, top: K, ctxH, dense: st.ctx.profile === "dense", position: pos, ftf, podium: pod, upf };
-  if (mode === "hybrid" && HYB) { opts.W = HYB.W; opts.prior = HYB.prior; opts.numPrior = HYB.numPrior; }
+  if (mode === "hybrid" && HYB) { opts.W = HYB.W; opts.prior = HYB.prior; opts.numPrior = HYB.numPrior; opts.appeal = APPEAL; opts.towers = N; C.towerSplay = HYB.towerSplay || 0; }
   return TOK.generate(MODEL, f, env, Ci, opts).map(g => ({ ...g.sp, tokNote: `${mode === "hybrid" ? "hybrid" : "generated"}: ${describeTokens(g.sp.p)}` }));
 }
 /* UX A/B variants (?ux=B): search method as cards, neutral 3D massing (class on click), plain-language token notes */
 const UXB = new URLSearchParams(location.search).get("ux") === "B";
 function describeTokensPlain(p) { const t = [{ square: "square", rectangular: "long rectangular", chamfered: "cut-corner", curved: "rounded", diamond: "diamond", triangular: "triangular", y_shaped: "three-winged (Y)", cross: "cross-shaped", t_shaped: "T-shaped" }[p.base] + " floor plan"];
   if (p.twist) t.push(p.twist.rate > 2 ? "turns strongly as it rises (like Absolute World)" : "turns slowly as it rises (like Cayan Tower)"); if (p.taper) t.push(p.taper.mode === "frustum" ? "alternately widens and narrows (like Vista Tower)" : p.taper.mode === "bulge" ? "swells in the middle (like the Gherkin)" : "narrows toward the top");
+  if (p.podiumWorld) t.push("sits on a podium that holds the street edge"); if (p.crown) t.push(p.crown.rot ? "the top floors narrow and turn" : "the top floors narrow to a crown");
   if (p.shift) t.push({ stagger: "floors shift back and forth (like 56 Leonard)", lean: "leans out toward the view", wave: "slab edges ripple (like Aqua Tower)", pixel: "blocks of floors slide out (like 56 Leonard)" }[p.shift.mode]); if (p.terrace) t.push("steps down in terraces toward the view (like Habitat 67)"); if (p.cut) t.push("corner garden cut-outs (like Kanchanjunga)"); return t.join(", "); }
-function describeTokens(p) { if (UXB) return describeTokensPlain(p); const t = [p.base.replace("_", "-")]; if (p.twist) t.push(`${p.twist.mode} twist ${p.twist.rate}°/floor`); if (p.taper) t.push(`${p.taper.mode} taper to ${Math.round(100 * p.taper.top)} %`); if (p.shift) t.push(`${p.shift.mode} shift ${p.shift.amp} m`); if (p.terrace) t.push(`terraces ${p.terrace.step} m every ${p.terrace.every} floors`); if (p.cut) t.push("corner gardens"); return t.join(", "); }
+function describeTokens(p) { if (UXB) return describeTokensPlain(p); const t = [p.base.replace("_", "-")]; if (p.podiumWorld) t.push("street-wall podium"); if (p.crown) t.push(p.crown.rot ? "turning crown" : "tapered crown"); if (p.twist) t.push(`${p.twist.mode} twist ${p.twist.rate}°/floor`); if (p.taper) t.push(`${p.taper.mode} taper to ${Math.round(100 * p.taper.top)} %`); if (p.shift) t.push(`${p.shift.mode} shift ${p.shift.amp} m`); if (p.terrace) t.push(`terraces ${p.terrace.step} m every ${p.terrace.every} floors`); if (p.cut) t.push("corner gardens"); return t.join(", "); }
 /* Deepest point of the envelope (approximate pole of inaccessibility) — a concave plot's centroid
    can fall outside it, and the deepest point gives the tower the most room. */
 function bestCenter(env) {

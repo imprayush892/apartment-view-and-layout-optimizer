@@ -4,7 +4,8 @@ const fs = require("fs"), path = require("path"), DIR = path.join(__dirname, "..
 const [renderDir, sysArg, out] = process.argv.slice(2), NP = +process.argv[5] || 50, systems = sysArg.split(",");
 const archs = JSON.parse(fs.readFileSync(path.join(DIR, "architects.json"), "utf8")), blind = JSON.parse(fs.readFileSync(path.join(DIR, "blind.json"), "utf8"));
 const CITY = { dadar: "Dadar, Mumbai (Arabian Sea to the west, Shivaji Park)", nyc_lower: "Lower Manhattan, New York (harbour and rivers, dense towers)", nyc_midtown: "Midtown Manhattan, New York (dense grid, supertall skyline)", ldn_city: "City of London (irregular medieval street pattern, the Thames to the south)", ldn_canary: "Canary Wharf, London (tower cluster, docks and the Thames around it)" };
-const towerNote = a => { const r = JSON.parse(fs.readFileSync(path.join(DIR, "results", a.id + ".json"), "utf8")), n = systems.map(s => r[s] && r[s].towersUsed).filter(Boolean); return n.some(v => v < a.site.towers) ? ` Only ${[...new Set(n)].join(" or ")} tower(s) could stand at least 24 m apart on this plot, so the designs show that many.` : ""; };
+const towerNote = a => { const r = JSON.parse(fs.readFileSync(path.join(DIR, "results", a.id + ".json"), "utf8")), n = systems.map(s => s === "win1" ? r[WIN1[a.id]] : r[s]).map(x => x && x.towersUsed).filter(Boolean); return n.some(v => v < a.site.towers) ? ` Only ${[...new Set(n)].join(" or ")} tower(s) could stand at least 24 m apart on this plot, so the designs show that many.` : ""; };
+const WIN1 = fs.existsSync(path.join(DIR, "win1.json")) ? JSON.parse(fs.readFileSync(path.join(DIR, "win1.json"), "utf8")) : {};
 const rows = [];
 for (const a of archs) {
   const key = a.id + ":" + systems.join(","), order = blind[key]; if (!order) continue;

@@ -58,8 +58,9 @@ function library() {
 
 /* Resolve "view"/"anti" directions to a site azimuth. */
 function resolveDirs(p, viewAz) { const q = JSON.parse(JSON.stringify(p)); for (const k of ["shift", "terrace"]) if (q[k] && typeof q[k].dir === "string") q[k].dir = q[k].dir === "view" ? viewAz : mod(viewAz + 180, 360); return q; }
-function toSpec(typ, pos, rot, viewAz, C, ftf = 3.6, podium = 6, upf = 2) {
-  return VT.resolveFloors({ typology: "token", width: typ.width, depth: typ.depth, p: resolveDirs(typ.p, viewAz), position: pos, rotation: rot, ftf, podium, upf, coreOff: 0, n: 0, lib: typ.id }, C);
+function toSpec(typ, pos, rot, viewAz, C, ftf = 3.6, podium = 6, upf = 2, env = null) {
+  const p = resolveDirs(typ.p, viewAz); if (p.podiumBase && env) p.podiumWorld = env.map(q => q.slice()); // base token: podium to the street wall
+  return VT.resolveFloors({ typology: "token", width: typ.width, depth: typ.depth, p, position: pos, rotation: rot, ftf, podium, upf, coreOff: 0, n: 0, lib: typ.id }, C);
 }
 
 /* ---------------------------------------------------------------- token vector (per tower) */
@@ -165,12 +166,24 @@ function ruleScore(sp, field, viewAz) {
   return L ? s / L : -1;
 }
 
+/* ---------------------------------------------------------------- architect-appeal model */
+/* Features of a whole design that architects can see in an image (tokens, proportion, base, crown, towers).
+   Fitted by ridge regression on the architects' overall ratings (tools/study/appeal.js). */
+const APPEAL_FEAT = ["bias", "twist", "twist_rate", "taper", "taper_frustum", "taper_bulge", "shift", "shift_lean", "shift_pixel", "terrace", "cut", "podium", "crown", "crown_turn", "slender", "slender_sq", "aspect", "towers", "curved_or_chamfered", "wings", "diamond_or_tri"];
+function appealFeatures(sp, viewAz, towers = 1) {
+  const p = sp.p || {}, b = p.base || sp.typology, H = sp.n * sp.ftf, slender = H / Math.max(8, Math.min(sp.width, sp.depth)) / 10;
+  return [1, p.twist ? 1 : 0, p.twist ? Math.min(3, p.twist.rate || 0) : 0, p.taper ? 1 : 0, p.taper && p.taper.mode === "frustum" ? 1 : 0, p.taper && p.taper.mode === "bulge" ? 1 : 0, p.shift ? 1 : 0, p.shift && p.shift.mode === "lean" ? 1 : 0, p.shift && p.shift.mode === "pixel" ? 1 : 0,
+    p.terrace ? 1 : 0, p.cut ? 1 : 0, p.podiumBase || p.podiumWorld ? 1 : 0, p.crown ? 1 : 0, p.crown && p.crown.rot ? 1 : 0, slender, slender * slender, Math.min(2.5, sp.width / Math.max(1, sp.depth)) - 1, (towers - 1) / 3,
+    b === "curved" || b === "chamfered" ? 1 : 0, b === "y_shaped" || b === "cross" || b === "t_shaped" ? 1 : 0, b === "diamond" || b === "triangular" ? 1 : 0];
+}
+function appealScore(m, sp, viewAz, towers) { const x = appealFeatures(sp, viewAz, towers); return (x.reduce((a, v, i) => a + v * (m.w[i] || 0), 0) - (m.mean || 6)) / 10; }
+
 /* ---------------------------------------------------------------- probabilistic generator (cross-entropy) */
 /* Distribution over tokens: categorical (base, twist mode, taper mode, shift mode) + Gaussians (sizes,
    rates, amplitudes, rotation). Sample, score with the model, refit to the elite, repeat. Seeded. */
 function rng(seed) { let s = seed >>> 0 || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
 function gauss(r) { let u = 0, v = 0; while (!u) u = r(); v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
-const CATS = { base: BASES, twist: ["none", "linear", "band", "ease"], taper: ["none", "linear", "frustum", "bulge"], shift: ["none", "stagger", "lean", "wave", "pixel"], terrace: ["none", "view"], cut: ["none", "cut"] };
+const CATS = { base: BASES, twist: ["none", "linear", "band", "ease"], taper: ["none", "linear", "frustum", "bulge"], shift: ["none", "stagger", "lean", "wave", "pixel"], terrace: ["none", "view"], cut: ["none", "cut"], podium: ["none", "street"], crown: ["none", "crown", "crown_turn"] };
 function initDist(prior) {
   const d = { cat: {}, num: { size: [28, 5], aspect: [1.2, 0.3], rate: [1.2, 0.8], top: [0.85, 0.12], amp: [2.5, 1.5], step: [2.2, 0.8], rot: [0, 30] } };
   for (const [k, vals] of Object.entries(CATS)) { d.cat[k] = {}; vals.forEach(v => d.cat[k][v] = (prior && prior[k] && prior[k][v]) ?? 1 / vals.length); }
@@ -191,7 +204,9 @@ function genomeToTyp(g) {
   if (g.shift !== "none") p.shift = { amp: +g.amp.toFixed(2), mode: g.shift, period: g.shift === "stagger" ? 2 : 4, dir: "view" };
   if (g.terrace !== "none") p.terrace = { every: 4, step: +g.step.toFixed(2), dir: "view" };
   if (g.cut !== "none") p.cut = { every: 4, size: 3 };
-  return { id: `gen-${b}-${w}x${Math.max(10, d)}-${g.twist}-${g.taper}-${g.shift}-${g.terrace}-${g.cut}`, base: b, width: w, depth: wing ? Math.max(10, d) : Math.max(12, d), mod: "generated", label: "generated", precedent: "probabilistic generator", p, rotOff: g.rot };
+  if (g.podium === "street") p.podiumBase = true;
+  if (g.crown && g.crown !== "none") p.crown = { floors: 6, scale: 0.72, rot: g.crown === "crown_turn" ? 12 : 0 };
+  return { id: `gen-${b}-${w}x${Math.max(10, d)}-${g.twist}-${g.taper}-${g.shift}-${g.terrace}-${g.cut}-${g.podium || "none"}-${g.crown || "none"}`, base: b, width: w, depth: wing ? Math.max(10, d) : Math.max(12, d), mod: "generated", label: "generated", precedent: "probabilistic generator", p, rotOff: g.rot };
 }
 function refit(dist, elite, alpha = 0.7) {
   const nd = JSON.parse(JSON.stringify(dist));
@@ -203,8 +218,8 @@ function refit(dist, elite, alpha = 0.7) {
 function generate(model, field, env, C, opts = {}) {
   const r = rng(opts.seed || 1), viewAz = viewAzOf(field), ctxH = opts.ctxH || 0, dense = !!opts.dense, pos = opts.position || centroid(env);
   let dist = initDist(opts.prior); if (opts.numPrior) Object.assign(dist.num, opts.numPrior); const seen = new Map();
-  const evalG = g => { const typ = genomeToTyp(g), rotd = mod(viewAz + g.rot, 360) % 90; const sp = toSpec(typ, pos, +rotd.toFixed(1), viewAz, C, opts.ftf, opts.podium, opts.upf);
-    if (sp.n <= sp.podium || !VT.fitsAt(sp, env) || (opts.check && !opts.check(sp))) return { g, typ, sp, s: -1 }; return { g, typ, sp, s: modelScore(model, sp, field, viewAz, ctxH, dense, opts.W, opts.S, opts.V) }; };
+  const evalG = g => { const typ = genomeToTyp(g), rotd = mod(viewAz + g.rot, 360) % 90; const sp = toSpec(typ, pos, +rotd.toFixed(1), viewAz, C, opts.ftf, opts.podium, opts.upf, env);
+    if (sp.n <= sp.podium || !VT.fitsAt(sp, env) || (opts.check && !opts.check(sp))) return { g, typ, sp, s: -1 }; return { g, typ, sp, s: modelScore(model, sp, field, viewAz, ctxH, dense, opts.W, opts.S, opts.V) + (opts.appeal ? (opts.W && opts.W.appeal || 0.3) * appealScore(opts.appeal, sp, viewAz, opts.towers || 1) : 0) }; };
   for (let it = 0; it < (opts.iters || 6); it++) {
     const pop = []; for (let k = 0; k < (opts.pop || 80); k++) pop.push(evalG(sampleGenome(r, dist)));
     pop.forEach(c => { if (c.s > 0) seen.set(c.typ.id + "@" + c.sp.rotation, c); });
@@ -214,5 +229,5 @@ function generate(model, field, env, C, opts = {}) {
   return [...seen.values()].sort((a, b) => b.s - a.s).slice(0, opts.top || 4);
 }
 
-G.TOK = { BASES, MODS, library, resolveDirs, toSpec, tokenVector, TOKEN_KEYS, roseAt, viewAzOf, segments, FEAT, segFeatures, probe, contextHeight, rowsFromEval, ridge, train, predict, modelScore, ruleScore, rng, initDist, sampleGenome, genomeToTyp, generate, CATS };
+G.TOK = { BASES, MODS, library, resolveDirs, toSpec, tokenVector, TOKEN_KEYS, roseAt, viewAzOf, segments, FEAT, segFeatures, probe, APPEAL_FEAT, appealFeatures, appealScore, contextHeight, rowsFromEval, ridge, train, predict, modelScore, ruleScore, rng, initDist, sampleGenome, genomeToTyp, generate, CATS };
 })(typeof self !== "undefined" ? self : this);
