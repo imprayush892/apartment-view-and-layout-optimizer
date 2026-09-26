@@ -29,6 +29,20 @@ function heightFor(tags, defaultH) {
   if (tags["building:levels"] && Number.isFinite(num(tags["building:levels"]))) return { h: num(tags["building:levels"]) * 3.2 + (tags["roof:levels"] ? num(tags["roof:levels"]) * 3.2 : 0), src: "osm levels" };
   const t = tags.building || "yes"; return { h: defaultH ?? TYPE_H[t] ?? 12, src: "estimated", type: t };
 }
+/* Estimated heights are calibrated to the neighbourhood: when enough buildings nearby carry OSM
+   height/levels, a building type with >= 8 tagged examples takes their median height, and all other
+   estimated buildings are scaled by the median ratio tagged height / type default (clamped 0.7-2.5). */
+function calibrateHeights(ctx, opts = {}) {
+  const tagged = ctx.buildings.filter(b => b.hsrc !== "estimated" && b.height > 0);
+  const med = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? s[s.length >> 1] : NaN; };
+  const cal = { tagged: tagged.length, scale: 1, byType: {} };
+  if (opts.defaultH != null || opts.calibrate === false || tagged.length < 20) { ctx.heightCalib = cal; return ctx; }
+  cal.scale = Math.min(2.5, Math.max(0.7, med(tagged.map(b => b.height / (TYPE_H[b.type] ?? 12)))));
+  const groups = {}; for (const b of tagged) (groups[b.type] = groups[b.type] || []).push(b.height);
+  for (const [t, hs] of Object.entries(groups)) if (hs.length >= 8) cal.byType[t] = +med(hs).toFixed(1);
+  for (const b of ctx.buildings) if (b.hsrc === "estimated") { const base = TYPE_H[b.type] ?? 12; if (base > 0) b.height = +(cal.byType[b.type] ?? base * cal.scale).toFixed(1); }
+  cal.scale = +cal.scale.toFixed(2); ctx.heightCalib = cal; return ctx;
+}
 const ROAD_W = { motorway: 14, trunk: 14, primary: 12, secondary: 10, tertiary: 8, residential: 6, unclassified: 6, service: 4, living_street: 5, pedestrian: 4, footway: 2, path: 2, cycleway: 2, steps: 2 };
 
 /* ---------- parse: compact bundled snapshot (web/data/*.json) */
@@ -38,7 +52,7 @@ function fromCompact(d, anchor, opts = {}) {
   d.buildings.forEach((b, i) => { const ring = P(b.slice(3)); if (ring.length < 3) return; const known = b[1] > 0; const h = known ? b[0] : (opts.defaultH ?? TYPE_H[b[2]] ?? 12); if (h <= 0) return; ctx.buildings.push({ id: "osm-" + i, ring, height: h, base: 0, scenario: "existing", habitable: true, hsrc: known ? (b[1] === 2 ? "osm height" : "osm levels") : "estimated", type: b[2] }); });
   ctx.roads = d.roads.map(r => ({ w: r[0], line: P(r.slice(1)) }));
   ctx.parks = d.parks.map(P); ctx.water = d.water.map(P); ctx.beach = d.beach.map(P); ctx.coast = d.coast.map(P);
-  return ctx;
+  return calibrateHeights(ctx, opts);
 }
 function emptyCtx(source) { return { source, buildings: [], roads: [], parks: [], water: [], beach: [], coast: [], landmarks: [] }; }
 
@@ -60,7 +74,7 @@ function fromOverpass(json, anchor, opts = {}) {
       else if (t.natural === "water" || t.waterway === "riverbank" || t.water) ctx.water.push(closeOpen(g0));
     }
   }
-  return ctx;
+  return calibrateHeights(ctx, opts);
 }
 function fromGeoJSON(gj, anchor, opts = {}) {
   const els = [];
@@ -103,35 +117,66 @@ function buildScene(ctx, center, half, res, opts = {}) {
   const S = { x0, y0, res, nx, ny, H: new Float32Array(nx * ny), W: new Uint8Array(nx * ny), G: new Uint8Array(nx * ny), HAB: new Uint8Array(nx * ny), landmarks: ctx.landmarks || [], warnings: [] };
   const burn = (r, fn) => { const [a, b, c, d] = bounds(r); const j0 = Math.max(0, Math.floor((a - x0) / res)), j1 = Math.min(nx, Math.ceil((c - x0) / res) + 1), i0 = Math.max(0, Math.floor((b - y0) / res)), i1 = Math.min(ny, Math.ceil((d - y0) / res) + 1); for (let i = i0; i < i1; i++) { const y = y0 + (i + 0.5) * res; for (let j = j0; j < j1; j++) { const x = x0 + (j + 0.5) * res; if (pip(x, y, r)) fn(i * nx + j); } } };
   if (ctx.coast && ctx.coast.length) floodSea(S, ctx.coast);
-  for (const w of ctx.water) burn(w, k => S.W[k] = 1);
+  // inland water (lakes, ponds, tanks) is an open-space amenity, not sea: it goes to the green/open channel,
+  // and small ponds (< 0.5 ha) are ignored
+  let inland = 0; for (const w of ctx.water) if (ringArea(w) >= 5000) { burn(w, k => { if (!S.W[k]) { S.G[k] = 1; inland++; } }); }
   for (const p of ctx.parks) burn(p, k => S.G[k] = 1);
+  // the plot itself is never a view target; remember how much of it sat on water (a location check)
+  if (opts.plot) { let wet = 0, tot = 0; burn(opts.plot, k => { tot++; if (S.W[k]) wet++; S.W[k] = 0; S.G[k] = 0; }); S.plotWet = tot ? wet / tot : 0; }
   const keep = opts.scenario === "future" ? ["existing", "future"] : ["existing"];
   for (const b of ctx.buildings) { if (!keep.includes(b.scenario) || b.excluded) continue; const top = b.base + b.height; burn(b.ring, k => { if (top > S.H[k]) S.H[k] = top; if (b.habitable) S.HAB[k] = 1; }); }
   for (let k = 0; k < S.H.length; k++) if (S.H[k] > 0) { S.W[k] = 0; S.G[k] = 0; }
   return S;
 }
-/* OSM coastlines have land on the left and sea on the right. Rasterise them as walls, seed the
-   right-hand side of every segment and flood-fill (4-connected). A leak (land seeds flooded) is
-   reported and the sea is dropped rather than flooding the city. */
+/* Sea from OSM coastlines (land on the left of the way, sea on the right). Every cell is classified
+   by the side of its NEAREST coastline segment (pseudo-normals at shared vertices), so a clipped or
+   broken coastline only affects cells whose nearest coast is that broken end — the rest of the sea
+   stays. Cells whose nearest coastline point is a dangling end are treated as land (conservative). */
 function floodSea(S, coast) {
-  const { nx, ny, res, x0, y0 } = S, wall = new Uint8Array(nx * ny), cell = (x, y) => [Math.floor((y - y0) / res), Math.floor((x - x0) / res)];
-  const plot = (i, j) => { if (i >= 0 && i < ny && j >= 0 && j < nx) wall[i * nx + j] = 1; };
-  const seedsW = [], seedsL = [];
-  for (const line of coast) for (let k = 0; k + 1 < line.length; k++) {
-    const [ax, ay] = line[k], [bx, by] = line[k + 1], L = Math.hypot(bx - ax, by - ay); if (!L) continue;
-    const steps = Math.ceil(L / (res / 3));
-    for (let s = 0; s <= steps; s++) { const t = s / steps, [i, j] = cell(ax + t * (bx - ax), ay + t * (by - ay)); plot(i, j); plot(i + 1, j); plot(i, j + 1); }
-    const rx = (by - ay) / L, ry = -(bx - ax) / L, mx = (ax + bx) / 2, my = (ay + by) / 2;
-    seedsW.push(cell(mx + rx * res * 2.5, my + ry * res * 2.5)); seedsL.push(cell(mx - rx * res * 2.5, my - ry * res * 2.5));
+  const { nx, ny, res, x0, y0 } = S, segs = [];
+  for (const line of coast) {
+    const closed = line.length > 2 && line[0][0] === line[line.length - 1][0] && line[0][1] === line[line.length - 1][1];
+    for (let k = 0; k + 1 < line.length; k++) {
+      const [ax, ay] = line[k], [bx, by] = line[k + 1], L = Math.hypot(bx - ax, by - ay); if (!L) continue;
+      segs.push({ ax, ay, bx, by, dx: (bx - ax) / L, dy: (by - ay) / L, L, nx: (by - ay) / L, ny: -(bx - ax) / L, startEnd: !closed && k === 0, endEnd: !closed && k + 2 === line.length, prev: null, next: null });
+    }
   }
-  const W = new Uint8Array(nx * ny), stack = new Int32Array(nx * ny); let sp = 0;
-  for (const [i, j] of seedsW) if (i >= 0 && i < ny && j >= 0 && j < nx) { const q = i * nx + j; if (!wall[q] && !W[q]) { W[q] = 1; stack[sp++] = q; } }
-  while (sp) { const q = stack[--sp], i = (q / nx) | 0, j = q - i * nx; const nb = [j > 0 ? q - 1 : -1, j < nx - 1 ? q + 1 : -1, i > 0 ? q - nx : -1, i < ny - 1 ? q + nx : -1]; for (const r of nb) if (r >= 0 && !wall[r] && !W[r]) { W[r] = 1; stack[sp++] = r; } }
-  let leak = 0, tot = 0; for (const [i, j] of seedsL) if (i >= 0 && i < ny && j >= 0 && j < nx) { tot++; if (W[i * nx + j]) leak++; }
-  if (tot && leak / tot > 0.3) { S.warnings.push("The coastline in this area is incomplete, so the sea could not be traced. Water from lakes and rivers is still used."); return; }
-  for (let q = 0; q < W.length; q++) if (W[q] || (wall[q] && neighbourWater(W, q, nx, ny))) S.W[q] = 1;
+  if (!segs.length) return;
+  // link segments that share an endpoint, also across separate OSM ways (ways meet at a common node)
+  const key = (x, y) => x.toFixed(2) + "," + y.toFixed(2), starts = new Map();
+  for (const g of segs) starts.set(key(g.ax, g.ay), g);
+  for (const g of segs) { const n = starts.get(key(g.bx, g.by)); if (n && n !== g) { g.next = n; n.prev = g; } }
+  for (const g of segs) { if (g.next) g.endEnd = false; if (g.prev) g.startEnd = false; }
+  // candidate segments per 150 m bucket: every segment that can be the nearest one for some point in it
+  const B = 150, bnx = Math.ceil(nx * res / B), bny = Math.ceil(ny * res / B), cand = new Array(bnx * bny), R2 = B * Math.SQRT1_2;
+  const segD = (g, px, py) => { let t = ((px - g.ax) * g.dx + (py - g.ay) * g.dy) / g.L; t = t < 0 ? 0 : t > 1 ? 1 : t; const qx = g.ax + t * (g.bx - g.ax) - px, qy = g.ay + t * (g.by - g.ay) - py; return [Math.hypot(qx, qy), t]; };
+  const bucket = k => { if (cand[k]) return cand[k]; const cx = x0 + ((k % bnx) + 0.5) * B, cy = y0 + (((k / bnx) | 0) + 0.5) * B, ds = segs.map(g => segD(g, cx, cy)[0]), m = Math.min(...ds); return (cand[k] = segs.filter((g, i) => ds[i] <= m + 2 * R2)); };
+  const classify = (px, py) => {
+    const bi = Math.min(bny - 1, Math.max(0, Math.floor((py - y0) / B))), bj = Math.min(bnx - 1, Math.max(0, Math.floor((px - x0) / B)));
+    let best = Infinity, bs = null, bt = 0;
+    for (const g of bucket(bi * bnx + bj)) { const [d, t] = segD(g, px, py); if (d < best) { best = d; bs = g; bt = t; } }
+    if (!bs) return 0;
+    let nx_ = bs.nx, ny_ = bs.ny;
+    if (bt <= 0) { if (bs.startEnd) return 0; if (bs.prev) { nx_ += bs.prev.nx; ny_ += bs.prev.ny; } }
+    else if (bt >= 1) { if (bs.endEnd) return 0; if (bs.next) { nx_ += bs.next.nx; ny_ += bs.next.ny; } }
+    const qx = bs.ax + bt * (bs.bx - bs.ax), qy = bs.ay + bt * (bs.by - bs.ay);
+    return (px - qx) * nx_ + (py - qy) * ny_ > 0 ? 1 : 0;
+  };
+  // coarse-to-fine: classify on a 16x grid, then halve the cell size and re-classify only cells
+  // whose parent neighbourhood is mixed (the coastline passes nearby)
+  let c = 16, cnx = Math.ceil(nx / c), cny = Math.ceil(ny / c), P = new Uint8Array(cnx * cny);
+  for (let i = 0; i < cny; i++) for (let j = 0; j < cnx; j++) P[i * cnx + j] = classify(x0 + (j + 0.5) * c * res, y0 + (i + 0.5) * c * res);
+  while (c > 1) {
+    const h = c / 2, hx = Math.ceil(nx / h), hy = Math.ceil(ny / h), Q = new Uint8Array(hx * hy);
+    for (let i = 0; i < hy; i++) { const pi = Math.min(cny - 1, i >> 1); for (let j = 0; j < hx; j++) { const pj = Math.min(cnx - 1, j >> 1), v = P[pi * cnx + pj];
+      let mixed = false; for (let di = -1; di <= 1 && !mixed; di++) for (let dj = -1; dj <= 1; dj++) { const a = pi + di, b = pj + dj; if (a >= 0 && b >= 0 && a < cny && b < cnx && P[a * cnx + b] !== v) { mixed = true; break; } }
+      Q[i * hx + j] = mixed ? classify(x0 + (j + 0.5) * h * res, y0 + (i + 0.5) * h * res) : v; } }
+    P = Q; c = h; cnx = hx; cny = hy;
+  }
+  let sea = 0;
+  for (let k = 0; k < nx * ny; k++) if (P[k]) { S.W[k] = 1; sea++; }
+  if (!sea) S.warnings.push("No sea found from the coastline data in this area.");
 }
-function neighbourWater(W, q, nx, ny) { const i = (q / nx) | 0, j = q - i * nx; let n = 0; if (j > 0 && W[q - 1]) n++; if (j < nx - 1 && W[q + 1]) n++; if (i > 0 && W[q - nx]) n++; if (i < ny - 1 && W[q + nx]) n++; return n >= 2; }
 
 /* ---------- synthetic test site (port of src/viewtower/synthetic.py) */
 function syntheticContext() {
@@ -148,5 +193,5 @@ function syntheticContext() {
   return { ctx: { source: "Synthetic test context (fictitious)", buildings: specials.concat(fabric), roads, parks: [PARK], water: [SEA], beach: [], coast: [], landmarks: [{ id: "LM-BRIDGE-PYLON", x: -1400, y: 1800, z: 126, weight: 0.5 }] }, boundary: BOUNDARY, setbacks: [9, 6, 6, 9], anchor: null };
 }
 
-G.GEO = { toLocal, toLatLon, utmToLatLon, utmZoneOf, heightFor, fromCompact, fromOverpass, fromGeoJSON, fetchOverpass, overpassQuery, geocode, buildScene, syntheticContext, TYPE_H };
+G.GEO = { toLocal, toLatLon, utmToLatLon, utmZoneOf, heightFor, fromCompact, fromOverpass, fromGeoJSON, fetchOverpass, overpassQuery, geocode, buildScene, calibrateHeights, syntheticContext, TYPE_H };
 })(typeof self !== "undefined" ? self : this);

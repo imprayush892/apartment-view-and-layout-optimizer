@@ -4,10 +4,10 @@
    Usage: node tools/harness.js '<json config>'   (see DEFAULTS below for keys) */
 const fs = require("fs"), path = require("path"), vm = require("vm");
 const ROOT = path.resolve(__dirname, "..", "web");
-const ctx = { console, Math, JSON, Float64Array, Float32Array, Uint8Array, Int32Array, Set, Map, Array, Object, Number, String, Infinity, NaN, isFinite, parseFloat, parseInt, URL, URLSearchParams, AbortController, setTimeout, clearTimeout };
-ctx.self = ctx; vm.createContext(ctx);
-for (const f of ["js/engine.js", "js/geo.js"]) vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f });
-const { VT, GEO } = ctx;
+// run in this context (a separate vm context made the engine ~8x slower)
+globalThis.self = globalThis;
+for (const f of ["js/engine.js", "js/geo.js"]) vm.runInThisContext(fs.readFileSync(path.join(ROOT, f), "utf8"), { filename: f });
+const { VT, GEO } = globalThis;
 
 const DEFAULTS = {
   site: "dadar",                 // "dadar" | "synthetic"
@@ -28,18 +28,18 @@ function run(cfg) {
   cfg = { ...DEFAULTS, ...cfg };
   let ctxData, plot;
   if (cfg.site === "synthetic") { const s = GEO.syntheticContext(); ctxData = s.ctx; plot = cfg.plot || s.boundary; }
-  else { const d = JSON.parse(fs.readFileSync(path.join(ROOT, "data/dadar_osm.json"), "utf8")); ctxData = GEO.fromCompact(d, d.anchor, { defaultH: cfg.defaultH }); plot = cfg.plot || illus(cfg.plotCenter, cfg.plotAngle, ...cfg.plotSize); }
+  else { const d = JSON.parse(fs.readFileSync(path.join(ROOT, "data/dadar_osm.json"), "utf8")); ctxData = GEO.fromCompact(d, d.anchor, { defaultH: cfg.defaultH, calibrate: cfg.calibrate }); plot = cfg.plot || illus(cfg.plotCenter, cfg.plotAngle, ...cfg.plotSize); }
   if (cfg.heightScale !== 1) ctxData.buildings.forEach(b => { if (b.hsrc === "estimated") b.height *= cfg.heightScale; });
   for (const b of ctxData.buildings) b.excluded = VT.pip(...VT.centroid(b.ring), plot);
   const env = envelope(plot, cfg.setbacks), c = VT.centroid(env);
   const t0 = process.hrtime.bigint();
-  const S = GEO.buildScene(ctxData, c, 3000, cfg.res);
+  const S = GEO.buildScene(ctxData, c, 3000, cfg.res, { plot });
   const V = VT.viewSettings({ res: cfg.res });
   const field = VT.siteViewField(S, env, V, [0, 25, 50, 75, 100], 10);
   const R = { depth: 13.5, span: 12, fit: 3, cant: 3, priv: 18, coreLo: 0.08, coreHi: 0.35, frontLR: 6, frontBR: 3.6,
-    vcComp: { q_lr_min: 0.25, d_min: 40, alpha_max: 30, p_max: 0.5, ...(cfg.thresholds.vcComp || {}) }, vcLR: { w_min: 0.35, q_min: 0.55, ...(cfg.thresholds.vcLR || {}) }, vcBR: { w_min: 0.2, n_min: 2, ...(cfg.thresholds.vcBR || {}) }, vcGood: { q_min: 0.4 } };
-  const C = { split: cfg.split, fsi: cfg.fsi, hmax: cfg.hmax, reserved: cfg.reserved, evalEvery: cfg.evalEvery, coreFixed: 95, corePer: 14, colSpacing: 8, living: 8, bed: 4.2, beds: [5, 4, 3], R,
-    E: { rate: 45000, cost: 12000, rise: 0.5, carpetFactor: 0.88, mult: { premium: 1.15, good: 1, neutral: 0.9, compromised: 0.75 }, ...cfg.rates } };
+    vcComp: { q_lr_min: 0.25, d_min: 100, alpha_max: 10, p_max: 0.35, ...(cfg.thresholds.vcComp || {}) }, vcLR: { w_min: 0.45, q_min: 0.6, ...(cfg.thresholds.vcLR || {}) }, vcBR: { w_min: 0.3, n_min: 0, share: 0.5, ...(cfg.thresholds.vcBR || {}) }, vcGood: { q_min: 0.4, ...(cfg.thresholds.vcGood || {}) } };
+  const C = { split: cfg.split, fsi: cfg.fsi, hmax: cfg.hmax, reserved: cfg.reserved, evalEvery: cfg.evalEvery, refine: cfg.refine, coreFixed: 95, corePer: 14, colSpacing: 8, living: 8, bed: 4.2, beds: [5, 4, 3], R,
+    E: { rate: 45000, cost: 12000, rise: 0.5, carpetFactor: 0.88, mult: { premium: 1.15, good: 1, neutral: 0.9, compromised: 0.75 }, pricing: "continuous", cont: { a: 0.655, b: 0.69, lo: 0.8, hi: 1.2 }, ...cfg.rates } };
   const specs = [];
   for (const [t, p] of cfg.typologies) for (const rot of cfg.rotations) for (const upf of cfg.upf) for (const pod of cfg.podium) {
     const q = { ...p }; let w = q.width, d = q.depth; delete q.width; delete q.depth;
@@ -51,9 +51,10 @@ function run(cfg) {
   VT.paretoRanks(res); res.sort(VT.cmpKey);
   const secs = Number(process.hrtime.bigint() - t0) / 1e9;
   const est = ctxData.buildings.filter(b => b.hsrc === "estimated").length;
+  if (cfg.returnEvs) return { evs: res, C };
   return {
     config: { site: cfg.site, evalEvery: cfg.evalEvery, res: cfg.res, heightScale: cfg.heightScale, setbacks: cfg.setbacks },
-    context: { buildings: ctxData.buildings.length, estimatedHeights: est, waterCells: S.W.reduce((a, v) => a + v, 0) },
+    context: { heightCalib: ctxData.heightCalib, plotWet: +(S.plotWet || 0).toFixed(2), buildings: ctxData.buildings.length, estimatedHeights: est, waterCells: S.W.reduce((a, v) => a + v, 0) },
     envelope_m2: +VT.ringArea(env).toFixed(1), premiumArc: field.arc, openingHeight: field.opening,
     rose100: { meanQ: +VT.mean(Array.from(field.rose[100].quality)).toFixed(3), meanSea: +VT.mean(Array.from(field.rose[100].water)).toFixed(3) },
     feasible: res.length, rejected: rej.map(e => ({ t: e.sp.typology, upf: e.sp.upf, rot: e.sp.rotation, viol: e.viol })), seconds: +secs.toFixed(2),

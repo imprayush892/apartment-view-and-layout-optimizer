@@ -55,9 +55,11 @@ function castRay(S, ox, oy, oz, az, D, P, own, out, trace) {
     const x = ox + s * d, y = oy + c * d, j = Math.floor((x - S.x0) / res), i = Math.floor((y - S.y0) / res);
     let h = 0, w = 0, g = 0, hab = 0;
     if (i >= 0 && i < ny && j >= 0 && j < nx) { const q = i * nx + j; h = S.H[q]; w = S.W[q]; g = S.G[q]; hab = S.HAB[q]; }
-    if (own && x >= own.bb[0] && x <= own.bb[2] && y >= own.bb[1] && y <= own.bb[3] && pip(x, y, own.ring)) { if (own.top > h) h = own.top; hab = 1; w = 0; g = 0; }
+    else { const ci = i < 0 ? 0 : i >= ny ? ny - 1 : i, cj = j < 0 ? 0 : j >= nx ? nx - 1 : j; w = S.W[ci * nx + cj]; } // sea continues past the raster edge
+    if (own && x >= own.bb[0] && x <= own.bb[2] && y >= own.bb[1] && y <= own.bb[3] && pip(x, y, own.ring)) { if (own.top > h) h = own.top; hab = 0; w = 0; g = 0; } // own tower blocks views but is not a neighbour for privacy
     const e = Math.atan2(h - oz, d) * R2D;
-    if (pendW) water += Math.abs(pendE - e); if (pendG) green += Math.abs(pendE - e);
+    // credit only the visible surface between the previous sample and this one (not a wall behind it)
+    if (pendW || pendG) { const eg = Math.atan2(-oz, d) * R2D, inc = Math.max(0, Math.min(eg, e) - pendE); if (pendW) water += inc; if (pendG) green += inc; }
     const vis = e >= prevMax - 1e-9; pendW = !!w && vis; pendG = !!g && vis; pendE = e;
     if (trace && w && vis) { if (firstSea < 0) firstSea = d; lastSea = d; }
     if (e > prevMax) prevMax = e;
@@ -87,7 +89,7 @@ function corridorTerm(az, dObs, corridors) { let m = 0; for (const c of corridor
 function quality(r, lm, corr, W) { const q = W.water * r.water + W.dist * r.dist + W.sky * r.sky + W.green * r.green + W.lm * lm + W.corr * corr - W.priv * r.priv; return q < 0 ? 0 : q > 1 ? 1 : q; }
 function normWeights(w) { const t = w.water + w.dist + w.sky + w.green + w.lm + w.corr || 1; return { water: w.water / t, dist: w.dist / t, sky: w.sky / t, green: w.green / t, lm: w.lm / t, corr: w.corr / t, priv: w.priv }; }
 function viewSettings(opts = {}) {
-  const P = { minD: 1, maxD: opts.maxD || 3000, growth: 0.01, waterRef: 1.0, distRef: 50, privD: 30, lmHalf: 3 };
+  const P = { minD: 1, maxD: opts.maxD || 3000, growth: 0.005, waterRef: 5.0, distRef: 50, privD: 30, lmHalf: 3 };
   return { P, D: sampleDistances(opts.res || 4, P), W: normWeights({ water: .45, dist: .2, sky: .15, green: .1, lm: .1, corr: 0, priv: .3 }), fov: 75, azStep: 2, spacing: 2, corridors: opts.corridors || [], lmOn: !!opts.lmOn };
 }
 function evalApertures(S, obs, normals, own, V) {
@@ -103,7 +105,7 @@ function evalApertures(S, obs, normals, own, V) {
       const lm = li.length ? lmTerm(li, az, V.P.lmHalf) : 0, cr = corridorTerm(az, tmp.dObs, V.corridors);
       q += cw[a] * quality(tmp, lm, cr, W); w += cw[a] * tmp.water; sk += cw[a] * tmp.sky; pr += cw[a] * tmp.priv; dA[a] = tmp.dObs; hA[a] = tmp.horizon;
     }
-    R.quality[n] = q / wsum; R.water[n] = w / wsum; R.sky[n] = sk / wsum; R.privacy[n] = pr / wsum; R.dMed[n] = median(dA); R.hMed[n] = median(hA);
+    R.quality[n] = q / wsum; R.water[n] = w / wsum; R.sky[n] = sk / wsum; R.privacy[n] = pr / wsum; R.dMed[n] = percentile(dA, 25); R.hMed[n] = percentile(hA, 75); // near-side obstruction (p25 distance, p75 horizon)
   }
   return R;
 }
@@ -189,7 +191,7 @@ function localPlate(sp, level) {
   if (sp.typology === "tapered") { const k = 1 + ((p.top_scale ?? 0.7) - 1) * t; poly = scl(poly, k); }
   if (sp.typology === "terraced") {
     const every = Math.round(p.step_every ?? 6), step = p.step_m ?? 3; let retreat = level >= first ? step * Math.floor((level - first) / every) : 0;
-    const side = (p.step_side_deg ?? 0) * D2R, ux = Math.sin(side), uy = Math.cos(side), proj = poly.map(q => q[0] * ux + q[1] * uy), lo = Math.min(...proj), hi = Math.max(...proj);
+    const side = ((p.step_side_deg ?? 0) - (sp.rotation || 0)) * D2R, ux = Math.sin(side), uy = Math.cos(side), proj = poly.map(q => q[0] * ux + q[1] * uy), lo = Math.min(...proj), hi = Math.max(...proj);
     retreat = Math.min(retreat, p.max_retreat_m ?? 0.25 * (hi - lo)); poly = clipHalf(poly, ux, uy, Math.max(hi - retreat, lo + (p.min_depth_m ?? 12)));
   }
   if (sp.typology === "twisted") poly = rot(poly, -(p.twist_per_floor_deg ?? 1.2) * Math.max(level - first, 0));
@@ -238,13 +240,21 @@ function coreFits(plate, core, margin) {
 }
 
 /* ------------------------------------------------------------------ units */
-function splitCuts(scores, s, per, n, mode) {
-  let startI = 0; for (let i = 1; i < scores.length; i++) if (scores[i] < scores[startI]) startI = i;
+function splitCuts(scores, s, per, n, mode, minF = 0, start = null) {
+  // start of the split: a fixed geometric point when given (stable), else the weakest facade point
+  let startI = 0; if (start != null) startI = start; else for (let i = 1; i < scores.length; i++) if (scores[i] < scores[startI]) startI = i;
   if (n === 1) return [s[startI]];
   const order = []; for (let i = startI; i < s.length; i++) order.push(i); for (let i = 0; i < startI; i++) order.push(i);
   const sOrd = order.map(i => mod(s[i] - s[startI], per)), w = order.map(i => mode === "equal_area" ? 1 : Math.max(scores[i], 1e-3)), tot = w.reduce((a, b) => a + b, 0);
   const cum = []; let acc = 0; for (const v of w) { acc += v; cum.push(acc / tot); }
   const cuts = [0]; for (let u = 1; u < n; u++) { let k = cum.findIndex(c => c >= u / n); if (k < 0) k = cum.length - 1; cuts.push(sOrd[Math.min(k, sOrd.length - 1)]); }
+  // keep every unit at least minF of facade (no sliver units on a short, very valuable stretch)
+  if (minF > 0 && n * minF <= per) {
+    const snap = v => { let b = sOrd[0], bd = Infinity; for (const x of sOrd) { const d = Math.abs(x - v); if (d < bd) { bd = d; b = x; } } return b; };
+    for (let u = 1; u < n; u++) cuts[u] = Math.max(cuts[u], cuts[u - 1] + minF);
+    for (let u = n - 1; u >= 1; u--) cuts[u] = Math.min(cuts[u], (u + 1 < n ? cuts[u + 1] : per) - minF);
+    for (let u = 1; u < n; u++) { const c = snap(cuts[u]); if (c - cuts[u - 1] >= minF - 1e-6 && (u + 1 < n ? cuts[u + 1] : per) - c >= minF - 1e-6) cuts[u] = c; }
+  }
   return cuts.map(c => mod(s[startI] + c, per));
 }
 /* Unit = wedge from the core centre along the facade between two cuts, minus the (convex) core.
@@ -267,12 +277,15 @@ function unitEnvelopes(plate, core, cuts) {
   return out;
 }
 function mpArea(mp) { let s = 0; for (const poly of mp) { s += ringArea(poly[0]); for (let h = 1; h < poly.length; h++) s -= ringArea(poly[h]); } return s; }
+/* facade samples a room needs: its frontage in samples, allowing 10 % under (a 4.2 m bedroom takes 2 x 2 m samples, not 3) */
+const roomSamples = (need, spacing) => Math.max(1, Math.ceil(0.9 * need / spacing - 1e-9));
+const unitFrontage = (prog, spacing) => spacing * (roomSamples(prog.living, spacing) + prog.bedrooms * roomSamples(prog.bed, spacing) + roomSamples(prog.kitchen || 3, spacing));
 function assignRooms(idx, spacing, ap, prog, pts) {
   const free = new Array(idx.length).fill(true), rooms = [], viol = [];
   const wanted = [["living", prog.living]]; for (let i = 0; i < prog.bedrooms; i++) wanted.push([`bed${i + 1}`, prog.bed]);
   const mk = (name, sel) => ({ room: name, frontage: sel.length * spacing, q: mean(sel.map(i => ap.quality[i])), water: mean(sel.map(i => ap.water[i])), sky: mean(sel.map(i => ap.sky[i])), privacy: Math.max(...sel.map(i => ap.privacy[i])), dMed: median(sel.map(i => ap.dMed[i])), hMed: median(sel.map(i => ap.hMed[i])), pts: sel.map(i => pts[i]) });
   for (const [name, need] of wanted) {
-    const k = Math.max(1, Math.ceil(need / spacing - 1e-9)); let best = -1, bj = -1;
+    const k = roomSamples(need, spacing); let best = -1, bj = -1;
     for (let j = 0; j + k <= idx.length; j++) { let ok = true, s = 0; for (let t = j; t < j + k; t++) { if (!free[t]) { ok = false; break; } s += ap.quality[idx[t]]; } if (ok && s / k > best + 1e-12) { best = s / k; bj = j; } }
     if (bj < 0) { viol.push(name === "living" ? "GR-FRONT-LR-01" : "GR-FRONT-BR-01"); continue; }
     for (let t = bj; t < bj + k; t++) free[t] = false;
@@ -282,8 +295,14 @@ function assignRooms(idx, spacing, ap, prog, pts) {
   if (rest.length) rooms.push(mk("kitchen_service", rest)); else if (prog.kitchen > 0) viol.push("GR-FRONT-UNIT-01");
   return { rooms, viol };
 }
-function buildUnits(level, z, plate, core, pp, spacing, ap, n, prog, mode) {
-  const cuts = splitCuts(ap.quality, pp.s, pp.per, n, mode), envs = unitEnvelopes(plate, core, cuts), units = [], viol = new Set();
+/* the facade point furthest in the landward direction (middle of that face): a split start that does not move
+   when view values change slightly */
+function landwardStart(pts, s, az) {
+  if (az == null) return null; const ux = Math.sin(az * D2R), uy = Math.cos(az * D2R), c = centroid(pts), d = pts.map(([x, y]) => (x - c[0]) * ux + (y - c[1]) * uy), m = Math.max(...d);
+  const near = d.map((v, i) => [v, i]).filter(([v]) => v >= m - 0.5).map(([, i]) => i); return near[near.length >> 1];
+}
+function buildUnits(level, z, plate, core, pp, spacing, ap, n, prog, mode, startAz = null) {
+  const cuts = splitCuts(ap.quality, pp.s, pp.per, n, mode, unitFrontage(prog, spacing), landwardStart(pp.pts, pp.s, startAz)), envs = unitEnvelopes(plate, core, cuts), units = [], viol = new Set();
   envs.forEach((e, u) => {
     const idx = pp.s.map((_, i) => i).filter(i => n === 1 || mod(pp.s[i] - e.a, pp.per) < e.b - e.a);
     idx.sort((i, j) => mod(pp.s[i] - e.a, pp.per) - mod(pp.s[j] - e.a, pp.per));
@@ -302,18 +321,35 @@ function classify(u, R) {
   const reasons = [], margins = [];
   for (const [name, val, thr, sense] of checks) { const slack = (val - thr) / Math.max(Math.abs(thr), 1e-9) * sense; margins.push(slack); if (slack < 0) reasons.push(`VC-COMPROMISED: ${name} ${f2(val, 2)} ${sense > 0 ? "<" : ">"} ${thr}`); }
   const margin = Math.min(...margins); if (reasons.length) return { cls: "compromised", reasons, margin };
-  const beds = u.rooms.filter(r => r.room.startsWith("bed")), need = Math.min(R.vcBR.n_min, beds.length), okB = beds.filter(b => b.water >= R.vcBR.w_min).length;
-  if (lr.water >= R.vcLR.w_min && lr.q >= R.vcLR.q_min && okB >= need) return { cls: "premium", reasons: [`VC-LR-PREMIUM: living sea ${f2(lr.water, 2)}, view ${f2(lr.q, 2)}`, `VC-BR-PREMIUM: ${okB}/${beds.length} bedrooms see the sea`], margin };
-  if (lr.q >= R.vcGood.q_min) { const why = []; if (lr.water < R.vcLR.w_min) why.push(`living sea ${f2(lr.water, 2)} < ${R.vcLR.w_min}`); if (lr.q < R.vcLR.q_min) why.push(`living view ${f2(lr.q, 2)} < ${R.vcLR.q_min}`); if (okB < need) why.push(`${okB}/${need} bedrooms see the sea`); return { cls: "good", reasons: ["VC-GOOD: not premium because " + why.join("; ")], margin }; }
+  // premium: living room sees enough sea at good quality AND enough bedrooms see the sea (n_min, or a share of bedrooms)
+  const beds = u.rooms.filter(r => r.room.startsWith("bed")), okB = beds.filter(b => b.water >= R.vcBR.w_min).length;
+  const need = Math.min(beds.length, Math.max(R.vcBR.n_min || 0, Math.ceil((R.vcBR.share || 0) * beds.length - 1e-9)));
+  if (lr.water >= R.vcLR.w_min && lr.q >= R.vcLR.q_min && okB >= need) return { cls: "premium", reasons: [`VC-LR-PREMIUM: living sea ${f2(lr.water, 2)}, view ${f2(lr.q, 2)}`, `VC-BR-PREMIUM: ${okB}/${beds.length} bedrooms see the sea`], margin, premSlack: Math.min(lr.water - R.vcLR.w_min, lr.q - R.vcLR.q_min) };
+  const why = []; if (lr.water < R.vcLR.w_min) why.push(`living sea ${f2(lr.water, 2)} < ${R.vcLR.w_min}`); if (lr.q < R.vcLR.q_min) why.push(`living view ${f2(lr.q, 2)} < ${R.vcLR.q_min}`); if (okB < need) why.push(`${okB}/${need} bedrooms see the sea`);
+  if (lr.q >= R.vcGood.q_min) return { cls: "good", reasons: ["VC-GOOD: not premium because " + why.join("; ")], margin };
+  // good also covers a long open outlook with no sea: far obstruction and a low horizon
+  const open = R.vcGood.d_open != null && lr.dMed >= R.vcGood.d_open && lr.hMed < (R.vcGood.h_open ?? 2);
+  if (open) return { cls: "good", reasons: [`VC-GOOD-OPEN: open outlook, nearest obstruction ${Math.round(lr.dMed)} m, horizon ${f2(lr.hMed, 1)}°`, "not premium because " + why.join("; ")], margin };
   return { cls: "neutral", reasons: [`VC-GOOD: living view ${f2(lr.q, 2)} < ${R.vcGood.q_min}`], margin };
 }
+/* Price multiplier: by class (step), or continuous in the living-room view quality q so that two
+   almost identical units are never priced a whole class apart. Compromised units keep their discount. */
+function unitMult(u, E) {
+  if (E.pricing !== "continuous" || u.cls === "compromised") return E.mult[u.cls];
+  const lr = u.rooms.find(r => r.room === "living"), c = E.cont || { a: 0.627, b: 0.734, lo: 0.75, hi: 1.2 };
+  return Math.min(c.hi, Math.max(c.lo, c.a + c.b * (lr ? lr.q : 0)));
+}
 function priceUnits(units, first, E) {
-  for (const u of units) { u.carpet = mpArea(u.mp) * E.carpetFactor; let rate = E.rate * (1 + E.rise / 100 * (u.level - first)) * E.mult[u.cls]; const ft = u.carpet * FT2; rate *= ft < 1500 ? 0.97 : ft < 4000 ? 1.0 : 1.03; u.rate = rate; u.value = rate * u.carpet * FT2; }
+  for (const u of units) { u.carpet = mpArea(u.mp) * E.carpetFactor; u.mult = unitMult(u, E); let rate = E.rate * (1 + E.rise / 100 * (u.level - first)) * u.mult; const ft = u.carpet * FT2; rate *= ft < 1500 ? 0.97 : ft < 4000 ? 1.0 : 1.03; u.rate = rate; u.value = rate * u.carpet * FT2; }
 }
 
 /* ------------------------------------------------------------------ search stages */
 function resolveFloors(sp, C) {
   const byH = Math.floor(C.hmax / sp.ftf + 1e-9), reserved = new Set(C.reserved); let used = 0, n = sp.podium; const probe = { ...sp, n: byH };
+  if (sp.typology === "tapered") { // plate sizes depend on n: take the tallest tower whose total FSI fits
+    for (let m = byH; m > sp.podium; m--) { const q = { ...sp, n: m }; let u = 0; for (let l = sp.podium; l < m; l++) if (!reserved.has(l)) u += ringArea(localPlate(q, l)); if (u <= C.fsi) return { ...sp, n: m }; }
+    return { ...sp, n: sp.podium };
+  }
   for (let l = sp.podium; l < byH; l++) { const a = reserved.has(l) ? 0 : ringArea(localPlate(probe, l)); if (used + a > C.fsi) break; used += a; n = l + 1; }
   return { ...sp, n };
 }
@@ -322,8 +358,9 @@ function signature(r) { const e = []; for (let i = 0; i < r.length; i++) { const
 function specId(sp) { return fnv(JSON.stringify([sp.typology, sp.width, sp.depth, sp.p, sp.position, sp.rotation, sp.ftf, sp.podium, sp.upf, sp.coreOff, sp.n])); }
 
 function checkCandidate(sp, env, C, arc) {
-  const ev = { id: specId(sp), sp, feasible: true, viol: [], checks: {}, metrics: {}, plates: {}, cores: {}, cols: {}, units: [], explain: [], evaluated: [] };
-  if (sp.n <= sp.podium) { ev.viol.push("ENV-FSI-01"); ev.checks["ENV-FSI-01"] = [false, "no saleable floor fits the FSI area or height"]; ev.feasible = false; return ev; }
+  const ev = { id: specId(sp), sp, arc: arc || null, feasible: true, viol: [], checks: {}, metrics: {}, plates: {}, cores: {}, cols: {}, units: [], explain: [], evaluated: [] };
+  if (sp.podium * sp.ftf >= C.hmax) { ev.viol.push("ENV-HEIGHT-01"); ev.checks["ENV-HEIGHT-01"] = [false, `the ${sp.podium}-floor podium alone reaches ${f2(sp.podium * sp.ftf, 1)} m, at or above the ${C.hmax} m limit`]; ev.feasible = false; return ev; }
+  if (sp.n <= sp.podium) { ev.viol.push("ENV-FSI-01"); ev.checks["ENV-FSI-01"] = [false, "no saleable floor fits the FSI area"]; ev.feasible = false; return ev; }
   const R = C.R, offDir = coreOffsetDir(arc), cArea = C.coreFixed + C.corePer * sp.upf, sig = {}, reserved = new Set(C.reserved);
   let fsiUsed = 0, prev = null, outside = 0, worstCant = 0;
   for (let l = 0; l < sp.n; l++) {
@@ -363,13 +400,28 @@ function evaluateViews(ev, S, C, V) {
   const beds = sp.upf === 1 ? C.beds[0] : sp.upf === 2 ? C.beds[1] : C.beds[2];
   const prog = { bedrooms: beds, living: Math.max(C.living, R.frontLR), bed: Math.max(C.bed, R.frontBR), kitchen: 3 };
   const byLevel = {}, viol = new Set(); let privFail = 0; const top = sp.n * sp.ftf, spacing = V.spacing;
-  for (const l of evaluated) {
+  const evalLevel = l => {
     const plate = ev.plates[l], core = ev.cores[l], pp = perimeterPoints(plate, spacing), z = l * sp.ftf + 1.5;
     const obs = pp.pts.map(([x, y], i) => [x + 0.75 * Math.sin(pp.normals[i] * D2R), y + 0.75 * Math.cos(pp.normals[i] * D2R), z]);
     const ap = evalApertures(S, obs, pp.normals, { ring: plate, bb: bounds(plate), top }, V);
-    const { units, viol: v } = buildUnits(l, l * sp.ftf, plate, core, pp, spacing, ap, sp.upf, prog, C.split); v.forEach(x => viol.add(x));
+    const { units, viol: v } = buildUnits(l, l * sp.ftf, plate, core, pp, spacing, ap, sp.upf, prog, C.split, ev.arc ? coreOffsetDir(ev.arc) : null); v.forEach(x => viol.add(x));
     for (const u of units) for (const r of u.rooms) if (r.room !== "kitchen_service" && r.dMed < R.priv && r.privacy > 0) privFail = Math.max(privFail, R.priv - r.dMed);
     byLevel[l] = units;
+  };
+  evaluated.forEach(evalLevel);
+  // adaptive refinement: where the unit classes change between two sampled floors, evaluate the floor
+  // halfway between them, until the change is pinned to adjacent sampled floors
+  if (C.refine !== false && C.evalEvery > 1) {
+    const sig = l => byLevel[l].map(u => classify(u, R).cls).join(",");
+    for (let guard = 0; guard < saleable.length; guard++) {
+      evaluated.sort((a, b) => a - b); let added = false;
+      for (let i = 0; i + 1 < evaluated.length; i++) {
+        const a = evaluated[i], b = evaluated[i + 1], mid = saleable.filter(l => l > a && l < b); if (!mid.length || sig(a) === sig(b)) continue;
+        const m = mid[mid.length >> 1]; evalLevel(m); evaluated.push(m); added = true;
+      }
+      if (!added) break;
+    }
+    evaluated.sort((a, b) => a - b);
   }
   ev.checks["GR-PRIV-01"] = privFail > 0 ? [false, `a habitable room faces a habitable building ${f2(privFail, 1)} m closer than ${R.priv} m`] : [true, `all habitable rooms ≥ ${R.priv} m from habitable neighbours`];
   if (privFail > 0) viol.add("GR-PRIV-01");
@@ -379,12 +431,13 @@ function evaluateViews(ev, S, C, V) {
     const src = Math.max(...evaluated.filter(e => e <= l));
     for (const u of byLevel[src]) { if (l === src) { units.push(u); continue; } units.push({ ...u, id: `L${String(l).padStart(3, "0")}-U${u.id.split("-U")[1]}`, level: l, z: l * sp.ftf, areaScale: ringArea(ev.plates[l]) / ringArea(ev.plates[src]), evaluated: false, inheritFrom: src }); }
   }
-  for (const u of units) { const r = classify(u, R); u.cls = r.cls; u.reasons = r.reasons.concat(u.evaluated ? [] : [`view results inherited from level ${u.inheritFrom}`]); u.margin = r.margin; }
+  for (const u of units) { const r = classify(u, R); u.cls = r.cls; u.reasons = r.reasons.concat(u.evaluated ? [] : [`view results inherited from level ${u.inheritFrom}`]); u.margin = r.margin; u.premSlack = r.premSlack ?? null; }
   priceUnits(units, saleable[0], C.E);
   for (const u of units) if (u.areaScale && Math.abs(u.areaScale - 1) > 1e-9) { u.carpet *= u.areaScale; u.value *= u.areaScale; }
   const grossAll = Object.values(ev.plates).reduce((s, p) => s + ringArea(p), 0), grossSale = saleable.reduce((s, l) => s + ringArea(ev.plates[l]), 0);
   const gdv = units.reduce((s, u) => s + u.value, 0), rates = units.map(u => u.rate), cnt = { premium: 0, good: 0, neutral: 0, compromised: 0 }; units.forEach(u => cnt[u.cls]++);
-  const cost = grossAll * FT2 * C.E.cost * (1 + 0.15 * ev.metrics.structural), risky = units.filter(u => u.cls === "neutral" || u.cls === "compromised").reduce((s, u) => s + u.value, 0);
+  const H = sp.n * sp.ftf, heightF = 1 + 0.04 * (H > 70) + 0.06 * (H > 120) + 0.08 * (H > 200); // taller towers cost more per ft2 (plant, wind, lifts)
+  const cost = grossAll * FT2 * C.E.cost * heightF * (1 + 0.15 * ev.metrics.structural), risky = units.filter(u => u.cls === "neutral" || u.cls === "compromised").reduce((s, u) => s + u.value, 0);
   const bedsAll = units.flatMap(u => u.rooms.filter(r => r.room.startsWith("bed"))), living = units.map(u => u.rooms.find(r => r.room === "living")).filter(Boolean), carpet = units.reduce((s, u) => s + u.carpet, 0);
   ev.units = units; ev.evaluated = evaluated; ev.viol = [...new Set(ev.viol.concat([...viol]))].sort(); ev.feasible = !ev.viol.length;
   Object.assign(ev.metrics, { units: units.length, ...cnt, premiumShare: cnt.premium / Math.max(units.length, 1), premiumBeds: bedsAll.filter(b => b.water >= R.vcBR.w_min).length, bedsTotal: bedsAll.length,
@@ -397,7 +450,7 @@ function evaluateViews(ev, S, C, V) {
   const neu = units.filter(u => u.cls === "neutral"); if (neu.length) ev.explain.push(`Neutral units sit on levels ${Math.min(...neu.map(u => u.level))}–${Math.max(...neu.map(u => u.level))}.`);
   return ev;
 }
-const OBJ = [["gdv", "max"], ["compromised", "min"], ["premium", "max"], ["livingView", "max"], ["efficiency", "max"], ["structural", "min"]];
+const OBJ = [["margin", "max"], ["compromised", "min"], ["premium", "max"], ["livingView", "max"], ["efficiency", "max"], ["structural", "min"]];
 function paretoRanks(evs) {
   const n = evs.length, v = evs.map(e => OBJ.map(([k, s]) => (s === "max" ? 1 : -1) * e.metrics[k])), rank = new Array(n).fill(-1);
   const dom = (a, b) => { let ge = true, gt = false; for (let k = 0; k < a.length; k++) { if (a[k] < b[k] - 1e-12) ge = false; if (a[k] > b[k] + 1e-12) gt = true; } return ge && gt; };
@@ -405,11 +458,11 @@ function paretoRanks(evs) {
   while (left.size) { const L = [...left], front = L.filter(i => !L.some(j => j !== i && dom(v[j], v[i]))); front.forEach(i => { rank[i] = r; left.delete(i); }); r++; }
   evs.forEach((e, i) => e.rank = rank[i]);
 }
-const presKey = e => [e.rank, e.metrics.compromised === 0 ? 0 : 1, -e.metrics.gdv, e.id];
+const presKey = e => [e.rank, e.metrics.compromised === 0 ? 0 : 1, -e.metrics.margin, e.id];
 function cmpKey(a, b) { const ka = presKey(a), kb = presKey(b); for (let i = 0; i < ka.length; i++) { if (ka[i] < kb[i]) return -1; if (ka[i] > kb[i]) return 1; } return 0; }
 
 G.VT = { D2R, R2D, FT2, mod, signedArea, ringArea, ccw, box, rot, tr, scl, centroid, bounds, pip, segDist, distToBoundary, distPoly, edgesCross, polysIntersect, polyDistance, contains, hull, percentile, median, mean, minWidth, fnv, clipConvex,
   sampleDistances, castRay, landmarkInfo, quality, normWeights, viewSettings, evalApertures, viewCone, premiumArc, siteViewField,
-  MODIFIERS, baseShape, localPlate, plateAt, coreAt, perimeterPoints, structure, maxOverhang, coreFits, splitCuts, unitEnvelopes, mpArea, buildUnits, classify, priceUnits,
+  MODIFIERS, baseShape, localPlate, plateAt, coreAt, perimeterPoints, structure, maxOverhang, coreFits, splitCuts, unitEnvelopes, mpArea, buildUnits, classify, unitMult, priceUnits,
   resolveFloors, coreOffsetDir, specId, checkCandidate, evaluateViews, paretoRanks, cmpKey };
 })(typeof self !== "undefined" ? self : this);
