@@ -37,7 +37,7 @@ if (isMainThread) {
         prev.det = { ...run(pickd, "deterministic"), screened: sc.length };
       }
       if (mode === "prob" || mode === "hyb") { // probabilistic: cross-entropy over tokens scored by the learned model; hybrid adds architect-feedback weights and seeds from det
-        const opts = { check: sp => !!C.layoutChecked(P, sp, 1), C: { ...P.C, fsi: P.C.fsi / N }, S: P.S, V: P.V, seed: parseInt(a.id.slice(1)) * 7 + (mode === "hyb" ? 99 : 0), pop: 60, iters: 5, top: 20, ctxH: P.ctxH, dense: P.dense, position: P.pos };
+        const opts = { check: sp => !!C.layoutChecked(P, sp, 1), C: { ...P.C, fsi: P.C.fsi / N0 }, S: P.S, V: P.V, seed: parseInt(a.id.slice(1)) * 7 + (mode === "hyb" ? 99 : 0), pop: 60, iters: 5, top: 20, ctxH: P.ctxH, dense: P.dense, position: P.pos };
         if (mode === "hyb" && hyb) { opts.W = hyb.W; opts.prior = hyb.prior; opts.numPrior = hyb.numPrior; }
         const gen = C.TOK.generate(model, P.field, P.env, opts.C, opts).map(g => ({ ...g.sp, lib: g.typ.id }));
         if (mode === "hyb" && prev.det && prev.det.best) gen.push({ ...prev.det.best.towers[0], position: P.pos, n: 0, lib: prev.det.best.lib + "+refit" });
