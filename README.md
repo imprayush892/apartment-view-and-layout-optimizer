@@ -41,6 +41,21 @@ Results on the synthetic site, reproducible with the commands above:
 - Economics use **synthetic placeholder rates**. The GDV figures only compare options against each
   other; they are not market estimates.
 
+## Web app: Viewtower Studio (`web/`)
+
+A static, build-free web app with the same engine ported to JavaScript:
+
+- **Georeferenced site.** Pin a location or search a place (live OpenStreetMap on the hosted site),
+  or upload a DXF placed by reference point and true north, or read as UTM. You can also draw the plot.
+- **3D city model** from OpenStreetMap buildings, streets, parks and water, with the sea traced from
+  coastlines. Orbit, pan and zoom.
+- **Parallel search** in Web Workers. Each candidate massing appears in 3D while it is evaluated.
+- **View cones.** Click any floor of a result to see its rays (sea, blocked, open) and a floor-by-floor
+  sea-view chart.
+- **Jump in.** A first-person view from that window.
+
+See [web/README.md](web/README.md). Hosting: `.github/workflows/pages.yml` deploys `web/` to GitHub Pages.
+
 ## How it works
 
 ```
@@ -105,9 +120,8 @@ tests/              geometry, DXF, typology exactness, ray-engine analytic cases
 ## Status and limitations (v0.1)
 
 * Implemented: Phases 1–5 core and the Phase 7 tests (see [roadmap](docs/spec/11_roadmap.md)).
-* Not yet implemented: web UI (map pin, boundary editing, edge-click setbacks, corridor marking,
-  3-D viewer), the OSM/Overture context fetch for location mode, room-level internal walls and
-  duplexes, and terrain from a DEM.
+* Not yet implemented: view-corridor marking UI, room-level internal walls and duplexes, and
+  terrain from a DEM.
 * The view engine is 2.5-D (extruded footprints on a raster, 4 m by default). Balcony and mullion
   occlusion are simple factors.
 * Levels between evaluated floors (`eval_every`) inherit results from the floor below. Set

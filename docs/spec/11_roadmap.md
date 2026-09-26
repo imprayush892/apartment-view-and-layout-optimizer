@@ -12,7 +12,8 @@ Status: ✅ done in this repository (v0.1) · 🟡 partial · ⬜ not started
 ## Phase 1 — Geometry
 - ✅ DXF ingestion (closed polylines by layer, `$INSUNITS` scaling), synthetic DXF writer
 - ✅ Envelope from per-edge setbacks; north rotation; local ENU frame
-- ⬜ 1b: location mode — OSM/Overture context fetch around a map pin (buildings, coastline, parks)
+- ✅ 1b: location mode — live Overpass fetch around a map pin / geocoded place (hosted web app); bundled Dadar snapshot + file upload in the artifact preview
+- ✅ Georeferencing: WGS84 anchor + local ENU grid; DXF by reference point + true north, or UTM zone/hemisphere
 - 🟡 Boundary confirmation + per-edge setbacks: interactive CLI prompt (`viewtower inspect-dxf`) and config; click-a-side UI in Phase 6
 
 ## Phase 2 — View engine
@@ -38,8 +39,9 @@ Status: ✅ done in this repository (v0.1) · 🟡 partial · ⬜ not started
 - ⬜ Calibrate with user-supplied (non-confidential) comparables
 
 ## Phase 6 — User interface
-- ⬜ FastAPI service; React + MapLibre (pin, boundary edit, edge-click setbacks, view-corridor
-  marking, height controls); Three.js massing + view heatmaps; metrics tables
+- ✅ Static web app `web/` (no build step): map pin + place search, DXF upload with georeferencing, draw-on-plan, edge-click setbacks, 3D OSM city model, parallel Web-Worker search with live massings, click-a-floor view cones + floor-by-floor sea chart, first-person jump-in, ranked options, floor plans, unit tables
+- ✅ GitHub Pages workflow
+- ⬜ View-corridor marking UI, landmark picking, per-option comparison view, export (IFC/DXF/GLB)
 
 ## Phase 7 — Validation
 - ✅ Tests: generator exactness (IoU), envelope, DXF round-trip, ray engine against analytic

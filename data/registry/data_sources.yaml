@@ -10,8 +10,8 @@
   license: ODbL 1.0 — attribution + share-alike on derived databases
   reliability: medium (footprints) / low (heights, `building:levels` often missing)
   variables: [footprint, building:levels, height, natural=coastline, natural=water, leisure=park, highway]
-  transformation: reproject EPSG:4326 -> local ENU; height = height or levels*3.0 m (flagged estimated)
-  used_in_v0: false
+  transformation: equirectangular projection about the site anchor -> local ENU metres; height = height, else building:levels x 3.2 m, else per-type estimate (flagged 'estimated'); sea = flood fill on the water (right-hand) side of natural=coastline
+  used_in_v0: true   # web app: live Overpass on hosted site; bundled snapshot web/data/dadar_osm.json (fetched 2026-09-26, ~1 km around 19.0280 N, 72.8375 E; 1,481 buildings of which 8 with height and 97 with levels)
 - id: DS-OVERTURE-BLD
   name: Overture Maps Foundation — Buildings theme
   url: https://docs.overturemaps.org/guides/buildings/

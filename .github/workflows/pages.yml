@@ -1,0 +1,38 @@
+# Deploys web/ (Viewtower Studio) to GitHub Pages. On a normal host the app can fetch live
+# OpenStreetMap data (Overpass), geocode places (Nominatim) and show map tiles, so users can pin
+# any location worldwide. Enable Pages with "GitHub Actions" as the source in the repo settings.
+name: Deploy web app to GitHub Pages
+on:
+  push:
+    branches: [main]
+    paths: ["web/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build static site
+        run: |
+          mkdir -p _site
+          cp -r web/js web/data _site/
+          # web/index.html is written without a document skeleton (it is also published as a
+          # claude.ai artifact, which adds one); add it here for a normal host.
+          { echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>'
+            cat web/index.html
+            echo '</body></html>'; } > _site/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: _site }
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,355 @@
+<title>Viewtower Studio</title>
+<meta name="description" content="Deterministic view-optimised residential tower design: georeferenced site, OpenStreetMap context in 3D, parallel typology search, view cones and first-person views.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{
+  --ground:#eef1f0; --surface:#fbfcfc; --surface-2:#e3e8e6; --line:#c9d1ce; --ink:#15201e; --ink-2:#4a5854; --ink-3:#72807c;
+  --accent:#0d5e78; --accent-ink:#ffffff; --accent-soft:#d3e6ec; --signal:#c7702a;
+  --sea:#bcd9e3; --sea-deep:#7fb3c6; --park:#cfe0c2; --bldg:#5b6763; --bldg-future:#c7702a; --road:#ffffff;
+  --premium:#1b7f5b; --good:#78ad62; --neutral:#c9a53a; --compromised:#bf4d37;
+  --living:#1d4f9c; --bed:#2aa0c4; --service:#9aa3a0; --ok:#1b7f5b; --bad:#bf4d37; --warn:#9a7412;
+  --display:"Archivo",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ color-scheme:dark;
+    --ground:#0e1413; --surface:#151d1c; --surface-2:#1e2826; --line:#2c3836; --ink:#e3ebe8; --ink-2:#aab8b3; --ink-3:#7f8f8a;
+    --accent:#56b6d3; --accent-ink:#06222b; --accent-soft:#16333c; --signal:#e39150;
+    --sea:#173744; --sea-deep:#2a5f73; --park:#1f3320; --bldg:#9aa7a3; --bldg-future:#e39150; --road:#2b3533;
+    --premium:#3fb484; --good:#8fc377; --neutral:#d8b54c; --compromised:#e0694f;
+    --living:#6f9ee6; --bed:#4cc1e2; --service:#6d7875; --ok:#3fb484; --bad:#e0694f; --warn:#d8b54c; }
+}
+:root[data-theme="dark"]{ color-scheme:dark;
+  --ground:#0e1413; --surface:#151d1c; --surface-2:#1e2826; --line:#2c3836; --ink:#e3ebe8; --ink-2:#aab8b3; --ink-3:#7f8f8a;
+  --accent:#56b6d3; --accent-ink:#06222b; --accent-soft:#16333c; --signal:#e39150;
+  --sea:#173744; --sea-deep:#2a5f73; --park:#1f3320; --bldg:#9aa7a3; --bldg-future:#e39150; --road:#2b3533;
+  --premium:#3fb484; --good:#8fc377; --neutral:#d8b54c; --compromised:#e0694f;
+  --living:#6f9ee6; --bed:#4cc1e2; --service:#6d7875; --ok:#3fb484; --bad:#e0694f; --warn:#d8b54c; }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--ground)}
+body{color:var(--ink);font-family:var(--display);font-size:14px;line-height:1.45;padding-inline:16px;padding-block:0 32px;margin:0}
+h1,h2,h3{text-wrap:balance;margin:0;font-weight:700}
+.mono,td.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;padding-block:16px 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+header.top h1{font-size:22px;font-stretch:82%}
+header.top h1 span{color:var(--accent)}
+header.top p{margin:0;color:var(--ink-2);max-width:80ch}
+.shell{display:grid;grid-template-columns:minmax(290px,350px) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:960px){.shell{grid-template-columns:minmax(0,1fr)}}
+aside.controls{display:flex;flex-direction:column;gap:10px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+.step>h2{font-size:12.5px;font-stretch:78%;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);display:flex;gap:8px;align-items:center}
+.step>h2 b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:11px;letter-spacing:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink-2);min-width:0}
+input[type=text],input[type=number],select{font:inherit;font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:5px;padding:5px 7px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;font-weight:600;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);padding:6px 11px;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.chip{padding:3px 9px;font-size:12px;border-radius:99px}
+button.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.q{border-radius:6px;padding:9px 10px;display:flex;flex-direction:column;gap:7px;border:1px dashed var(--accent)}
+.q p{margin:0}
+.hint{font-size:12px;color:var(--ink-3);margin:0}
+.warnline{font-size:12px;color:var(--warn);margin:0}
+.edges{display:grid;grid-template-columns:auto 1fr auto;gap:4px 8px;align-items:center;font-size:12px}
+.edges .sel{color:var(--signal);font-weight:700}
+.typos{display:flex;flex-direction:column;max-height:300px;overflow:auto;padding-right:2px}
+.typo{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:start;padding:6px 0;border-top:1px solid var(--surface-2)}
+.typo .ps{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}
+.typo .ps label{flex:1 1 72px}
+.typo .ps input{padding:3px 5px;font-size:12px}
+details.adv summary{cursor:pointer;font-size:12px;color:var(--ink-2)}
+details.adv[open] summary{margin-bottom:8px}
+.progress{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s}
+main.work{display:flex;flex-direction:column;gap:12px;min-width:0}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi span{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
+.kpi b{font-family:var(--mono);font-size:17px;font-weight:500;overflow-wrap:anywhere}
+.kpi em{font-style:normal;font-size:12px;color:var(--ink-2)}
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+nav.tabs button{background:none;border:none;border-bottom:3px solid transparent;border-radius:0;padding:8px 12px;color:var(--ink-2);white-space:nowrap}
+nav.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.panel{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card h3{font-size:15px;font-stretch:88%}
+.two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:12px}
+@media (max-width:1150px){.two{grid-template-columns:minmax(0,1fr)}}
+svg.map{width:100%;height:auto;aspect-ratio:1/1;max-height:640px;display:block;background:var(--surface);border-radius:6px;touch-action:manipulation}
+svg text{fill:var(--ink);font-family:var(--mono)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink-2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.tablewrap{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th{font-weight:600;text-align:left;color:var(--ink-2);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;background:var(--surface)}
+td{padding:5px 8px;border-bottom:1px solid var(--surface-2);white-space:nowrap}
+td.n,th.n{text-align:right}
+tbody tr.pick{cursor:pointer}
+tbody tr.pick:hover{background:var(--surface-2)}
+tbody tr.on{background:var(--accent-soft)}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:99px;color:#fff}
+.pill.premium{background:var(--premium)}.pill.good{background:var(--good)}.pill.neutral{background:var(--neutral);color:#1d1a0c}.pill.compromised{background:var(--compromised)}
+.pill.front{background:var(--accent);color:var(--accent-ink)}.pill.r{background:var(--surface-2);color:var(--ink-2)}
+.bar{display:flex;height:9px;border-radius:3px;overflow:hidden;min-width:90px;background:var(--surface-2)}
+.bar i{display:block;height:100%}
+.checks{display:grid;grid-template-columns:auto auto 1fr;gap:4px 10px;font-size:12.5px;align-items:baseline}
+.checks .ok{color:var(--ok);font-weight:700}.checks .no{color:var(--bad);font-weight:700}
+.scroll{max-height:380px;overflow:auto}
+.explain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+.muted{color:var(--ink-3)}
+.status{font-size:12px;color:var(--ink-2);min-height:1.2em;margin:0}
+.scope{font-size:12px;color:var(--ink-2);border-left:3px solid var(--signal);padding:6px 10px;background:var(--surface-2);border-radius:0 6px 6px 0;margin:0}
+/* 3D stage */
+.stage{position:relative;height:min(72vh,720px);min-height:420px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:#cfe0e8}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.hud{position:absolute;left:10px;top:10px;display:flex;flex-direction:column;gap:6px;max-width:min(360px,calc(100% - 20px));pointer-events:none}
+.hud>*{pointer-events:auto}
+.hudbox{background:rgba(251,252,252,.92);color:#15201e;border:1px solid rgba(0,0,0,.08);border-radius:7px;padding:7px 10px;font-size:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.hudbox b{font-family:var(--mono);font-weight:500}
+.hudbox .progress{margin-top:5px;background:#dfe6e4}
+.tools{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.tools button{background:rgba(251,252,252,.94);color:#15201e;border-color:rgba(0,0,0,.12);font-size:12px;padding:5px 9px}
+.tools button.primary{background:#0d5e78;color:#fff}
+.attrib{position:absolute;right:8px;bottom:6px;font-size:10.5px;color:#34403d;background:rgba(255,255,255,.75);padding:1px 6px;border-radius:4px}
+.jumpbar{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(21,32,30,.86);color:#fff;border-radius:8px;padding:8px 12px;font-size:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 20px)}
+.jumpbar button{background:#fff;color:#15201e;border:none}
+.conecard{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media (max-width:700px){.conecard,.grid3{grid-template-columns:minmax(0,1fr)}}
+#leaf{height:260px;border-radius:6px;border:1px solid var(--line)}
+.dotlist{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink-2)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <h1>Viewtower <span>Studio</span></h1>
+  <p>Pin a location or upload a georeferenced DXF, confirm the buildable envelope and limits, then search tower typologies in a 3D city model. Click any floor of a result to see its view cone, or jump in to stand at the window.</p>
+</header>
+
+<div class="shell">
+<aside class="controls" aria-label="Inputs">
+  <section class="step">
+    <h2><b>1</b>Location and context</h2>
+    <label class="f">Context data
+      <select id="src">
+        <option value="dadar">Dadar, Mumbai: OpenStreetMap snapshot</option>
+        <option value="live">Pin anywhere: live OpenStreetMap</option>
+        <option value="upload">Upload OSM / GeoJSON file</option>
+        <option value="synthetic">Synthetic test site</option>
+      </select>
+    </label>
+    <div id="liveBox" hidden>
+      <div class="row"><input type="text" id="placeQ" placeholder="Search a place, e.g. Marine Drive, Mumbai" aria-label="Search a place" style="flex:1 1 160px"><button type="button" id="btnFind">Find</button></div>
+      <div id="placeHits" class="dotlist"></div>
+      <div id="leaf" role="application" aria-label="Map: click to set the site location"></div>
+      <p class="hint" id="leafNote">Click the map to drop the pin.</p>
+    </div>
+    <div id="uploadBox" hidden>
+      <label class="f">Overpass JSON or GeoJSON<input type="file" id="osmFile" accept=".json,.geojson"></label>
+      <details class="adv"><summary>Get a file from overpass-turbo</summary><p class="hint">Open overpass-turbo.eu, paste this query, run it, then Export → raw data (JSON).</p><textarea id="oqText" readonly rows="4" style="width:100%;font-family:var(--mono);font-size:11px"></textarea><button type="button" class="chip" id="btnCopyQ">Copy query</button></details>
+    </div>
+    <div class="grid3">
+      <label class="f">Latitude<input type="number" id="lat" step="0.0001" value="19.0280"></label>
+      <label class="f">Longitude<input type="number" id="lon" step="0.0001" value="72.8375"></label>
+      <label class="f">Radius (m)<input type="number" id="rad" value="900" min="300" max="2000" step="100"></label>
+    </div>
+    <div class="row"><button type="button" id="btnFetch" class="primary">Load context here</button><label class="f" style="flex:1 1 120px">Unknown heights (m)<input type="number" id="defH" value="" placeholder="by building type"></label></div>
+    <p class="status" id="ctxInfo"></p>
+  </section>
+
+  <section class="step">
+    <h2><b>2</b>Site boundary</h2>
+    <div class="row" role="group" aria-label="Boundary source">
+      <button type="button" class="chip" id="bIllus" aria-pressed="true">Illustrative plot</button>
+      <button type="button" class="chip" id="bDraw" aria-pressed="false">Draw on plan</button>
+      <label class="chip" style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;padding:3px 9px;font-size:12px;font-weight:600;cursor:pointer">Upload DXF<input type="file" id="dxfFile" accept=".dxf" style="width:0;height:0;opacity:0;position:absolute"></label>
+    </div>
+    <div id="drawBox" hidden><p class="hint">In the Site plan tab, click to add corners. Finish when done.</p><div class="row"><button type="button" class="chip" id="drawDone">Finish outline</button><button type="button" class="chip" id="drawUndo">Undo point</button><button type="button" class="chip" id="drawClear">Clear</button></div></div>
+    <div id="georef" hidden>
+      <label class="f">DXF coordinates are
+        <select id="geoMode"><option value="anchor">Local drawing units: place a reference point</option><option value="utm">UTM easting / northing (WGS84)</option></select>
+      </label>
+      <div id="geoAnchor" class="grid2">
+        <label class="f">Drawing X of reference<input type="number" id="refX" value="0"></label>
+        <label class="f">Drawing Y of reference<input type="number" id="refY" value="0"></label>
+        <label class="f">Reference latitude<input type="number" id="refLat" step="0.00001"></label>
+        <label class="f">Reference longitude<input type="number" id="refLon" step="0.00001"></label>
+      </div>
+      <div id="geoUtm" class="grid2" hidden>
+        <label class="f">UTM zone<input type="number" id="utmZone" value="43" min="1" max="60"></label>
+        <label class="f">Hemisphere<select id="utmHemi"><option value="N">North</option><option value="S">South</option></select></label>
+      </div>
+      <div class="grid2">
+        <label class="f">True north in drawing (°)<input type="number" id="northDeg" value="0" step="0.5"></label>
+        <label class="f" id="bndPickWrap" hidden>Site polyline<select id="bndPick"></select></label>
+      </div>
+      <button type="button" class="chip" id="btnGeoApply">Apply georeference</button>
+    </div>
+    <p class="status" id="siteInfo"></p>
+  </section>
+
+  <section class="step">
+    <h2><b>3</b>Buildable envelope</h2>
+    <div class="q"><p><strong id="envQtext">Is this outline the buildable envelope?</strong></p>
+      <div class="row"><button type="button" class="chip" id="envYes" aria-pressed="false">Yes, build to the line</button><button type="button" class="chip" id="envNo" aria-pressed="true">No, set setbacks</button></div></div>
+    <div id="setbackBox"><p class="hint">Click a side in the Site plan tab, or edit the list.</p><div class="edges" id="edgeList"></div></div>
+    <p class="status" id="envInfo"></p>
+  </section>
+
+  <section class="step">
+    <h2><b>4</b>Development limits</h2>
+    <div class="grid2">
+      <label class="f">Consumable FSI area (m²)<input type="number" id="fsi" value="30000" min="100" step="100"></label>
+      <label class="f">Max height (m)<input type="number" id="hmax" value="165" min="10" step="1"></label>
+    </div>
+    <label class="f">Reserved non-saleable floors (optional)<input type="text" id="reserved" value="" placeholder="e.g. 20, 30"></label>
+  </section>
+
+  <section class="step">
+    <h2><b>5</b>Options to explore</h2>
+    <div class="typos" id="typos"></div>
+    <div class="grid2">
+      <label class="f">Rotations (°)<input type="text" id="rots" value="0, 30"></label>
+      <label class="f">Units per floor<input type="text" id="upf" value="1, 2"></label>
+      <label class="f">Podium / stilt floors<input type="text" id="pods" value="6"></label>
+      <label class="f">Floor-to-floor (m)<input type="text" id="ftf" value="3.6"></label>
+      <label class="f">Core offset from sea (m)<input type="text" id="coff" value="0"></label>
+      <label class="f">View check every n floors<input type="number" id="evalEvery" value="4" min="1" max="10"></label>
+    </div>
+    <details class="adv"><summary>Core, programme, thresholds and rates</summary>
+      <div class="grid2">
+        <label class="f">Core fixed area (m²)<input type="number" id="coreFixed" value="95"></label>
+        <label class="f">Core per unit (m²)<input type="number" id="corePer" value="14"></label>
+        <label class="f">Max core-to-facade P90 (m)<input type="number" id="rDepth" value="13.5" step="0.5"></label>
+        <label class="f">Max slab span (m)<input type="number" id="rSpan" value="12" step="0.5"></label>
+        <label class="f">Core slab margin (m)<input type="number" id="rFit" value="3" step="0.5"></label>
+        <label class="f">Max overhang per floor (m)<input type="number" id="rCant" value="3" step="0.5"></label>
+        <label class="f">Min facing distance (m)<input type="number" id="rPriv" value="18"></label>
+        <label class="f">Living frontage (m)<input type="number" id="pLiving" value="8" step="0.5"></label>
+        <label class="f">Bedroom frontage (m)<input type="number" id="pBed" value="4.2" step="0.1"></label>
+        <label class="f">Bedrooms for 1 / 2 / 3+ units<input type="text" id="pBeds" value="5, 4, 3"></label>
+      </div>
+      <p class="hint">Compromised if any: living view &lt; <input type="number" id="cQ" value="0.25" step="0.05" style="width:62px">, obstruction within <input type="number" id="cD" value="40" style="width:62px"> m, horizon angle &gt; <input type="number" id="cA" value="30" style="width:62px">°, privacy &gt; <input type="number" id="cP" value="0.5" step="0.05" style="width:62px">.</p>
+      <p class="hint">Premium: living sea ≥ <input type="number" id="prW" value="0.35" step="0.05" style="width:62px"> and view ≥ <input type="number" id="prQ" value="0.55" step="0.05" style="width:62px">, plus <input type="number" id="prN" value="2" style="width:52px"> bedrooms with sea ≥ <input type="number" id="prBW" value="0.2" step="0.05" style="width:62px">.</p>
+      <div class="grid2">
+        <label class="f">Base rate (₹/ft² carpet)<input type="number" id="eRate" value="45000" step="500"></label>
+        <label class="f">Construction (₹/ft² BUA)<input type="number" id="eCost" value="12000" step="500"></label>
+        <label class="f">Floor rise (% per floor)<input type="number" id="eRise" value="0.5" step="0.1"></label>
+        <label class="f">Premium / good / neutral / compromised ×<input type="text" id="eMult" value="1.15, 1.00, 0.90, 0.75"></label>
+      </div>
+      <p class="hint">Rates are placeholders for comparing options, not market figures.</p>
+    </details>
+    <button type="button" class="primary" id="btnRun">Run search</button>
+    <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+    <p class="status" id="runInfo" role="status"></p>
+  </section>
+</aside>
+
+<main class="work">
+  <div class="summary" id="kpis"></div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="t-3d" aria-selected="true" data-p="p-3d">3D</button>
+    <button role="tab" id="t-site" aria-selected="false" data-p="p-site">Site plan &amp; views</button>
+    <button role="tab" id="t-opts" aria-selected="false" data-p="p-opts">Options</button>
+    <button role="tab" id="t-design" aria-selected="false" data-p="p-design">Design detail</button>
+    <button role="tab" id="t-method" aria-selected="false" data-p="p-method">Method &amp; data</button>
+  </nav>
+
+  <section class="panel" id="p-3d" role="tabpanel">
+    <div class="stage" id="stage">
+      <div class="hud">
+        <div class="hudbox" id="hudSearch" hidden><div id="hudText"></div><div class="progress"><i id="hudProg"></i></div></div>
+        <div class="hudbox" id="hudHint">Drag to orbit · right-drag or two fingers to pan · scroll to zoom. After a search, click any floor to see its view cone.</div>
+      </div>
+      <div class="tools">
+        <button type="button" id="vReset">Reset view</button>
+        <button type="button" id="vTop">Top view</button>
+        <button type="button" id="vClear" hidden>Clear view cone</button>
+        <button type="button" id="vJump" class="primary" hidden>Jump in</button>
+      </div>
+      <div class="jumpbar" id="jumpbar" hidden><span id="jumpText"></span><span>Drag to look · W A S D to step · scroll to zoom</span><button type="button" id="jumpExit">Exit (Esc)</button></div>
+      <div class="attrib" id="attrib">© OpenStreetMap contributors</div>
+    </div>
+    <div class="card" id="coneCard" hidden>
+      <div class="row" style="justify-content:space-between"><h3 id="coneTitle">View cone</h3>
+        <label class="f" style="flex-direction:row;align-items:center;gap:6px">Floor <select id="coneLevel" style="width:auto"></select></label></div>
+      <div class="conecard">
+        <div><div class="summary" id="coneKpis"></div><p class="hint" id="coneSectors" style="margin-top:8px"></p>
+          <div class="legend" style="margin-top:6px"><span><i style="background:#1f6fd1"></i>Reaches sea</span><span><i style="background:#d24b3a"></i>Blocked (length = distance to obstruction)</span><span><i style="background:#8a948f"></i>Open land / sky</span></div></div>
+        <div><p class="hint">Sea view from this facade point, floor by floor</p><svg id="coneChart" viewBox="0 0 360 170" style="width:100%;height:auto" role="img" aria-label="Sea visibility by floor"></svg></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-site" role="tabpanel" hidden>
+    <div class="two">
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><h3>Site plan</h3>
+          <div class="row" role="group" aria-label="Zoom"><button class="chip" data-zoom="plot" aria-pressed="true" type="button">Plot</button><button class="chip" data-zoom="nbhd" aria-pressed="false" type="button">Neighbourhood</button><button class="chip" data-zoom="district" aria-pressed="false" type="button">District</button></div></div>
+        <svg class="map" id="map" viewBox="0 0 100 100" role="img" aria-label="Site plan"></svg>
+        <div class="legend"><span><i style="background:var(--sea)"></i>Water</span><span><i style="background:var(--park)"></i>Park</span><span><i style="background:var(--bldg)"></i>Buildings (darker = taller)</span><span><i style="background:var(--accent-soft);border:1px solid var(--accent)"></i>Envelope</span><span><i style="background:var(--signal);opacity:.4"></i>Premium arc</span></div>
+      </div>
+      <div class="card">
+        <h3>View rose</h3>
+        <p class="hint">Mean view quality by direction across the envelope. Bar length is quality; colour shows how much sea is visible.</p>
+        <div class="row" id="roseH"></div>
+        <svg id="rose" viewBox="-150 -150 300 300" style="width:100%;max-width:360px;align-self:center;height:auto" role="img" aria-label="View rose"></svg>
+        <div class="tablewrap"><table id="fieldTbl"></table></div>
+        <p class="status" id="fieldInfo"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-opts" role="tabpanel" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h3>Ranked options</h3><button type="button" id="btnCopy" class="chip">Copy results JSON</button></div>
+      <p class="hint">Rank 0 is the Pareto front on GDV, compromised units, premium units, living-room view, efficiency and structural complexity. Within a rank: zero compromised first, then GDV. Click a row to show it in 3D.</p>
+      <div class="tablewrap scroll"><table id="optTbl"></table></div>
+    </div>
+    <div class="card"><h3>Rejected options</h3><div class="tablewrap scroll"><table id="rejTbl"></table></div></div>
+  </section>
+
+  <section class="panel" id="p-design" role="tabpanel" hidden>
+    <div class="card" id="designHead"></div>
+    <div class="two">
+      <div class="card"><div class="row" style="justify-content:space-between"><h3>Floor plan</h3><label class="f" style="flex-direction:row;align-items:center;gap:6px">Level <select id="lvlPick" style="width:auto"></select></label></div>
+        <svg class="map" id="plan" viewBox="0 0 100 100" role="img" aria-label="Floor plan"></svg>
+        <div class="legend"><span><i style="background:var(--premium)"></i>Premium</span><span><i style="background:var(--good)"></i>Good</span><span><i style="background:var(--neutral)"></i>Neutral</span><span><i style="background:var(--compromised)"></i>Compromised</span><span><i style="background:var(--living)"></i>Living</span><span><i style="background:var(--bed)"></i>Bedrooms</span><span><i style="background:var(--service)"></i>Kitchen / service</span></div></div>
+      <div class="card"><h3>Rule checks</h3><div class="checks" id="checks"></div><h3>Why this result</h3><ul class="explain" id="explain"></ul></div>
+    </div>
+    <div class="card"><h3>Units</h3><div class="tablewrap scroll"><table id="unitTbl"></table></div></div>
+  </section>
+
+  <section class="panel" id="p-method" role="tabpanel" hidden>
+    <div class="card">
+      <h3>How it works</h3>
+      <ol class="explain">
+        <li>Context comes from OpenStreetMap: buildings, streets, parks, water and coastline. Sea is traced from the coastline (OSM puts water on the right of the line). Building heights come from OSM <span class="mono">height</span> or <span class="mono">building:levels</span> × 3.2 m; otherwise they are estimated by building type and drawn lighter in 3D.</li>
+        <li>The site is georeferenced to a latitude/longitude anchor and a local metre grid (x east, y north). DXF files can be placed with a reference point and true-north angle, or read directly as UTM coordinates.</li>
+        <li>The surroundings are rasterised at 4 m and rays are cast every 2° to 3 km. View quality combines sea visibility (depression angle), distance to obstruction, open sky, parks and landmarks, minus a privacy penalty.</li>
+        <li>Each typology is generated floor by floor. Options are checked against the hard rules, then views are evaluated on sampled floors in parallel Web Workers. The facade is split into units at its worst point, rooms take the best frontage, and each unit is classed with its reasons.</li>
+        <li>Options are ranked by Pareto front without collapsing to one score. The top options are re-checked against future neighbours when the data includes them.</li>
+      </ol>
+      <p class="scope" id="envNote">Statutory rules are not modelled; you supply consumable FSI, maximum height and the buildable envelope. Low-confidence rule defaults (core size, depths, frontages) are assumptions for the design team to confirm. Rates are placeholders. The illustrative Dadar plot is not the project site.</p>
+      <p class="hint" id="dataNote"></p>
+    </div>
+  </section>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/polygon-clipping@0.15.7/dist/polygon-clipping.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/geo.js"></script>
+<script src="js/view3d.js"></script>
+<script src="js/app.js"></script>
