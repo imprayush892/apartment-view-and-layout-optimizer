@@ -21,10 +21,13 @@ if (isMainThread) {
     const f = path.join(DIR, "results", a.id + ".json"), prev = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : { id: a.id };
     const P = C.prepare(a.site, { evalEvery: 8 }); if (!P) { fs.writeFileSync(f, JSON.stringify({ ...prev, error: "no envelope" })); parentPort.postMessage(1); continue; }
     prev.site = { viewAz: +P.viewAz.toFixed(1), arc: P.field.arc, opening: P.field.opening, envelope_m2: Math.round(C.VT.ringArea(P.env)), ctxH: P.ctxH, pos: P.pos };
-    const N = a.site.towers || 1, run = (cands, label) => { const t = Date.now(), evs = [], used = [];
-      for (const sp of cands) { if (evs.length >= 2) break; const sps = C.layoutChecked(P, sp, N); if (!sps) continue; evs.push(C.VT.evaluateSite(sps, P.env, P.C, P.S, P.V, P.field.arc)); used.push(sp); }
-      const best = pickBest(C, evs); cands = used;
-      return { best: best ? { lib: best.sp.lib, towers: towersOf(best), metrics: summary(best), explain: best.explain.slice(0, 3) } : null, alts: evs.map((e, i) => ({ lib: cands[i].lib, rot: cands[i].rotation, ...summary(e) })), secs: (Date.now() - t) / 1000, label }; };
+    const N0 = a.site.towers || 1, run = (cands0, label) => { const t = Date.now(); let evs = [], used = [], best = null, N = N0, cands = cands0;
+      // if the requested number of towers cannot stand 24 m apart on this plot, fall back to one fewer
+      for (; N >= 1 && !best; N--) { evs = []; used = [];
+        for (const sp of cands0) { if (evs.length >= 2) break; const sps = C.layoutChecked(P, sp, N); if (!sps) continue; evs.push(C.VT.evaluateSite(sps, P.env, P.C, P.S, P.V, P.field.arc)); used.push(sp); }
+        best = pickBest(C, evs); if (best) break; }
+      cands = used; const towersUsed = best ? (best.towers || [best]).length : 0;
+      return { towersAsked: N0, towersUsed, best: best ? { lib: best.sp.lib, towers: towersOf(best), metrics: summary(best), explain: best.explain.slice(0, 3) } : null, alts: evs.map((e, i) => ({ lib: cands[i].lib, rot: cands[i].rotation, ...summary(e) })), secs: (Date.now() - t) / 1000, label }; };
     for (const mode of workerData.modes) {
       if (prev[mode]) continue;
       if (mode === "det") { // deterministic: hand-rule screening of the whole library, then full evaluation of the top 3 distinct bases
