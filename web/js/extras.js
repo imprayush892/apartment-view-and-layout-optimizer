@@ -9,7 +9,7 @@ const A = () => window.VTApp, $ = id => document.getElementById(id);
 const fmt = (v, d = 2) => Number.isFinite(v) ? v.toFixed(d) : "–", fmtInt = v => Number.isFinite(v) ? Math.round(v).toLocaleString("en-IN") : "–";
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const CLS = ["premium", "good", "neutral", "compromised"];
-const CLS_TXT = { premium: "strong sea view", good: "good view", neutral: "ordinary view", compromised: "compromised view" };
+const CLS_TXT = { premium: "strong sea or skyline view", good: "good view", neutral: "ordinary view", compromised: "compromised view" };
 
 /* ---------------------------------------------------------------- file saving */
 let dlP = null;
@@ -61,7 +61,7 @@ function reliability() {
 function verdictHTML() {
   const a = A(), st = a.st, best = st.results && st.results[0], r = reliability(), badges = [];
   if (r) {
-    badges.push(r.n < 15 ? `<span class="badge high" title="Almost nothing stands between the plot and the sea within 1 km, so uncertain building heights matter little">Height data: little in the way · only ${r.n} buildings in the sea-view directions</span>` : `<span class="badge ${r.level}" title="Share of buildings inside the sea-view directions within 1 km whose height is estimated rather than mapped">Height data: ${r.level} reliability · ${fmt(100 * r.share, 0)}% of ${r.n} buildings in the sea-view directions estimated${r.cal && r.cal.scale !== 1 ? ` (calibrated ×${r.cal.scale})` : ""}</span>`);
+    badges.push(r.n < 15 ? `<span class="badge high" title="Almost nothing stands between the plot and its main view within 1 km, so uncertain building heights matter little">Height data: little in the way · only ${r.n} buildings in the main view directions</span>` : `<span class="badge ${r.level}" title="Share of buildings inside the main view directions within 1 km whose height is estimated rather than mapped">Height data: ${r.level} reliability · ${fmt(100 * r.share, 0)}% of ${r.n} buildings in the main view directions estimated${r.cal && r.cal.scale !== 1 ? ` (calibrated ×${r.cal.scale})` : ""}</span>`);
     if (r.reach < 900) badges.push(`<span class="badge medium" title="Buildings farther than this are not in the loaded data, so distant obstructions are not modelled">Buildings loaded to about ${fmtInt(r.reach)} m from the plot</span>`);
   }
   badges.push(`<span class="badge r" title="Rates are placeholders for comparing options, not market figures">Placeholder rates</span>`);
@@ -228,7 +228,7 @@ function assumptionsLines() {
   return [`Viewtower Studio export, ${new Date().toISOString().slice(0, 16).replace("T", " ")} UTC`, `Site: ${st.siteName}${st.anchor ? `; anchor ${st.anchor[0].toFixed(6)}, ${st.anchor[1].toFixed(6)} (WGS84); local grid x east, y north, metres` : "; synthetic, not georeferenced"}`,
     `Limits: consumable FSI ${C.fsi} m2, max height ${C.hmax} m. Statutory rules are not modelled.`, `Rates are placeholders: base Rs ${C.E.rate}/ft2 carpet, ${C.E.pricing === "continuous" ? "continuous view multiplier 0.655 + 0.69 x living view within 0.80-1.20 (compromised 0.75)" : "class multipliers " + JSON.stringify(C.E.mult)}, floor rise ${C.E.rise}%/floor.`,
     `Classes: compromised if living view < ${C.R.vcComp.q_lr_min}, obstruction < ${C.R.vcComp.d_min} m, horizon > ${C.R.vcComp.alpha_max} deg or privacy > ${C.R.vcComp.p_max}; premium if living sea >= ${C.R.vcLR.w_min}, view >= ${C.R.vcLR.q_min} and >= ${Math.round(100 * C.R.vcBR.share)}% of bedrooms sea >= ${C.R.vcBR.w_min}.`,
-    r ? `Height data: ${r.level} reliability (${Math.round(100 * r.share)}% of buildings in the sea-view directions within 1 km have estimated heights${r.cal && r.cal.scale !== 1 ? `, calibrated x${r.cal.scale} from ${r.cal.tagged} tagged buildings` : ""}).` : "", `Context: ${(st.dataNote || "").replace(/<[^>]+>/g, "")}`].filter(Boolean);
+    r ? `Height data: ${r.level} reliability (${Math.round(100 * r.share)}% of buildings in the main view directions within 1 km have estimated heights${r.cal && r.cal.scale !== 1 ? `, calibrated x${r.cal.scale} from ${r.cal.tagged} tagged buildings` : ""}).` : "", `Context: ${(st.dataNote || "").replace(/<[^>]+>/g, "")}`].filter(Boolean);
 }
 const csvCell = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 function unitsCSV(ev) {

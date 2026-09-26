@@ -31,13 +31,13 @@ function heightFor(tags, defaultH) {
 }
 /* Estimated heights are calibrated to the neighbourhood: when enough buildings nearby carry OSM
    height/levels, a building type with >= 8 tagged examples takes their median height, and all other
-   estimated buildings are scaled by the median ratio tagged height / type default (clamped 0.7-2.5). */
+   estimated buildings are scaled by the median ratio tagged height / type default (clamped 0.7-2.0). */
 function calibrateHeights(ctx, opts = {}) {
   const tagged = ctx.buildings.filter(b => b.hsrc !== "estimated" && b.height > 0);
   const med = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? s[s.length >> 1] : NaN; };
   const cal = { tagged: tagged.length, scale: 1, byType: {} };
   if (opts.defaultH != null || opts.calibrate === false || tagged.length < 20) { ctx.heightCalib = cal; return ctx; }
-  cal.scale = Math.min(2.5, Math.max(0.7, med(tagged.map(b => b.height / (TYPE_H[b.type] ?? 12)))));
+  cal.scale = Math.min(2.0, Math.max(0.7, med(tagged.map(b => b.height / (TYPE_H[b.type] ?? 12)))));
   const groups = {}; for (const b of tagged) (groups[b.type] = groups[b.type] || []).push(b.height);
   for (const [t, hs] of Object.entries(groups)) if (hs.length >= 8) cal.byType[t] = +med(hs).toFixed(1);
   for (const b of ctx.buildings) if (b.hsrc === "estimated") { const base = TYPE_H[b.type] ?? 12; if (base > 0) b.height = +(cal.byType[b.type] ?? base * cal.scale).toFixed(1); }

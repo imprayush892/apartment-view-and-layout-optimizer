@@ -35,11 +35,11 @@ const st = { feedback: (() => { try { return JSON.parse(localStorage.getItem("vt
 function illustrativePlot(center, ang = 60, w = 64, d = 52) { return rot(box(-w / 2, -d / 2, w / 2, d / 2), ang).map(([x, y]) => [x + center[0], y + center[1]]); }
 /* bundled OpenStreetMap snapshots: file, area note, default illustrative plot (centre, angle, size) */
 const SNAPSHOTS = {
-  dadar: { file: "data/dadar_osm.json", area: "about 1 km around Shivaji Park, Dadar", plot: [[-180, -130], 60, 64, 52], name: "Illustrative plot near Shivaji Park (not the project site)" },
-  nyc_lower: { file: "data/nyc_lower_osm.json", area: "about 1.8 km around the Financial District, Lower Manhattan, plus towers over 90 m within 5 km", plot: [[888, 44], 0, 60, 45], ring: [[927.6, 44.2], [878, 11.6], [873.9, 17.5], [864.4, 11], [859, 17.8], [864.1, 21.1], [848.2, 43.4], [905.2, 80.4], [910.8, 71.6], [907, 69.1], [913.6, 58.9], [917.1, 61.2]], name: "Test plot in Lower Manhattan: footprint of an existing low building near the East River (not a real project)" },
-  nyc_midtown: { file: "data/nyc_midtown_osm.json", area: "about 1.3 km around Bryant Park, Midtown Manhattan, plus towers over 90 m within 5 km", plot: [[-373, 369], 29, 60, 45], ring: [[-351.1, 342.7], [-360.4, 347.9], [-375.2, 321.3], [-377.7, 322.6], [-380.8, 324.4], [-366.2, 350.6], [-394.1, 366.2], [-409.5, 374.8], [-394.2, 402.2], [-345.1, 374.7], [-336.1, 369.7], [-337.3, 367.7]], name: "Test plot in Midtown Manhattan: footprint of an existing low building (not a real project)" },
-  ldn_city: { file: "data/ldn_city_osm.json", area: "about 1.5 km around Bank, City of London, plus towers over 90 m within 5 km", plot: [[-91, -442], 0, 60, 45], ring: [[-120, -460.4], [-93.3, -468.5], [-91.4, -468.3], [-67.5, -455], [-66.3, -453.5], [-64.1, -446.2], [-63.5, -446.3], [-58.9, -430.5], [-82, -423.6], [-81.4, -421.4], [-106.4, -413.9], [-112.9, -436.1]], name: "Test plot in the City of London: footprint of an existing low building near the Thames (not a real project)" },
-  ldn_canary: { file: "data/ldn_canary_osm.json", area: "about 1.8 km around Canary Wharf, plus towers over 90 m within 5 km", plot: [[451, -95], 0, 60, 45], ring: [[418.8, -113.4], [474.4, -123.8], [483.3, -76.1], [435.4, -67.2], [426.5, -72.2]], name: "Test plot at Canary Wharf: footprint of an existing low building (not a real project)" },
+  dadar: { limits: { fsiRatio: 9, hmax: 165 }, file: "data/dadar_osm.json", area: "about 1 km around Shivaji Park, Dadar", plot: [[-180, -130], 60, 64, 52], name: "Illustrative plot near Shivaji Park (not the project site)" },
+  nyc_lower: { limits: { fsiRatio: 12, hmax: 250 }, file: "data/nyc_lower_osm.json", area: "about 1.8 km around the Financial District, Lower Manhattan, plus towers over 90 m within 5 km", plot: [[888, 44], 0, 60, 45], ring: [[927.6, 44.2], [878, 11.6], [873.9, 17.5], [864.4, 11], [859, 17.8], [864.1, 21.1], [848.2, 43.4], [905.2, 80.4], [910.8, 71.6], [907, 69.1], [913.6, 58.9], [917.1, 61.2]], name: "Test plot in Lower Manhattan: footprint of an existing low building near the East River (not a real project)" },
+  nyc_midtown: { limits: { fsiRatio: 12, hmax: 260 }, file: "data/nyc_midtown_osm.json", area: "about 1.3 km around Bryant Park, Midtown Manhattan, plus towers over 90 m within 5 km", plot: [[-373, 369], 29, 60, 45], ring: [[-351.1, 342.7], [-360.4, 347.9], [-375.2, 321.3], [-377.7, 322.6], [-380.8, 324.4], [-366.2, 350.6], [-394.1, 366.2], [-409.5, 374.8], [-394.2, 402.2], [-345.1, 374.7], [-336.1, 369.7], [-337.3, 367.7]], name: "Test plot in Midtown Manhattan: footprint of an existing low building (not a real project)" },
+  ldn_city: { limits: { fsiRatio: 10, hmax: 200 }, file: "data/ldn_city_osm.json", area: "about 1.5 km around Bank, City of London, plus towers over 90 m within 5 km", plot: [[-91, -442], 0, 60, 45], ring: [[-120, -460.4], [-93.3, -468.5], [-91.4, -468.3], [-67.5, -455], [-66.3, -453.5], [-64.1, -446.2], [-63.5, -446.3], [-58.9, -430.5], [-82, -423.6], [-81.4, -421.4], [-106.4, -413.9], [-112.9, -436.1]], name: "Test plot in the City of London: footprint of an existing low building near the Thames (not a real project)" },
+  ldn_canary: { limits: { fsiRatio: 10, hmax: 220 }, file: "data/ldn_canary_osm.json", area: "about 1.8 km around Canary Wharf, plus towers over 90 m within 5 km", plot: [[451, -95], 0, 60, 45], ring: [[418.8, -113.4], [474.4, -123.8], [483.3, -76.1], [435.4, -67.2], [426.5, -72.2]], name: "Test plot at Canary Wharf: footprint of an existing low building (not a real project)" },
 };
 async function loadSnapshot(key) {
   const m = SNAPSHOTS[key]; setInfo("ctxInfo", "Loading OpenStreetMap snapshot…"); const tok = ++st.loadToken;
@@ -50,6 +50,8 @@ async function loadSnapshot(key) {
   const pr = GEO.PROFILES[st.ctx.profile || "coastal"]; $("cD").value = pr.d_min; $("cA").value = pr.alpha_max;
   st.illusCenter = m.plot[0]; st.illusAng = m.plot[1]; st.illusSize = [m.plot[2], m.plot[3]];
   st.illusRing = m.ring || null;
+  // typical limits for the city (editable): consumable FSI as a multiple of the plot area, height cap
+  if (m.limits) { const area = ringArea(m.ring || illustrativePlot(st.illusCenter, st.illusAng, ...st.illusSize)); if (key !== "dadar") $("fsi").value = Math.round(area * m.limits.fsiRatio / 100) * 100; $("hmax").value = m.limits.hmax; }
   setBoundary(m.ring || illustrativePlot(st.illusCenter, st.illusAng, ...st.illusSize), m.name, (m.ring || [0, 0, 0, 0]).map(() => st.ctx.profile === "dense" ? 3 : 6), "illus");
 }
 const loadDadar = () => loadSnapshot("dadar");
@@ -224,20 +226,21 @@ let MODEL = null, HYB = null, APPEAL = null;
 async function tokenSpecs(C, mode) {
   if (!st.field) computeField(); const f = st.field, env = st.env, viewAz = TOK.viewAzOf(f), pos = bestCenter(env), N = C.towers || 1, Ci = { ...C, fsi: C.fsi / N };
   const ok = sp => { if (sp.n <= sp.podium || !VT.fitsAt(sp, env)) return false; return VT.checkCandidate(sp, env, Ci, f.arc).feasible; };
-  const ftf = (C.ftf[0] || 3.6), pod = (C.pods[0] ?? 6), upf = (C.upf[0] || 2), K = +$("tokK").value || 8;
+  const ftf = (C.ftf[0] || 3.6), pod = (C.pods[0] ?? 6), upfs = C.upf.length ? C.upf : [2], upf = upfs[0], K = +$("tokK").value || 8;
+  const perUpf = list => { if (upfs.length < 2) return list; const out = []; for (const sp of list.slice(0, Math.ceil(K / upfs.length) + 1)) for (const u of upfs) { const q = VT.resolveFloors({ ...sp, upf: u, n: 0 }, Ci); if (ok(q)) out.push({ ...q, tokNote: sp.tokNote }); } return out.slice(0, K); };
   if (mode === "library") {
     // 1) cheap rule score for every typology x rotation, 2) fit + hard rules only down the ranked list
     const sc = [], L = TOK.library(), rots = [0, 45, +(((viewAz % 90) + 90) % 90).toFixed(1)];
     for (let i = 0; i < L.length; i++) { for (const rot of rots) { const sp = TOK.toSpec(L[i], pos, rot, viewAz, Ci, ftf, pod, upf); sc.push({ sp, typ: L[i], s: TOK.ruleScore(sp, f, viewAz) }); } if (i % 60 === 59) { setInfo("runInfo", `Screening the token library… ${i + 1}/${L.length}`); await new Promise(r => setTimeout(r, 0)); } }
     sc.sort((a, b) => b.s - a.s); const out = [], per = {};
     for (const c of sc) { const b = c.sp.p.base; if ((per[b] || 0) >= 2) continue; let sp = c.sp; if (!VT.fitsAt(sp, env)) sp = fitSpec(sp, Ci); if (!ok(sp)) continue; per[b] = (per[b] || 0) + 1; out.push({ ...sp, tokNote: UXB ? `from the library: ${describeTokensPlain(sp.p)}` : `library: ${c.typ.label} (after ${c.typ.precedent})` }); if (out.length >= K) break; }
-    return out;
+    return perUpf(out);
   }
   if (!MODEL) MODEL = await (await fetch("data/typology_model.json")).json();
   if (mode === "hybrid" && !HYB) { try { HYB = await (await fetch("data/hybrid_weights.json")).json(); } catch (e) { HYB = {}; } try { APPEAL = await (await fetch("data/appeal_model.json")).json(); } catch (e) { APPEAL = null; } }
   const ctxH = TOK.contextHeight(st.S, ...pos), opts = { S: st.S, V: VT.viewSettings({ res: RES, lmOn: !!(st.ctx.landmarks && st.ctx.landmarks.length) }), check: ok, seed: 1 + (st.runToken % 97), pop: 60, iters: 5, top: K, ctxH, dense: st.ctx.profile === "dense", position: pos, ftf, podium: pod, upf };
   if (mode === "hybrid" && HYB) { opts.W = HYB.W; opts.prior = HYB.prior; opts.numPrior = HYB.numPrior; opts.appeal = APPEAL; opts.towers = N; C.towerSplay = HYB.towerSplay || 0; }
-  return TOK.generate(MODEL, f, env, Ci, opts).map(g => ({ ...g.sp, tokNote: `${mode === "hybrid" ? "hybrid" : "generated"}: ${describeTokens(g.sp.p)}` }));
+  return perUpf(TOK.generate(MODEL, f, env, Ci, opts).map(g => ({ ...g.sp, tokNote: `${mode === "hybrid" ? "hybrid" : "generated"}: ${describeTokens(g.sp.p)}` })));
 }
 /* UX A/B variants (?ux=B): search method as cards, neutral 3D massing (class on click), plain-language token notes */
 const UXB = new URLSearchParams(location.search).get("ux") === "B";
