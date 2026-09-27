@@ -36,6 +36,6 @@ const numPrior = { size: [+(28 - 4 * scale(-num.size)).toFixed(2), 5], rate: [+M
 W.priv = +Math.min(0.7, W.priv + 0.4 * privLow / Math.max(1, n)).toFixed(3); // capped: the privacy predictor has little signal
 W.complexity = +Math.max(0.01, Math.min(0.3, W.complexity + 0.2 * consLow / Math.max(1, n))).toFixed(3);
 const towerSplay = splayN + (counts.splay_or_offset_to_avoid_facing || 0) > n * 0.1 ? 15 : 0; // enough architects asked towers not to face each other
-const out = { version: OUTN === "hybrid_weights.json" ? 1 : 2, created: new Date().toISOString(), designsCritiqued: n, moveCounts: counts, prior, numPrior, W, towerSplay, rotationRefine: (counts.rotate_plate_to_outlook || 0) > n * 0.1, notes: "Derived from architects' image-only critiques; see docs/spec/14_architect_study.md" };
+const out = { version: +((OUTN.match(/_v(\d+)/) || [0, 1])[1]), created: new Date().toISOString(), designsCritiqued: n, moveCounts: counts, prior, numPrior, W, towerSplay, rotationRefine: (counts.rotate_plate_to_outlook || 0) > n * 0.1, notes: "Derived from architects' image-only critiques; see docs/spec/14_architect_study.md" };
 out.sources = inputs.map(f => path.basename(f)); fs.writeFileSync(path.join(DIR, OUTN), JSON.stringify(out, null, 1)); fs.writeFileSync(path.join(__dirname, "..", "..", "web", "data", "hybrid_weights.json"), JSON.stringify(out, null, 1));
 console.log(JSON.stringify(out, null, 1));

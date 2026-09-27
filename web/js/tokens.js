@@ -176,12 +176,14 @@ function appealFeatures(sp, viewAz, towers = 1) {
     p.terrace ? 1 : 0, p.cut ? 1 : 0, p.podiumBase || p.podiumWorld ? 1 : 0, p.crown ? 1 : 0, p.crown && p.crown.rot ? 1 : 0, slender, slender * slender, Math.min(2.5, sp.width / Math.max(1, sp.depth)) - 1, (towers - 1) / 3,
     b === "curved" || b === "chamfered" ? 1 : 0, b === "y_shaped" || b === "cross" || b === "t_shaped" ? 1 : 0, b === "diamond" || b === "triangular" ? 1 : 0, Math.min(2, H / 200)];
 }
-/* Near-tie rule for the hybrid: among best trade-offs within tolerance of the top option (sales value within
-   5 %, premium flats within 10 %, compromised flats at most 5 % of flats more), put first the one the
-   architect-appeal model rates highest. evs must already be sorted by VT.cmpKey. Returns the (re)ordered list. */
-function appealPick(evs, m, viewAz, tol = { value: 0.05, premium: 0.10, comp: 0.05 }) {
-  if (!m || !evs.length) return evs; const t = evs[0], M = t.metrics, val = e => e.metrics.margin ?? e.metrics.gdv ?? 0;
-  const near = evs.filter(e => e.feasible !== false && (e.rank ?? 0) === (t.rank ?? 0) && val(e) >= val(t) - tol.value * Math.abs(val(t)) && e.metrics.premium >= M.premium * (1 - tol.premium) && e.metrics.compromised <= M.compromised + Math.max(1, tol.comp * M.units));
+/* Appeal rule for the hybrid (v3, after the third architect round): among feasible options within tolerance of
+   the engine's top option (sales value within 15 %, strong-view share within 30 points, compromised flats at
+   most 10 % of flats more), put first the one the architect-appeal model rates highest. The model predicts
+   architects' pairwise choice 70 % of the time out of sample; the engine's view and value metrics 53 %.
+   evs must already be sorted by VT.cmpKey. Returns the (re)ordered list. */
+function appealPick(evs, m, viewAz, tol = { value: 0.15, premium: 0.30, comp: 0.10 }) {
+  if (!m || !evs.length) return evs; const t = evs[0], M = t.metrics, val = e => e.metrics.gdv ?? 0, ps = e => e.metrics.premium / Math.max(1, e.metrics.units);
+  const near = evs.filter(e => e.feasible !== false && val(e) >= val(t) * (1 - tol.value) && ps(e) >= ps(t) - tol.premium && e.metrics.compromised / Math.max(1, e.metrics.units) <= M.compromised / Math.max(1, M.units) + tol.comp);
   if (near.length < 2) return evs; const sc = e => appealScore(m, (e.towers || [e])[0].sp, viewAz, (e.towers || [e]).length);
   const best = near.reduce((a, b) => sc(b) > sc(a) + 1e-9 ? b : a, t); if (best === t) return evs;
   best.appealPick = { over: t.id, delta: +(10 * (sc(best) - sc(t))).toFixed(2) }; return [best, ...evs.filter(e => e !== best)];

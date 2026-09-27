@@ -17,7 +17,7 @@ if (isMainThread) {
 } else {
   const C = require("./common.js"), L = C.TOK.library(), model = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "web", "data", "typology_model.json"), "utf8"));
   const hyb = fs.existsSync(path.join(DIR, "hybrid_weights.json")) ? JSON.parse(fs.readFileSync(path.join(DIR, "hybrid_weights.json"), "utf8")) : null;
-  const hyb2 = fs.existsSync(path.join(DIR, "hybrid_weights_v2.json")) ? JSON.parse(fs.readFileSync(path.join(DIR, "hybrid_weights_v2.json"), "utf8")) : null;
+  const wv = workerData.modes.includes("hyb3") ? "hybrid_weights_v3.json" : "hybrid_weights_v2.json", hyb2 = fs.existsSync(path.join(DIR, wv)) ? JSON.parse(fs.readFileSync(path.join(DIR, wv), "utf8")) : null;
   const foldsF = path.join(DIR, "appeal_folds.json"), folds = fs.existsSync(foldsF) ? JSON.parse(fs.readFileSync(foldsF, "utf8")).folds : null;
   const appealF = path.join(__dirname, "..", "..", "web", "data", "appeal_model.json"), appeal = fs.existsSync(appealF) ? JSON.parse(fs.readFileSync(appealF, "utf8")) : null;
   for (const a of workerData.archs) {
@@ -51,7 +51,7 @@ if (isMainThread) {
             C.VT.paretoRanks(cand); cand.sort(C.VT.cmpKey); if (cand[0].x === alt.best) { res = { ...res, best: alt.best, rotated: true }; } res.alts = res.alts.concat(alt.alts); } }
         prev[mode] = res;
       }
-      if (mode === "hyb2" && hyb2) { // hybrid v2 (after round 2): evaluate the deterministic and probabilistic winners together with the top generated designs,
+      if ((mode === "hyb2" || mode === "hyb3") && hyb2) { // hybrid v2 (after round 2): evaluate the deterministic and probabilistic winners together with the top generated designs,
         // then among near-equal best trade-offs put first the one architects are predicted to rate highest (cross-fitted: this site's fold never saw its ratings)
         const fm = folds && folds[parseInt(a.id.slice(1)) % 5], am = fm ? { w: fm.w, mean: fm.mean } : appeal;
         const opts = { check: sp => !!C.layoutChecked(P, sp, 1), C: { ...P.C, fsi: P.C.fsi / N0 }, S: P.S, V: P.V, seed: parseInt(a.id.slice(1)) * 7 + 199, pop: 60, iters: 5, top: 20, ctxH: P.ctxH, dense: P.dense, position: P.pos,
@@ -60,8 +60,8 @@ if (isMainThread) {
         const seeds = ["det", "prob"].filter(k => prev[k] && prev[k].best).map(k => ({ ...prev[k].best.towers[0], position: P.pos, n: 0, lib: prev[k].best.lib + "+" + k }));
         const gen = C.TOK.generate(model, P.field, P.env, opts.C, opts).map(g => ({ ...g.sp, lib: g.typ.id }));
         const pick = ok => C.TOK.appealPick(ok, am, P.viewAz);
-        let res = run(seeds.concat(gen).map(sp => sp.n === 0 ? C.VT.resolveFloors(sp, P.C) : sp), "hybrid2", seeds.length + 2, pick);
-        if (hyb2.rotationRefine && res.best) { const b0 = res.best.towers[0], tries = [-12, 12].map(d => ({ ...b0, rotation: +(((b0.rotation + d) % 90 + 90) % 90).toFixed(1), position: P.pos, n: 0, lib: res.best.lib + `+rot${d > 0 ? "+" : ""}${d}` })).map(sp => C.VT.resolveFloors(sp, P.C));
+        let res = run(seeds.concat(gen).map(sp => sp.n === 0 ? C.VT.resolveFloors(sp, P.C) : sp), mode === "hyb3" ? "hybrid3" : "hybrid2", seeds.length + 2, pick);
+        if (mode === "hyb2" && hyb2.rotationRefine && res.best) { // dropped in hyb3: round 3 showed architects prefer the unrotated plate const b0 = res.best.towers[0], tries = [-12, 12].map(d => ({ ...b0, rotation: +(((b0.rotation + d) % 90 + 90) % 90).toFixed(1), position: P.pos, n: 0, lib: res.best.lib + `+rot${d > 0 ? "+" : ""}${d}` })).map(sp => C.VT.resolveFloors(sp, P.C));
           const alt = run(tries, "hybrid2-rot"); if (alt.best && alt.best.metrics.premium >= res.best.metrics.premium && alt.best.metrics.compromised <= res.best.metrics.compromised && alt.best.metrics.gdvCr >= res.best.metrics.gdvCr * 0.98) { res = { ...res, best: alt.best, rotated: true }; res.alts = res.alts.concat(alt.alts); } }
         res.source = /\+det/.test(res.best && res.best.lib || "") ? "det" : /\+prob/.test(res.best && res.best.lib || "") ? "prob" : "generated";
         prev[mode] = res;
