@@ -169,12 +169,22 @@ function ruleScore(sp, field, viewAz) {
 /* ---------------------------------------------------------------- architect-appeal model */
 /* Features of a whole design that architects can see in an image (tokens, proportion, base, crown, towers).
    Fitted by ridge regression on the architects' overall ratings (tools/study/appeal.js). */
-const APPEAL_FEAT = ["bias", "twist", "twist_rate", "taper", "taper_frustum", "taper_bulge", "shift", "shift_lean", "shift_pixel", "terrace", "cut", "podium", "crown", "crown_turn", "slender", "slender_sq", "aspect", "towers", "curved_or_chamfered", "wings", "diamond_or_tri"];
+const APPEAL_FEAT = ["bias", "twist", "twist_rate", "taper", "taper_frustum", "taper_bulge", "shift", "shift_lean", "shift_pixel", "terrace", "cut", "podium", "crown", "crown_turn", "slender", "slender_sq", "aspect", "towers", "curved_or_chamfered", "wings", "diamond_or_tri", "tall"];
 function appealFeatures(sp, viewAz, towers = 1) {
   const p = sp.p || {}, b = p.base || sp.typology, H = sp.n * sp.ftf, slender = H / Math.max(8, Math.min(sp.width, sp.depth)) / 10;
   return [1, p.twist ? 1 : 0, p.twist ? Math.min(3, p.twist.rate || 0) : 0, p.taper ? 1 : 0, p.taper && p.taper.mode === "frustum" ? 1 : 0, p.taper && p.taper.mode === "bulge" ? 1 : 0, p.shift ? 1 : 0, p.shift && p.shift.mode === "lean" ? 1 : 0, p.shift && p.shift.mode === "pixel" ? 1 : 0,
     p.terrace ? 1 : 0, p.cut ? 1 : 0, p.podiumBase || p.podiumWorld ? 1 : 0, p.crown ? 1 : 0, p.crown && p.crown.rot ? 1 : 0, slender, slender * slender, Math.min(2.5, sp.width / Math.max(1, sp.depth)) - 1, (towers - 1) / 3,
-    b === "curved" || b === "chamfered" ? 1 : 0, b === "y_shaped" || b === "cross" || b === "t_shaped" ? 1 : 0, b === "diamond" || b === "triangular" ? 1 : 0];
+    b === "curved" || b === "chamfered" ? 1 : 0, b === "y_shaped" || b === "cross" || b === "t_shaped" ? 1 : 0, b === "diamond" || b === "triangular" ? 1 : 0, Math.min(2, H / 200)];
+}
+/* Near-tie rule for the hybrid: among best trade-offs within tolerance of the top option (sales value within
+   5 %, premium flats within 10 %, compromised flats at most 5 % of flats more), put first the one the
+   architect-appeal model rates highest. evs must already be sorted by VT.cmpKey. Returns the (re)ordered list. */
+function appealPick(evs, m, viewAz, tol = { value: 0.05, premium: 0.10, comp: 0.05 }) {
+  if (!m || !evs.length) return evs; const t = evs[0], M = t.metrics, val = e => e.metrics.margin ?? e.metrics.gdv ?? 0;
+  const near = evs.filter(e => e.feasible !== false && (e.rank ?? 0) === (t.rank ?? 0) && val(e) >= val(t) - tol.value * Math.abs(val(t)) && e.metrics.premium >= M.premium * (1 - tol.premium) && e.metrics.compromised <= M.compromised + Math.max(1, tol.comp * M.units));
+  if (near.length < 2) return evs; const sc = e => appealScore(m, (e.towers || [e])[0].sp, viewAz, (e.towers || [e]).length);
+  const best = near.reduce((a, b) => sc(b) > sc(a) + 1e-9 ? b : a, t); if (best === t) return evs;
+  best.appealPick = { over: t.id, delta: +(10 * (sc(best) - sc(t))).toFixed(2) }; return [best, ...evs.filter(e => e !== best)];
 }
 function appealScore(m, sp, viewAz, towers) { const x = appealFeatures(sp, viewAz, towers); return (x.reduce((a, v, i) => a + v * (m.w[i] || 0), 0) - (m.mean || 6)) / 10; }
 
@@ -229,5 +239,5 @@ function generate(model, field, env, C, opts = {}) {
   return [...seen.values()].sort((a, b) => b.s - a.s).slice(0, opts.top || 4);
 }
 
-G.TOK = { BASES, MODS, library, resolveDirs, toSpec, tokenVector, TOKEN_KEYS, roseAt, viewAzOf, segments, FEAT, segFeatures, probe, APPEAL_FEAT, appealFeatures, appealScore, contextHeight, rowsFromEval, ridge, train, predict, modelScore, ruleScore, rng, initDist, sampleGenome, genomeToTyp, generate, CATS };
+G.TOK = { BASES, MODS, library, resolveDirs, toSpec, tokenVector, TOKEN_KEYS, roseAt, viewAzOf, segments, FEAT, segFeatures, probe, APPEAL_FEAT, appealFeatures, appealScore, appealPick, contextHeight, rowsFromEval, ridge, train, predict, modelScore, ruleScore, rng, initDist, sampleGenome, genomeToTyp, generate, CATS };
 })(typeof self !== "undefined" ? self : this);

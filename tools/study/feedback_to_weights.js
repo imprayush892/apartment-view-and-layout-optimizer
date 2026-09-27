@@ -8,12 +8,14 @@
      and its numeric priors (size, rate, amplitude, step);
    - privacy and constructability ratings shift the objective weights (privacy penalty, complexity). */
 const fs = require("fs"), path = require("path"), DIR = path.join(__dirname, "..", "..", "data", "study");
-const rows = JSON.parse(fs.readFileSync(process.argv[2], "utf8")).rows; // output of analyze_critiques.js (blind labels already mapped to systems)
+// args: one or more outputs of analyze_critiques.js (blind labels already mapped to systems); --out <name> (default hybrid_weights.json)
+const args = process.argv.slice(2), oi = args.indexOf("--out"), OUTN = oi >= 0 ? args[oi + 1] : "hybrid_weights.json", inputs = args.filter((a, i) => a !== "--out" && i !== oi + 1);
+const rows = inputs.flatMap(f => JSON.parse(fs.readFileSync(f, "utf8")).rows);
 const MOVE = { // move -> [category, value, sign] or numeric nudges
   terrace_toward_outlook: [["terrace", "view", +1]], terrace_away: [["terrace", "none", +1]], twist_more: [["twist", "linear", +1], ["twist", "ease", +0.5], ["num", "rate", +0.15]], twist_less_or_remove: [["twist", "none", +1], ["num", "rate", -0.15]],
   taper_more: [["taper", "linear", +1], ["num", "top", -0.03]], taper_less: [["taper", "none", +1], ["num", "top", +0.03]], stagger_or_cantilever: [["shift", "stagger", +1], ["shift", "pixel", +0.5]], remove_stagger: [["shift", "none", +1]],
   lean_toward_outlook: [["shift", "lean", +1]], corner_gardens_or_cutouts: [["cut", "cut", +1]], rotate_plate_to_outlook: [["num", "rot", -1]], chamfer_or_round_corners: [["base", "chamfered", +0.6], ["base", "curved", +0.6]],
-  more_slender: [["num", "size", -0.6]], less_slender_or_wider: [["num", "size", +0.6]], splay_or_offset_to_avoid_facing: [["base", "y_shaped", +0.4], ["base", "triangular", +0.3], ["W", "priv", +0.02]],
+  more_slender: [["num", "size", -0.6]], less_slender_or_wider: [["num", "size", +0.6]], taller: [["num", "size", -0.3]], lower: [["num", "size", +0.3]], splay_or_offset_to_avoid_facing: [["base", "y_shaped", +0.4], ["base", "triangular", +0.3], ["W", "priv", +0.02]],
   podium_or_base_changes: [["podium", "street", +1]], crown_or_top_articulation: [["crown", "crown", +0.6], ["crown", "crown_turn", +0.6]], spread_towers_apart: [["splay", 1]], fewer_towers: [["W", "complexity", +0.005]],
   simplify_for_constructability: [["W", "complexity", +0.01], ["twist", "none", +0.5], ["shift", "none", +0.5]], add_variety_between_floors: [["shift", "pixel", +0.6], ["taper", "frustum", +0.5], ["W", "complexity", -0.01]],
 };
@@ -34,6 +36,6 @@ const numPrior = { size: [+(28 - 4 * scale(-num.size)).toFixed(2), 5], rate: [+M
 W.priv = +Math.min(0.7, W.priv + 0.4 * privLow / Math.max(1, n)).toFixed(3); // capped: the privacy predictor has little signal
 W.complexity = +Math.max(0.01, Math.min(0.3, W.complexity + 0.2 * consLow / Math.max(1, n))).toFixed(3);
 const towerSplay = splayN + (counts.splay_or_offset_to_avoid_facing || 0) > n * 0.1 ? 15 : 0; // enough architects asked towers not to face each other
-const out = { created: new Date().toISOString(), designsCritiqued: n, moveCounts: counts, prior, numPrior, W, towerSplay, rotationRefine: (counts.rotate_plate_to_outlook || 0) > n * 0.1, notes: "Derived from architects' image-only critiques; see docs/spec/14_architect_study.md" };
-fs.writeFileSync(path.join(DIR, "hybrid_weights.json"), JSON.stringify(out, null, 1)); fs.writeFileSync(path.join(__dirname, "..", "..", "web", "data", "hybrid_weights.json"), JSON.stringify(out, null, 1));
+const out = { version: OUTN === "hybrid_weights.json" ? 1 : 2, created: new Date().toISOString(), designsCritiqued: n, moveCounts: counts, prior, numPrior, W, towerSplay, rotationRefine: (counts.rotate_plate_to_outlook || 0) > n * 0.1, notes: "Derived from architects' image-only critiques; see docs/spec/14_architect_study.md" };
+out.sources = inputs.map(f => path.basename(f)); fs.writeFileSync(path.join(DIR, OUTN), JSON.stringify(out, null, 1)); fs.writeFileSync(path.join(__dirname, "..", "..", "web", "data", "hybrid_weights.json"), JSON.stringify(out, null, 1));
 console.log(JSON.stringify(out, null, 1));

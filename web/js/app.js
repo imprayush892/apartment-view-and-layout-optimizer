@@ -240,19 +240,27 @@ async function tokenSpecs(C, mode) {
   const ok = sp => { if (sp.n <= sp.podium || !VT.fitsAt(sp, env)) return false; return VT.checkCandidate(sp, env, Ci, f.arc).feasible; };
   const ftf = (C.ftf[0] || 3.6), pod = (C.pods[0] ?? 6), upfs = C.upf.length ? C.upf : [2], upf = upfs[0], K = +$("tokK").value || 8;
   const perUpf = list => { if (upfs.length < 2) return list; const out = []; for (const sp of list.slice(0, Math.ceil(K / upfs.length) + 1)) for (const u of upfs) { const q = VT.resolveFloors({ ...sp, upf: u, n: 0 }, Ci); if (ok(q)) out.push({ ...q, tokNote: sp.tokNote }); } return out.slice(0, K); };
-  if (mode === "library") {
+  const lib = async K => {
     // 1) cheap rule score for every typology x rotation, 2) fit + hard rules only down the ranked list
     const sc = [], L = TOK.library(), rots = [0, 45, +(((viewAz % 90) + 90) % 90).toFixed(1)];
     for (let i = 0; i < L.length; i++) { for (const rot of rots) { const sp = TOK.toSpec(L[i], pos, rot, viewAz, Ci, ftf, pod, upf); sc.push({ sp, typ: L[i], s: TOK.ruleScore(sp, f, viewAz) }); } if (i % 60 === 59) { setInfo("runInfo", `Screening the token library… ${i + 1}/${L.length}`); await new Promise(r => setTimeout(r, 0)); } }
     sc.sort((a, b) => b.s - a.s); const out = [], per = {};
     for (const c of sc) { const b = c.sp.p.base; if ((per[b] || 0) >= 2) continue; let sp = c.sp; if (!VT.fitsAt(sp, env)) sp = fitSpec(sp, Ci); if (!ok(sp)) continue; per[b] = (per[b] || 0) + 1; out.push({ ...sp, tokNote: `from the library: ${describeTokensPlain(sp.p)}; after ${c.typ.precedent}` }); if (out.length >= K) break; }
-    return perUpf(out);
-  }
+    return out;
+  };
+  if (mode === "library") return perUpf(await lib(K));
   if (!MODEL) MODEL = await (await fetch("data/typology_model.json")).json();
   if (mode === "hybrid" && !HYB) { try { HYB = await (await fetch("data/hybrid_weights.json")).json(); } catch (e) { HYB = {}; } try { APPEAL = await (await fetch("data/appeal_model.json")).json(); } catch (e) { APPEAL = null; } }
   const ctxH = TOK.contextHeight(st.S, ...pos), opts = { S: st.S, V: VT.viewSettings({ res: RES, lmOn: !!(st.ctx.landmarks && st.ctx.landmarks.length) }), check: ok, seed: 1 + (st.runToken % 97), pop: 60, iters: 5, top: K, ctxH, dense: st.ctx.profile === "dense", position: pos, ftf, podium: pod, upf };
-  if (mode === "hybrid" && HYB) { opts.W = HYB.W; opts.prior = HYB.prior; opts.numPrior = HYB.numPrior; opts.appeal = APPEAL; opts.towers = N; C.towerSplay = HYB.towerSplay || 0; }
-  return perUpf(TOK.generate(MODEL, f, env, Ci, opts).map(g => ({ ...g.sp, tokNote: `${mode === "hybrid" ? "hybrid" : "generated"}: ${describeTokens(g.sp.p)}` })));
+  const gen = (o, k, tag) => TOK.generate(MODEL, f, env, Ci, { ...o, top: k }).map(g => ({ ...g.sp, tokNote: `${tag}: ${describeTokens(g.sp.p)}` }));
+  if (mode !== "hybrid") return perUpf(gen(opts, K, "generated"));
+  // hybrid (v2, after the second architect round): the two best library designs and the two best plain generated designs
+  // compete with designs generated under the architect-tuned weights; near-equal winners are then ordered by predicted appeal
+  setInfo("runInfo", "Hybrid: screening the library and generating candidates…"); await new Promise(r => setTimeout(r, 0));
+  const seeds = (await lib(2)).map(sp => ({ ...sp, tokNote: sp.tokNote.replace("from the library", "library seed") })).concat(gen(opts, 2, "generated seed"));
+  const hopts = HYB ? { ...opts, W: HYB.W, prior: HYB.prior, numPrior: HYB.numPrior, appeal: APPEAL, towers: N, seed: opts.seed + 99 } : opts; C.towerSplay = (HYB && HYB.towerSplay) || 0;
+  const seen = new Set(), all = seeds.concat(gen(hopts, Math.max(2, K - seeds.length), "tuned by architects")).filter(sp => { const k = VT.specId ? VT.specId(sp) : JSON.stringify(sp.p) + sp.rotation; if (seen.has(k)) return false; seen.add(k); return true; });
+  return perUpf(all);
 }
 /* UX A/B variants (?ux=B): search method as cards, neutral 3D massing (class on click), plain-language token notes */
 const UXB = new URLSearchParams(location.search).get("ux") === "B";
@@ -334,11 +342,12 @@ async function runSearch() {
   if (token !== st.runToken) return; // cancelled or superseded (site changed)
   if (failure) { st.running = false; setRunButton(false); V3D.clearGhost(); $("hudSearch").hidden = true; $("hudHint").hidden = false; return setInfo("runInfo", `The search stopped with an error after ${done} of ${specs.length} options: ${esc(failure)}. Check the inputs and try again.`, true); }
   VT.paretoRanks(results); results.sort(VT.cmpKey);
+  if ($("searchMode").value === "hybrid" && APPEAL && st.field) { const r2 = TOK.appealPick(results, APPEAL, TOK.viewAzOf(st.field)); if (r2 !== results) { const b = r2[0]; b.explain = [`Put first ahead of an almost equal best trade-off (within 5 % on sales value, 10 % on strong-view flats) because architects are predicted to rate its form higher (+${fmt(b.appealPick.delta, 1)} on a 10-point scale).`].concat(b.explain || []); results.splice(0, results.length, ...r2); } }
   if (st.Sf && results.length) { const V = VT.viewSettings({ res: RES, lmOn: !!(scene.landmarks.length) }); for (const ev of results.slice(0, 8).filter(e => !e.towers || e.towers.length === 1)) { const cl = { ...ev, viol: [], checks: { ...ev.checks }, metrics: { ...ev.metrics }, explain: [], units: [] }; VT.evaluateViews(cl, st.Sf, C, V); ev.metrics.futureComp = cl.metrics.compromised; ev.explain.push(`With future neighbours built: ${cl.metrics.compromised} compromised, ${cl.metrics.premium} premium.`); } }
   st.results = results; st.rejected = rejected.sort((a, b) => a.id < b.id ? -1 : 1); st.C = C;
   $("prog").style.width = "100%"; $("hudSearch").hidden = true; $("hudHint").hidden = false; $("hudHintText").textContent = "Click any floor of the tower to see its view cone. Drag to orbit, scroll to zoom.";
   const fitted = specs.filter(sp => sp.fitNote).length;
-  st.lastRun = `${({ hand: "Hand-set typologies", library: "Token library (deterministic)", generative: "Generative (probabilistic)", hybrid: "Hybrid (tuned by architects)" })[mode]} · ${specs.length} designs evaluated in ${fmt((performance.now() - t0) / 1000, 0)} s · ${results.filter(e => e.rank === 0).length} on the best-trade-off front`;
+  st.lastRun = `${({ hand: "Hand-set typologies", library: "Token library (deterministic)", generative: "Generative (probabilistic)", hybrid: "Hybrid (library + generated, tuned by architects)" })[mode]} · ${specs.length} designs evaluated in ${fmt((performance.now() - t0) / 1000, 0)} s · ${results.filter(e => e.rank === 0).length} on the best-trade-off front`;
   if (results.length) setInfo("runInfo", `${results.length} feasible · ${rejected.length} rejected · ${results.filter(e => e.rank === 0).length} on the Pareto front · ${fmt((performance.now() - t0) / 1000, 1)} s on ${ws.length || 1} ${ws.length ? "workers" : "thread"}.${fitted ? ` ${fitted} option(s) were shrunk to fit the envelope.` : ""}`);
   else { const cnt = {}; rejected.forEach(e => e.viol.forEach(v => cnt[v] = (cnt[v] || 0) + 1)); const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${k} (${v})`).join(", ");
     setInfo("runInfo", `No option passed the hard rules. Most common failures: ${top}. ${cnt["ENV-ENVELOPE-01"] ? "The towers do not fit this envelope: draw a larger plot, reduce setbacks, or enter smaller widths. " : ""}See the Options tab for details.`, true); }
@@ -599,7 +608,7 @@ async function boot() {
   $("searchMode").addEventListener("change", modeUI); modeUI();
   { // search method as described cards (UX A/B test: preferred by 50 of 50 designers over a dropdown)
     const sel = $("searchMode"), wrap = document.createElement("div"); wrap.className = "modecards"; wrap.setAttribute("role", "radiogroup"); wrap.setAttribute("aria-label", "Search method");
-    const DESC = { hand: ["Choose shapes myself", "Tick tower shapes and sizes below; every combination is tested. Same result every run · ~20–40 s."], library: ["Best from 540 known towers", "Screens a library of towers modelled on built precedents and tests the best few. Same result every run · ~10–25 s."], generative: ["Invent new towers", "Composes new towers floor by floor from moves that worked on similar sites. Varies between runs · ~10–30 s."], hybrid: ["Invent, tuned by architects", "Like Invent, weighted by 456 architects' critiques (podium, crown, splayed towers). Varies between runs · ~10–30 s."] };
+    const DESC = { hand: ["Choose shapes myself", "Tick tower shapes and sizes below; every combination is tested. Same result every run · ~20–40 s."], library: ["Best from 540 known towers", "Screens a library of towers modelled on built precedents and tests the best few. Same result every run · ~10–25 s."], generative: ["Invent new towers", "Composes new towers floor by floor from moves that worked on similar sites. Varies between runs · ~10–30 s."], hybrid: ["Best of both, tuned by architects", "The best known towers and newly invented ones compete; invention is steered by two rounds of architects' critiques, and near-ties go to the form architects rate higher. Varies between runs · ~15–40 s."] };
     wrap.innerHTML = [...sel.options].map(o => `<button type="button" class="modecard" role="radio" aria-checked="${o.selected}" data-v="${o.value}"><b>${DESC[o.value][0]}</b><span>${DESC[o.value][1]}</span></button>`).join("");
     sel.closest("label").hidden = true; sel.closest("label").after(wrap);
     wrap.addEventListener("click", e => { const b = e.target.closest(".modecard"); if (!b) return; sel.value = b.dataset.v; sel.dispatchEvent(new Event("change")); wrap.querySelectorAll(".modecard").forEach(x => x.setAttribute("aria-checked", String(x === b))); }); }

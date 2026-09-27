@@ -16,7 +16,7 @@ fs.mkdirSync(OUT, { recursive: true });
     const f = path.join(DIR, "results", a.id + ".json"); if (!fs.existsSync(f)) continue; const res = JSON.parse(fs.readFileSync(f, "utf8"));
     const sysRes = s => s === "win1" ? res[WIN1[a.id]] : res[s], avail = systems.filter(s => sysRes(s) && sysRes(s).best); if (!avail.length) continue;
     // blind order: stable pseudo-random per architect
-    const key = a.id + ":" + systems.join(","); if (!blind[key]) { const h = [...a.id].reduce((x, c) => x * 31 + c.charCodeAt(0), 7) % 2; blind[key] = h ? systems.slice().reverse() : systems.slice(); }
+    const key = a.id + ":" + systems.join(","); if (!blind[key]) { const h = ([...key].reduce((x, c) => Math.imul(x ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261) >>> 7) & 1; blind[key] = h ? systems.slice().reverse() : systems.slice(); }
     await p.evaluate(c => R.load(c), a.site.city);
     for (const s of avail) {
       const out = path.join(OUT, `${a.id}_${s}.jpg`); if (fs.existsSync(out)) continue;
