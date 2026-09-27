@@ -30,8 +30,9 @@ const TYPOS = [
 ];
 const FL = { width: "Width m", depth: "Depth m", chamfer_m: "Chamfer m", exponent: "Roundness", wing_len: "Wing length m", wing_w: "Wing width m", twist_per_floor_deg: "Twist °/floor", top_scale: "Top scale", step_every: "Step every n", step_m: "Step m", step_side_deg: "Step faces °" };
 const TL = Object.fromEntries(TYPOS.map(t => [t.key, t.label]));
-const shortLabel = sp => sp.typology === "token" ? (sp.p.base || "tower").replace("_", "-").replace(/^./, c => c.toUpperCase()) + (sp.count > 1 ? ` ×${sp.count}` : "") + " (token)" : (TL[sp.typology] || sp.typology);
-const label = sp => sp.typology === "token" ? `Token: ${sp.p.base.replace("_", "-")}${sp.p.twist ? " · twist" : ""}${sp.p.taper ? " · taper" : ""}${sp.p.shift ? " · " + sp.p.shift.mode : ""}${sp.p.terrace ? " · terraces" : ""}${sp.p.cut ? " · gardens" : ""}` : (TL[sp.typology] || sp.typology);
+const shortLabel = sp => sp.typology === "token" ? (TOKB[sp.p.base] || "Tower") + " tower" + (sp.count > 1 ? ` ×${sp.count}` : "") : (TL[sp.typology] || sp.typology);
+const TOKB = { square: "Square", rectangular: "Long", chamfered: "Cut-corner", curved: "Rounded", diamond: "Diamond", triangular: "Triangular", y_shaped: "Y-plan", cross: "Cross-plan", t_shaped: "T-plan" };
+const label = sp => sp.typology === "token" ? [(TOKB[sp.p.base] || sp.p.base) + " tower", sp.p.podiumWorld && "podium", sp.p.twist && "twist", sp.p.taper && ({ frustum: "alternating", bulge: "swells mid-height" }[sp.p.taper.mode] || "tapers"), sp.p.shift && ({ stagger: "staggered", lean: "leans", wave: "rippled", pixel: "sliding blocks" }[sp.p.shift.mode]), sp.p.terrace && "terraces", sp.p.cut && "sky gardens", sp.p.crown && "crown"].filter(Boolean).join(" · ") : (TL[sp.typology] || sp.typology);
 
 const st = { feedback: (() => { try { return JSON.parse(localStorage.getItem("vt-feedback") || "[]"); } catch (e) { return []; } })(), loadToken: 0, runToken: 0, pending: [], src: "dadar", anchor: null, ctx: null, S: null, Sf: null, boundary: null, bSource: "illus", env: [], isEnv: false, setbacks: [], selEdge: null, draw: null, field: null,
   results: null, rejected: [], sel: null, level: null, cone: null, zoom: "plot", roseZ: 100, dxf: null, running: false, workers: [] };
