@@ -511,7 +511,7 @@ function optChart(res) {
   const X = v => x0 + w * (v - xa) / (xb - xa), Y = v => y0 + h * (1 - (v - ya) / (yb - ya));
   const placed = [], lab = (i) => { let lx = X(xs[i]) + 8, ly = Y(ys[i]) + 4; for (let k = 0; k < 6 && placed.some(([a, b]) => Math.abs(a - lx) < 14 && Math.abs(b - ly) < 11); k++) ly -= 11; placed.push([lx, ly]); return `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="11" fill="var(--ink-2)">${i + 1}</text>`; };
   const front = res.some(e => e.rank > 0);
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:600px;height:auto;font-family:var(--display)" role="img" aria-label="Chart: sales value against share of compromised flats for ${res.length} options; the same numbers are in the table below">
+  return `<svg class="optchart" viewBox="0 0 ${W} ${H}" style="width:100%;max-width:600px;height:auto;font-family:var(--display)" role="img" aria-label="Chart: sales value against share of compromised flats for ${res.length} options; the same numbers are in the table below">
     <rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="var(--surface-2)" opacity=".45"/>
     <text x="${x0 + w / 2}" y="${H - 6}" font-size="12" text-anchor="middle" fill="var(--ink-2)">share of flats compromised (%) → fewer is better, to the left</text>
     <text x="14" y="${y0 + h / 2}" font-size="12" transform="rotate(-90 14 ${y0 + h / 2})" text-anchor="middle" fill="var(--ink-2)">sales value ↑</text>
