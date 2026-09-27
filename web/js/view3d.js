@@ -81,7 +81,7 @@ function buildingsMesh(ctx, center, half) {
 function updateSite(site) { if (!T || !T.ctx) return; T.site = site; setGroup("ground", groundMesh(T.ctx, T.S, T.ctr, 3000, site)); siteMark(); const key = JSON.stringify((site && site.boundary || []).slice(0, 3)); if (!T.design && key !== T.lastSiteKey) resetView(); T.lastSiteKey = key; }
 /* Translucent column over the plot so the site reads at a glance before a search. */
 function siteMark() { const b = T.site && T.site.boundary; if (!b || b.length < 3 || T.design) { setGroup("sitemark", null); return; }
-  const g = new THREE.Group(), m = new THREE.MeshBasicMaterial({ color: 0x0d9ec2, transparent: true, opacity: 0.38, depthWrite: false }), e = new THREE.LineBasicMaterial({ color: 0x0b7894 });
+  const g = new THREE.Group(), m = new THREE.MeshBasicMaterial({ color: 0xff7a1a, transparent: true, opacity: 0.5, depthWrite: false }), e = new THREE.LineBasicMaterial({ color: 0xb34700 });
   const hM = T.ctx && T.ctx.profile === "dense" ? 90 : 40; g.add(extrude(shapeOf(ccw(b)), hM, 0.5, m)); for (const z of [0.6, hM + 0.5]) g.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(b.map(([x, y]) => W3(x, y, z))), e)); setGroup("sitemark", g); }
 
 /* ---------- massings */

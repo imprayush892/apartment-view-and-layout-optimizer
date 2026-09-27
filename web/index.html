@@ -131,6 +131,7 @@ tbody tr.on{background:var(--accent-soft)}
 /* round-2 additions */
 .verdict{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;box-shadow:0 2px 8px rgba(15,30,28,.06);padding:14px 18px;display:flex;flex-direction:column;gap:8px}
 .verdict p{margin:0;font-size:14.5px;max-width:95ch}
+.verdict p.whyb{background:var(--accent-soft);border-radius:8px;padding:8px 11px;font-size:13.5px}
 .vhead .eyebrow{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
 .vhead h2{font-size:21px;font-stretch:88%;line-height:1.2;margin:2px 0 0}.vhead .vsub{color:var(--ink-2);font-size:13.5px;margin:2px 0 0}
 .vstats{display:flex;flex-wrap:wrap;gap:8px}
@@ -139,7 +140,7 @@ tbody tr.on{background:var(--accent-soft)}
 .vstat.premium{border-left-color:var(--premium)}.vstat.good{border-left-color:var(--good)}.vstat.neutral{border-left-color:var(--neutral)}.vstat.compromised{border-left-color:var(--compromised)}.vstat.val{border-left-color:var(--accent)}
 table.vtowers{align-self:flex-start;border-collapse:collapse;font-size:12.5px;width:auto!important;min-width:0}table.vtowers th,table.vtowers td{padding:2px 12px 2px 0;text-align:left;font-variant-numeric:tabular-nums}table.vtowers th{color:var(--ink-3);font-weight:600}
 .badge{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2)}
-.badge.high{border-color:var(--ok);color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,var(--surface))}.badge.medium{border-color:var(--warn);color:color-mix(in srgb,var(--warn) 80%,var(--ink));background:color-mix(in srgb,var(--warn) 9%,var(--surface))}.badge.low{border-color:var(--bad);color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var(--surface))}
+.badge.high{border-color:var(--ok);color:color-mix(in srgb,var(--ok) 55%,var(--ink));background:color-mix(in srgb,var(--ok) 8%,var(--surface))}.badge.medium{border-color:var(--warn);color:color-mix(in srgb,var(--warn) 45%,var(--ink));background:color-mix(in srgb,var(--warn) 9%,var(--surface))}.badge.low{border-color:var(--bad);color:color-mix(in srgb,var(--bad) 65%,var(--ink));background:color-mix(in srgb,var(--bad) 8%,var(--surface))}
 .exportbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .exportbar .lab{font-size:12px;color:var(--ink-3);margin-right:2px}
 .pill.bf{background:var(--accent-soft);color:var(--ink);font-weight:500}
@@ -168,6 +169,7 @@ main.work{display:flex;flex-direction:column;gap:12px;min-width:0}
   main.work{order:-1}
   .stage{height:62vh;min-height:340px}
   header.top p{display:none}
+  .legend3d{bottom:28px;left:6px;right:6px;font-size:11px;gap:6px}
   .verdict{padding:12px 13px}.vhead h2{font-size:19px}.vstat{min-width:0;flex:1 1 40%;padding:6px 9px}.vstat b{font-size:19px}.verdict p{font-size:13.5px}.verdict .row .badge{font-size:11px}.verdict p.hint{display:none}
   main.work{display:flex;flex-direction:column}
   .jumplink{display:inline-block;font-size:12.5px;font-weight:600;margin:4px 0}
