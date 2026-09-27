@@ -138,7 +138,7 @@ tbody tr.on{background:var(--accent-soft)}
 .vstat b{font-size:22px;font-variant-numeric:tabular-nums;line-height:1.1}.vstat span{font-size:12.5px;color:var(--ink-2)}.vstat i{grid-column:1/-1;font-style:normal;font-size:11.5px;color:var(--ink-3)}
 .vstat.premium{border-left-color:var(--premium)}.vstat.good{border-left-color:var(--good)}.vstat.neutral{border-left-color:var(--neutral)}.vstat.compromised{border-left-color:var(--compromised)}.vstat.val{border-left-color:var(--accent)}
 table.vtowers{align-self:flex-start;border-collapse:collapse;font-size:12.5px;width:auto!important;min-width:0}table.vtowers th,table.vtowers td{padding:2px 12px 2px 0;text-align:left;font-variant-numeric:tabular-nums}table.vtowers th{color:var(--ink-3);font-weight:600}
-.badge{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2)}
+.badge{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2)}
 .badge.high{border-color:var(--ok);color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,var(--surface))}.badge.medium{border-color:var(--warn);color:color-mix(in srgb,var(--warn) 80%,var(--ink));background:color-mix(in srgb,var(--warn) 9%,var(--surface))}.badge.low{border-color:var(--bad);color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var(--surface))}
 .exportbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .exportbar .lab{font-size:12px;color:var(--ink-3);margin-right:2px}
@@ -155,6 +155,9 @@ table.sens td.neg{color:var(--bad);font-weight:600}
 #btnRun{position:sticky;bottom:8px;z-index:6;box-shadow:0 -6px 12px var(--surface)}
 #edgeFold summary{cursor:pointer;font-size:12.5px;color:var(--ink-2);margin:4px 0}
 .jumplink{display:none}
+main.work{display:flex;flex-direction:column;gap:12px;min-width:0}
+#verdict{order:1} main.work nav.tabs{order:2} main.work .panel{order:3} #kpis{order:4} .exportbar{order:5} .jumplink{order:0}
+.checks .tw{font-size:12.5px}.checks .tw span{font-size:14px}
 .legend3d{position:absolute;left:10px;bottom:10px;background:rgba(251,252,252,.94);color:#15201e;border-radius:7px;padding:6px 10px;font-size:12px;display:flex;gap:10px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.1)}.legend3d i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 .scrollcue{background:linear-gradient(to right,var(--surface) 30%,transparent),linear-gradient(to left,var(--surface) 30%,transparent) 100% 0,radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.18),transparent),radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.18),transparent) 100% 0;background-repeat:no-repeat;background-size:40px 100%,40px 100%,14px 100%,14px 100%;background-attachment:local,local,scroll,scroll}
 .modecards{display:grid;grid-template-columns:1fr 1fr;gap:6px}.modecard{display:flex;flex-direction:column;gap:3px;text-align:left;font-weight:400;padding:8px 10px}.modecard b{font-size:13px}.modecard span{font-size:11.5px;color:var(--ink-2)}.modecard[aria-checked=true]{border-color:var(--accent);background:var(--accent-soft)}
@@ -167,10 +170,9 @@ table.sens td.neg{color:var(--bad);font-weight:600}
   header.top p{display:none}
   .verdict{padding:12px 13px}.vhead h2{font-size:19px}.vstat{min-width:0;flex:1 1 40%;padding:6px 9px}.vstat b{font-size:19px}.verdict p{font-size:13.5px}.verdict .row .badge{font-size:11px}.verdict p.hint{display:none}
   main.work{display:flex;flex-direction:column}
-  #verdict{order:1} main.work nav.tabs{order:2} main.work .panel{order:3} #kpis{order:4} .exportbar{order:5}
   .jumplink{display:inline-block;font-size:12.5px;font-weight:600;margin:4px 0}
   .hud{max-width:calc(100% - 120px)}
-  nav.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  nav.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;-webkit-mask-image:linear-gradient(to right,#000 82%,transparent);mask-image:linear-gradient(to right,#000 82%,transparent);padding-right:40px}
   nav.tabs button{flex:none}
   nav.tabs button{padding:7px 9px}
   .glossary{grid-template-columns:1fr}

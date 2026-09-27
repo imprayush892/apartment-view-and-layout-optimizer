@@ -34,7 +34,7 @@ function setContext(ctx, S, center, site, opts = {}) {
   const half = opts.half || 3000;
   setGroup("ground", groundMesh(ctx, S, center, half, site));
   setGroup("buildings", buildingsMesh(ctx, center, half));
-  if (!opts.keepCamera) resetView();
+  siteMark(); if (!opts.keepCamera) resetView();
 }
 function groundMesh(ctx, S, center, half, site) {
   const max = Math.min(4096, T.renderer.capabilities.maxTextureSize || 4096), N = max, cv = document.createElement("canvas"); cv.width = cv.height = N;
@@ -78,19 +78,24 @@ function buildingsMesh(ctx, center, half) {
   const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })); m.userData.context = true;
   const g = new THREE.Group(); g.add(m); return g;
 }
-function updateSite(site) { if (!T || !T.ctx) return; T.site = site; setGroup("ground", groundMesh(T.ctx, T.S, T.ctr, 3000, site)); }
+function updateSite(site) { if (!T || !T.ctx) return; T.site = site; setGroup("ground", groundMesh(T.ctx, T.S, T.ctr, 3000, site)); siteMark(); const key = JSON.stringify((site && site.boundary || []).slice(0, 3)); if (!T.design && key !== T.lastSiteKey) resetView(); T.lastSiteKey = key; }
+/* Translucent column over the plot so the site reads at a glance before a search. */
+function siteMark() { const b = T.site && T.site.boundary; if (!b || b.length < 3 || T.design) { setGroup("sitemark", null); return; }
+  const g = new THREE.Group(), m = new THREE.MeshBasicMaterial({ color: 0x0d9ec2, transparent: true, opacity: 0.38, depthWrite: false }), e = new THREE.LineBasicMaterial({ color: 0x0b7894 });
+  const hM = T.ctx && T.ctx.profile === "dense" ? 90 : 40; g.add(extrude(shapeOf(ccw(b)), hM, 0.5, m)); for (const z of [0.6, hM + 0.5]) g.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(b.map(([x, y]) => W3(x, y, z))), e)); setGroup("sitemark", g); }
 
 /* ---------- massings */
 function shapeOf(ring, holes) { const s = new THREE.Shape(ring.map(([x, y]) => new THREE.Vector2(x - T.ctr[0], y - T.ctr[1]))); for (const h of holes || []) s.holes.push(new THREE.Path(h.map(([x, y]) => new THREE.Vector2(x - T.ctr[0], y - T.ctr[1])))); return s; }
 function extrude(shape, h, z, mat) { const g = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); g.translate(0, z, 0); return new THREE.Mesh(g, mat); }
 function showGhost(sp, plates, label) {
+  setGroup("sitemark", null);
   const list = Array.isArray(sp) ? sp : [{ sp, plates }]; // one tower or a list of {sp, plates}
   const g = new THREE.Group(), mat = new THREE.MeshLambertMaterial({ color: COL.ghost, transparent: true, opacity: 0.35, depthWrite: false }), edge = new THREE.LineBasicMaterial({ color: 0x0d5e78, transparent: true, opacity: 0.55 });
   for (const { sp, plates } of list) { const n = sp.n, step = n > 60 ? 2 : 1;
   for (let l = 0; l < n; l += step) { const p = plates[l]; if (!p) continue; const m = extrude(shapeOf(ccw(p)), sp.ftf * step - 0.25, l * sp.ftf, mat); g.add(m); if (l % (4 * step) === 0) { const e = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ccw(p).map(([x, y]) => W3(x, y, l * sp.ftf + 0.05))), edge); g.add(e); } } }
   setGroup("ghost", g); T.ghostLabel = label;
 }
-function clearGhost() { setGroup("ghost", null); }
+function clearGhost() { setGroup("ghost", null); if (T && !T.design && !(T.groups && T.groups.design)) siteMark(); }
 function showDesign(ev, opts = {}) {
   clearGhost(); clearCone();
   const g = new THREE.Group(); T.designMeshes = []; T.design = ev;
@@ -113,7 +118,7 @@ function showDesign(ev, opts = {}) {
   if ((ev.towers || []).length > 1) ev.towers.forEach((tw, ti) => { const p = tw.plates[tw.sp.n - 1], cx = p.reduce((a, q) => a + q[0], 0) / p.length, cy = p.reduce((a, q) => a + q[1], 0) / p.length;
     const cv = document.createElement("canvas"); cv.width = 128; cv.height = 64; const x = cv.getContext("2d"); x.fillStyle = "rgba(21,32,30,.85)"; x.beginPath(); x.roundRect ? x.roundRect(8, 8, 112, 48, 12) : x.rect(8, 8, 112, 48); x.fill(); x.fillStyle = "#fff"; x.font = "bold 30px sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText("T" + (ti + 1), 64, 33);
     const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: false })); spr.position.copy(W3(cx, cy, tw.sp.n * tw.sp.ftf + 18)); spr.scale.set(36, 18, 1); spr.renderOrder = 10; g.add(spr); });
-  setGroup("design", g);
+  setGroup("design", g); setGroup("sitemark", null);
   if (opts.frame) frameTower(Math.max(...(ev.towers || [ev]).map(t => t.sp.n * t.sp.ftf)));
 }
 /* Neutral massing for image-only review: glass floors with slab lines, no class colours or numbers. */
@@ -122,11 +127,11 @@ function showMassing(towers, opts = {}) {
   const g = new THREE.Group(), glass = new THREE.MeshLambertMaterial({ color: opts.color || 0xdfe8ec }), pod = new THREE.MeshLambertMaterial({ color: 0xc9cdca }), slab = new THREE.MeshLambertMaterial({ color: 0x8d9a9e });
   for (const t of towers) for (let l = 0; l < t.sp.n; l++) { const p = t.plates[l]; if (!p) continue; const z = l * t.sp.ftf, s = shapeOf(ccw(p));
     g.add(extrude(s, t.sp.ftf - 0.45, z + 0.45, l < t.sp.podium ? pod : glass)); g.add(extrude(s, 0.45, z, slab)); }
-  setGroup("design", g); T.design = null;
+  setGroup("design", g); T.design = null; setGroup("sitemark", null);
 }
 /* Camera at a site azimuth (degrees, the side the camera stands on), distance and elevation, looking at height tz. */
 function camAt(az, dist, elev, tz) { if (!T) return; const a = az * D2R, e = elev * D2R; T.controls.target.set(0, tz, 0); T.camera.position.set(Math.sin(a) * Math.cos(e) * dist, tz + Math.sin(e) * dist, -Math.cos(a) * Math.cos(e) * dist); T.camera.lookAt(0, tz, 0); T.controls.update(); T.dirty = true; }
-function clearDesign() { setGroup("design", null); T && (T.designMeshes = []); }
+function clearDesign() { setGroup("design", null); if (T) { T.designMeshes = []; T.design = null; siteMark(); } }
 
 /* ---------- picking + view cones */
 function bindPointer() {
@@ -166,17 +171,17 @@ function clearCone() { setGroup("cone", null); }
 function frameTower(H) {
   // centre on the towers and pick, among 12 directions, the camera position least blocked by the city in front
   const tw = T.design ? (T.design.towers || [T.design]) : [], cs = tw.map(t => { const p = t.plates[0]; return [p.reduce((a, q) => a + q[0], 0) / p.length, p.reduce((a, q) => a + q[1], 0) / p.length]; });
-  const c = cs.length ? [cs.reduce((a, q) => a + q[0], 0) / cs.length, cs.reduce((a, q) => a + q[1], 0) / cs.length] : T.ctr.slice(), spread = cs.length > 1 ? Math.max(...cs.map(q => Math.hypot(q[0] - c[0], q[1] - c[1]))) * 2 : 0;
-  const dense = T.ctx && T.ctx.profile === "dense", el = (dense ? 36 : 24) * D2R, dist = Math.max(dense ? 340 : 260, H * (dense ? 2.0 : 1.8) + spread * 1.4), tz = H * 0.45, S = T.S;
+  const sb = T.site && T.site.boundary, c = cs.length ? [cs.reduce((a, q) => a + q[0], 0) / cs.length, cs.reduce((a, q) => a + q[1], 0) / cs.length] : sb && sb.length ? [sb.reduce((a, q) => a + q[0], 0) / sb.length, sb.reduce((a, q) => a + q[1], 0) / sb.length] : T.ctr.slice(), spread = cs.length > 1 ? Math.max(...cs.map(q => Math.hypot(q[0] - c[0], q[1] - c[1]))) * 2 : 0;
+  const dense = T.ctx && T.ctx.profile === "dense", pre = !cs.length, el = (pre ? 52 : dense ? 36 : 24) * D2R, dist = pre ? (dense ? 900 : 700) : Math.max(dense ? 340 : 260, H * (dense ? 2.0 : 1.8) + spread * 1.4), tz = pre ? 20 : H * 0.45, S = T.S;
   const hAt = (x, y) => { if (!S || !S.H) return 0; const j = Math.floor((x - S.x0) / S.res), i = Math.floor((y - S.y0) / S.res); return j < 0 || i < 0 || j >= S.nx || i >= (S.ny || S.H.length / S.nx) ? 0 : S.H[i * S.nx + j]; };
   const base = ((T.seaAz ?? 270) + 180) % 360; let best = null;
   for (let k = 0; k < 12; k++) { const a = (base + k * 30) % 360, ar = a * D2R, ex = c[0] + Math.sin(ar) * dist * Math.cos(el), ey = c[1] + Math.cos(ar) * dist * Math.cos(el), ez = tz + dist * Math.sin(el);
     let blocked = 0; for (let t = 0.04; t < 0.96; t += 0.03) { const x = ex + (c[0] - ex) * t, y = ey + (c[1] - ey) * t, z = ez + (tz - ez) * t; if (hAt(x, y) > z) blocked++; }
-    const cost = blocked + 0.15 * Math.min(k, 12 - k); if (!best || cost < best.cost) best = { cost, ex, ey, ez }; }
+    const sunD = Math.abs(((a - 236) % 360 + 540) % 360 - 180), cost = blocked + 0.08 * Math.min(k, 12 - k) + 0.012 * sunD; if (!best || cost < best.cost) best = { cost, ex, ey, ez }; }
   T.controls.target.copy(W3(c[0], c[1], tz)); T.camera.position.copy(W3(best.ex, best.ey, best.ez)); T.camera.fov = dense ? 40 : 45; T.camera.updateProjectionMatrix(); T.dirty = true;
 }
 function setSeaAz(az) { if (T) T.seaAz = az; }
-function resetView() { if (!T) return; frameTower(T.design ? Math.max(...(T.design.towers || [T.design]).map(t => t.sp.n * t.sp.ftf)) : 90); }
+function resetView() { if (!T) return; frameTower(T.design ? Math.max(...(T.design.towers || [T.design]).map(t => t.sp.n * t.sp.ftf)) : 150); }
 function topView() { T.controls.target.set(0, 0, 0); T.camera.position.set(0, 1300, 1); }
 function jumpIn(o, plate, ftf) {
   const inward = 0.9, x = o.x - Math.sin(o.az * D2R) * inward, y = o.y - Math.cos(o.az * D2R) * inward;
