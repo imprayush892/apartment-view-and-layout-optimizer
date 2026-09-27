@@ -26,6 +26,7 @@ const TYPOS = [
 ];
 const FL = { width: "Width m", depth: "Depth m", chamfer_m: "Chamfer m", exponent: "Roundness", wing_len: "Wing length m", wing_w: "Wing width m", twist_per_floor_deg: "Twist °/floor", top_scale: "Top scale", step_every: "Step every n", step_m: "Step m", step_side_deg: "Step faces °" };
 const TL = Object.fromEntries(TYPOS.map(t => [t.key, t.label]));
+const shortLabel = sp => sp.typology === "token" ? (sp.p.base || "tower").replace("_", "-").replace(/^./, c => c.toUpperCase()) + (sp.count > 1 ? ` ×${sp.count}` : "") + " (token)" : (TL[sp.typology] || sp.typology);
 const label = sp => sp.typology === "token" ? `Token: ${sp.p.base.replace("_", "-")}${sp.p.twist ? " · twist" : ""}${sp.p.taper ? " · taper" : ""}${sp.p.shift ? " · " + sp.p.shift.mode : ""}${sp.p.terrace ? " · terraces" : ""}${sp.p.cut ? " · gardens" : ""}` : (TL[sp.typology] || sp.typology);
 
 const st = { feedback: (() => { try { return JSON.parse(localStorage.getItem("vt-feedback") || "[]"); } catch (e) { return []; } })(), loadToken: 0, runToken: 0, pending: [], src: "dadar", anchor: null, ctx: null, S: null, Sf: null, boundary: null, bSource: "illus", env: [], isEnv: false, setbacks: [], selEdge: null, draw: null, field: null,
@@ -384,8 +385,8 @@ function setInfo(id, html, warn) { const el = $(id); el.innerHTML = html; el.cla
 function renderKPIs() {
   const f = st.field, best = st.results && st.results[0], k = [];
   k.push(`<div class="kpi"><span>Buildable envelope</span><b>${st.env && st.env.length ? fmtInt(ringArea(st.env)) : "–"} m²</b><em>${st.isEnv ? "given" : "after setbacks"}</em></div>`);
-  k.push(`<div class="kpi"><span>Premium sea arc</span><b>${f && f.arc ? arcWidth(f.arc) + "°" : "none"}</b><em>${f && f.arc ? `${fmt(f.arc[0], 0)}°–${fmt(f.arc[1], 0)}°, opens at ${f.opening ?? ">100"} m` : "no clear sea direction"}</em></div>`);
-  if (best) { const m = best.metrics; k.push(`<div class="kpi"><span>Top option</span><b>${esc(label(best.sp))}</b><em>${best.sp.upf}/floor · ${best.sp.n} floors · ${fmt(m.height, 0)} m</em></div>`, `<div class="kpi"><span>GDV (placeholder rates)</span><b>₹${fmtInt(m.gdvCr)} cr</b><em>${fmtInt(m.carpet)} m² carpet</em></div>`, `<div class="kpi"><span>Compromised units</span><b style="color:${m.compromised ? "var(--bad)" : "var(--ok)"}">${m.compromised}</b><em>${m.futureComp != null ? `${m.futureComp} with future neighbours` : "existing context"}</em></div>`, `<div class="kpi"><span>Premium units</span><b>${m.premium} / ${m.units}</b><em>${fmt(100 * m.premiumShare, 0)}% of inventory</em></div>`); }
+  k.push(`<div class="kpi"><span title="Directions from the plot with a clear sea or skyline view at 100 m">Main view arc (sea or skyline)</span><b>${f && f.arc ? arcWidth(f.arc) + "°" : "none"}</b><em>${f && f.arc ? `${fmt(f.arc[0], 0)}°–${fmt(f.arc[1], 0)}°, opens at ${f.opening ?? ">100"} m` : "no clear sea direction"}</em></div>`);
+  if (best) { const m = best.metrics; k.push(`<div class="kpi"><span>Top option</span><b title="${esc(label(best.sp))}">${esc(shortLabel(best.sp))}</b><em>${best.sp.upf}/floor · ${best.sp.n} floors · ${fmt(m.height, 0)} m</em></div>`, `<div class="kpi"><span>GDV (placeholder rates)</span><b>₹${fmtInt(m.gdvCr)} cr</b><em>${fmtInt(m.carpet)} m² carpet</em></div>`, `<div class="kpi"><span>Compromised units</span><b style="color:${m.compromised ? "var(--bad)" : "var(--ok)"}">${m.compromised}</b><em>${m.futureComp != null ? `${m.futureComp} with future neighbours` : "existing context"}</em></div>`, `<div class="kpi"><span>Premium units</span><b>${m.premium} / ${m.units}</b><em>${fmt(100 * m.premiumShare, 0)}% of inventory</em></div>`); }
   $("kpis").innerHTML = k.join("");
   if (window.VTX) $("verdict").innerHTML = VTX.verdictHTML();
 }
@@ -464,7 +465,7 @@ function renderField() {
   [["N", 0], ["E", 90], ["S", 180], ["W", 270]].forEach(([t, a]) => out.push(`<text x="${(R + 24) * Math.sin(a * D2R)}" y="${-(R + 24) * Math.cos(a * D2R)}" font-size="12" text-anchor="middle" dominant-baseline="middle">${t}</text>`));
   $("rose").innerHTML = out.join("");
   $("fieldTbl").innerHTML = `<thead><tr><th>Height</th><th class="n">Mean view</th><th class="n">Mean sea</th><th class="n">Best direction</th></tr></thead><tbody>${f.heights.map(z => { const rz = f.rose[z]; let bi = 0; rz.quality.forEach((v, i) => { if (v > rz.quality[bi]) bi = i; }); return `<tr><td class="n">${z} m</td><td class="n">${fmt(mean(Array.from(rz.quality)), 3)}</td><td class="n">${fmt(mean(Array.from(rz.water)), 3)}</td><td class="n">${f.az[bi]}° ${compass(f.az[bi])}</td></tr>`; }).join("")}</tbody>`;
-  setInfo("fieldInfo", f.arc ? `Premium sea arc ${fmt(f.arc[0], 0)}°–${fmt(f.arc[1], 0)}° (${arcWidth(f.arc)}° wide) at 100 m. Sea view opens at ${f.opening != null ? f.opening + " m" : "above 100 m"}.` : "No direction has a clear sea view from the envelope up to 100 m.");
+  setInfo("fieldInfo", f.arc ? `Main view arc (sea or skyline) ${fmt(f.arc[0], 0)}°–${fmt(f.arc[1], 0)}° (${arcWidth(f.arc)}° wide) at 100 m. The view opens at ${f.opening != null ? f.opening + " m" : "above 100 m"}.` : "No direction has a clear sea view from the envelope up to 100 m.");
 }
 function classBar(m) { const t = Math.max(m.units, 1); return `<div class="bar" title="${m.premium} premium · ${m.good} good · ${m.neutral} neutral · ${m.compromised} compromised">${["premium", "good", "neutral", "compromised"].map(c => `<i style="width:${100 * m[c] / t}%;background:var(--${c})"></i>`).join("")}</div>`; }
 function renderOptions() {
@@ -557,12 +558,14 @@ async function boot() {
   $("envYes").addEventListener("click", () => { st.isEnv = true; pressEnv(); recomputeEnv(); });
   $("envNo").addEventListener("click", () => { st.isEnv = false; pressEnv(); recomputeEnv(); setTab("t-site"); setZoom("plot"); });
   $("btnRun").addEventListener("click", runSearch);
+  const modeUI = () => { const hand = $("searchMode").value === "hand"; $("typos").hidden = !hand; document.querySelectorAll("[data-preset]").forEach(b => b.closest(".row").hidden = !hand); $("presetInfo").hidden = !hand; $("tokKWrap").hidden = hand; $("rots").closest("label").hidden = !hand; };
+  $("searchMode").addEventListener("change", modeUI); modeUI();
   if (UXB) { // search method as described cards instead of a dropdown
     const sel = $("searchMode"), wrap = document.createElement("div"); wrap.className = "modecards"; wrap.setAttribute("role", "radiogroup"); wrap.setAttribute("aria-label", "Search method");
     const DESC = { hand: ["Choose shapes myself", "Tick tower shapes and sizes below; every combination is tested."], library: ["Best from 540 known towers", "Screens a library of towers modelled on built precedents and tests the best few."], generative: ["Invent new towers", "Composes new towers floor by floor from moves that worked on similar sites."], hybrid: ["Invent, tuned by architects", "Like Invent, weighted by 500 architects' critiques."] };
     wrap.innerHTML = [...sel.options].map(o => `<button type="button" class="modecard" role="radio" aria-checked="${o.selected}" data-v="${o.value}"><b>${DESC[o.value][0]}</b><span>${DESC[o.value][1]}</span></button>`).join("");
     sel.closest("label").hidden = true; sel.closest("label").after(wrap);
-    wrap.addEventListener("click", e => { const b = e.target.closest(".modecard"); if (!b) return; sel.value = b.dataset.v; wrap.querySelectorAll(".modecard").forEach(x => x.setAttribute("aria-checked", String(x === b))); }); }
+    wrap.addEventListener("click", e => { const b = e.target.closest(".modecard"); if (!b) return; sel.value = b.dataset.v; sel.dispatchEvent(new Event("change")); wrap.querySelectorAll(".modecard").forEach(x => x.setAttribute("aria-checked", String(x === b))); }); }
   document.querySelectorAll("[data-fb]").forEach(b => b.addEventListener("click", () => { const c = st.cone, ev = st.sel; if (!c || !ev) return;
     const ll = st.anchor ? GEO.toLatLon(c.x, c.y, st.anchor) : null;
     st.feedback.push({ at: new Date().toISOString(), verdict: b.dataset.fb, note: $("fbNote").value.slice(0, 300), latlon: ll && ll.map(v => +v.toFixed(6)), local_xy: [+c.x.toFixed(1), +c.y.toFixed(1)], eye_m: +c.z.toFixed(1), facing_deg: Math.round(c.az), predicted: { sea_share: +c.cone.water.toFixed(3), quality: +c.cone.quality.toFixed(3) }, option: ev.id });
