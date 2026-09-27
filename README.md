@@ -93,7 +93,10 @@ DXF / map pin ─► normalised geometry ─► "is this the buildable envelope?
 | 10 | Multi-objective formulation | [docs/spec/09_optimization_formulation.md](docs/spec/09_optimization_formulation.md) |
 | 11 | Software architecture | [docs/spec/10_architecture.md](docs/spec/10_architecture.md) |
 | 12 | Phased roadmap | [docs/spec/11_roadmap.md](docs/spec/11_roadmap.md) |
-| 13 | Repository structure | below |
+| 13 | Typology tokens, open vector dataset, deterministic / probabilistic / hybrid systems | [docs/spec/13_typology_tokens.md](docs/spec/13_typology_tokens.md) |
+| 14 | 500-architect image-only study (three blind rounds) | [docs/spec/14_architect_study.md](docs/spec/14_architect_study.md) |
+| 15 | UX study (four rounds of 50 designers, A/B tests) | [docs/spec/15_ux_study.md](docs/spec/15_ux_study.md) |
+| 16 | Repository structure | below |
 
 ## Repository structure
 
@@ -104,7 +107,9 @@ data/
   registry/         data_sources.yaml (source, URL, access date, licence, reliability, transformation)
   rules/            rules.yaml — single source of truth for every threshold (hard/soft/commercial)
   synthetic/        synthetic_coastal_site.dxf (fictitious)
-docs/spec/          01–11 specification documents
+docs/spec/          01–15 specification documents; docs/research/architects_geometry.md (geometry strategies of 20+ practices)
+tools/study/        architect study pipeline (sites, optimiser, renders, panels, analysis, weights, appeal model)
+web/                static web app (see web/README.md)
 src/viewtower/
   geometry/         dxf_io.py (DXF in/out, units, layers), site.py (envelope, setbacks, frames)
   context/          scene.py (context model → 2.5-D raster)

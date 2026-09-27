@@ -33,6 +33,8 @@ Status: ✅ done in this repository (v0.1) · 🟡 partial · ⬜ not started
 ## Phase 4 — Optimisation
 - ✅ Deterministic enumeration, hard-rule filter with reasons, Pareto sort, presentation order
 - ⬜ Deterministic pattern-search refinement
+- ✅ Typology tokens (540-typology library), open facade-segment model, deterministic / probabilistic / hybrid search tuned by 1,824 architect critiques (13, 14)
+- ✅ Several towers per site (24 m separation, splay), New York and London contexts with skyline views
 - ✅ Ranking on value minus construction cost (height-band cost factors); adaptive view-check refinement
 
 ## Phase 5 — Economic model
@@ -53,5 +55,6 @@ Status: ✅ done in this repository (v0.1) · 🟡 partial · ⬜ not started
 - ⬜ Compare generated typologies with precedents where public geometry allows (Cayan twist, 432 Park)
 - ✅ Robustness audit (fuzzed 728 geometry candidates, invalid inputs, concave plots) and fixes, see 12 §4
 - ✅ Two rounds of persona usability testing with A/B tests, see 12 §6
+- ✅ 500-architect image-only study, three blind rounds (14); four rounds of 50-designer UX review with A/B tests (15)
 - ⬜ Ground-truth view photos / buyer labels at known points (view feedback capture is in place)
 - ⬜ Height fusion (Google Open Buildings 2.5D, Overture, GHSL) and building coverage to 3 km
