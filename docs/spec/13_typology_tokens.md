@@ -70,9 +70,13 @@ signal and is reported by mean error rather than R².
   - The distribution is refitted to the top 15 % (cross-entropy method), 5 iterations × 60
     samples, seeded.
   - The best K distinct genomes that pass the hard rules are evaluated in full.
-- **Hybrid** (`hybrid` mode): the probabilistic generator with its objective weights and token priors
-  adjusted from the architects' image-only critiques (`web/data/hybrid_weights.json`, §6), seeded
-  with the deterministic winner.
+- **Hybrid** (`hybrid` mode, "Best of both"). Version 2, after two architect rounds:
+  - The two best library designs (deterministic) and the two best plain generated designs
+    (probabilistic) are evaluated in full, alongside designs generated under objective weights and
+    token priors learned from 1,824 image-only critiques (`web/data/hybrid_weights.json`).
+  - Near-equal best trade-offs (within 5 % on value) are then ordered by the architect-appeal model
+    (`TOK.appealPick`, `web/data/appeal_model.json`).
+  - See `docs/spec/14_architect_study.md` §5–7.
 
 All three finish with the same full ray-cast evaluation and the same ranking (best trade-offs, then
 zero compromised, then value after construction cost).
