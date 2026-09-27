@@ -206,5 +206,57 @@ Hybrid v2 lost. On the engine's own metrics it had been better than the round-1 
 - **App:** "Best of both" uses the v3 rule. When the rule changes the order, the design detail says so
   and gives the 70 % / 53 % evidence.
 
-## 9. Round 4: hybrid v3 vs the round-1 winner
-Appended when round 4 completes.
+## 9. Round 4: hybrid v3 vs the round-1 winner (456 architects, blind)
+Hybrid v3's designs were newly generated at 181 sites, taken from the deterministic system at 139 and
+from the probabilistic system at 136. At 161 sites it picked exactly the design the architect had
+preferred in round 1. On engine metrics it matches the round-1 winner: premium share 0.513 vs 0.511,
+compromised 19.0 % vs 19.6 %, value +7 %.
+
+| | Round-1 winner | Hybrid v3 | Equal |
+|---|---|---|---|
+| Preferred | 148 | 141 | 167 |
+| Overall rating | 5.85 | **5.90** | |
+| View capture | 5.86 | **5.93** | |
+| Massing / silhouette | 5.79 | **6.04** | |
+| Privacy / overlooking | **6.05** | 5.89 | |
+| Proportion | **6.70** | 6.54 | |
+| Constructability | **7.43** | 6.93 | |
+
+| Hybrid v3 showed… | Sites | Winner–hybrid–equal |
+|---|---|---|
+| exactly the round-1 winner (control) | 161 | 1–3–157 |
+| a **newly generated** design | 181 | 75–**102**–4 |
+| the design this architect rejected in round 1 | 112 | 72–34–6 |
+
+**By city (winner–hybrid–equal):** Lower Manhattan 26–33–36; Canary Wharf 28–33–29;
+City of London 33–29–31; Midtown 30–25–39; Dadar 31–21–32.
+
+## 10. What the four rounds show
+| Round | Comparison | Preferred | Overall rating |
+|---|---|---|---|
+| 1 | deterministic vs probabilistic | 239 – 162 (55 equal) | 5.85 vs 5.58 |
+| 2 | round-1 winner vs hybrid v1 | 205 – 198 (53 equal) | 5.97 vs 5.99 |
+| 3 | round-1 winner vs hybrid v2 | 206 – 129 (121 equal) | 6.06 vs 5.88 |
+| 4 | round-1 winner vs hybrid v3 | 148 – 141 (167 equal) | 5.85 vs **5.90** |
+
+- **The baseline is demanding.** The round-1 winner is each architect's own preferred design from
+  round 1, chosen with hindsight. The hybrid has no access to that choice.
+- **Where the hybrid now stands.** Hybrid v3 ties this baseline on preference, rates slightly higher
+  overall, and wins on massing and view capture.
+- **Where the gain is.** The new designs it invents beat the hindsight winner 102 to 75 (58 % of
+  decisive votes).
+- **Its remaining loss is a selection effect.** It sometimes shows an architect the design that same
+  architect already rejected. In real use there is no earlier rejection, and the choice goes to the
+  architect.
+- **Main lesson.** The engine's view and value numbers barely predict which design an architect
+  prefers: about 53 % pairwise, and Spearman 0.2–0.3 against view-capture ratings. A simple model of
+  visible form predicts it about 70 % of the time.
+- **What the app does with this.** It measures views with the engine, enforces the hard rules with the
+  engine, and uses architect appeal to choose among designs that are nearly equal on the numbers. It
+  explains every such choice.
+- **Remaining weakness: constructability.** Hybrid designs rated 6.93 vs 7.43, because invented towers
+  twist and shift more. The complexity weight rose from 0.05 to 0.23 across the rounds. A stronger
+  simplicity prior is the next step.
+
+All critiques: `data/study/critiques_r1.json` to `critiques_r4.json`. The architects are AI-simulated
+personas, and the results are a structured design review, not market research.
