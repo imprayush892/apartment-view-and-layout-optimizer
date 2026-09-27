@@ -31,7 +31,8 @@ for (const r of rows) for (const [sys, d] of Object.entries(r.bySys)) {
 const prior = {}; for (const [k, vs] of Object.entries(CATS)) { const base = 1 / vs.length, tot = Object.values(votes[k]).reduce((a, b) => a + Math.abs(b), 0) || 1; const raw = vs.map(v => Math.min(0.8, Math.max(0.03, base * (1 + 2 * votes[k][v] / tot)))); const s = raw.reduce((a, b) => a + b, 0); prior[k] = {}; vs.forEach((v, i) => prior[k][v] = +(raw[i] / s).toFixed(4)); }
 const scale = x => Math.max(-1, Math.min(1, x / Math.max(1, n / 4)));
 const numPrior = { size: [+(28 - 4 * scale(-num.size)).toFixed(2), 5], rate: [+Math.max(0.3, 1.2 + 0.8 * scale(num.rate)).toFixed(2), 0.8], top: [+(0.85 + 0.1 * scale(num.top)).toFixed(3), 0.12], rot: [0, +Math.max(8, 30 - 20 * scale(-num.rot)).toFixed(1)] };
-W.priv = +Math.min(0.7, W.priv + 0.4 * privLow / Math.max(1, n)).toFixed(3); // capped: the privacy predictor has little signal W.complexity = +Math.max(0.01, Math.min(0.3, W.complexity + 0.2 * consLow / Math.max(1, n))).toFixed(3);
+W.priv = +Math.min(0.7, W.priv + 0.4 * privLow / Math.max(1, n)).toFixed(3); // capped: the privacy predictor has little signal
+W.complexity = +Math.max(0.01, Math.min(0.3, W.complexity + 0.2 * consLow / Math.max(1, n))).toFixed(3);
 const towerSplay = splayN + (counts.splay_or_offset_to_avoid_facing || 0) > n * 0.1 ? 15 : 0; // enough architects asked towers not to face each other
 const out = { created: new Date().toISOString(), designsCritiqued: n, moveCounts: counts, prior, numPrior, W, towerSplay, rotationRefine: (counts.rotate_plate_to_outlook || 0) > n * 0.1, notes: "Derived from architects' image-only critiques; see docs/spec/14_architect_study.md" };
 fs.writeFileSync(path.join(DIR, "hybrid_weights.json"), JSON.stringify(out, null, 1)); fs.writeFileSync(path.join(__dirname, "..", "..", "web", "data", "hybrid_weights.json"), JSON.stringify(out, null, 1));
