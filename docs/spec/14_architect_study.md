@@ -115,48 +115,48 @@ The engine measures the view; architects judge the whole form (base, crown, prop
 
 A is the new default in all three.
 
-## 5. Round 2: hybrid vs the round-1 winner (420 architects, blind)
+## 5. Round 2: hybrid vs the round-1 winner (456 architects, blind)
 Each architect saw the hybrid next to the **round-1 winner** for their own site: whichever of the
 deterministic and probabilistic designs they themselves had preferred (`win1.json`). The round-1 winner
 is chosen with hindsight, using that architect's round-1 vote, so it is a demanding baseline. Labels were
-randomised (hybrid shown as A 241 times, B 239 times). 36 architects' panel results were incomplete.
+randomised (hybrid shown as A 241 times, B 239 times).
 
 | | Round-1 winner | Hybrid | Equal |
 |---|---|---|---|
-| Preferred | 187 | 185 | 48 |
-| Overall rating (1–10) | 5.96 | 6.00 | |
-| View capture | 6.01 | 5.98 | |
-| Privacy / overlooking | 6.14 | 6.12 | |
-| Massing / silhouette | 5.85 | **6.09** | |
-| Proportion | **6.74** | 6.52 | |
-| Context fit | 5.81 | 5.90 | |
-| Constructability | **7.48** | 7.12 | |
+| Preferred | 205 | 198 | 53 |
+| Overall rating (1–10) | 5.97 | 5.99 | |
+| View capture | 6.02 | 5.97 | |
+| Privacy / overlooking | 6.16 | 6.13 | |
+| Massing / silhouette | 5.86 | **6.08** | |
+| Proportion | **6.74** | 6.49 | |
+| Context fit | 5.82 | 5.88 | |
+| Constructability | **7.46** | 7.10 | |
 
-**By city (preferred winner–hybrid–equal):** Dadar 32–34–10; Lower Manhattan 41–41–6; Midtown 41–37–8;
-City of London 38–40–11; Canary Wharf 35–33–13.
+**By city (preferred winner–hybrid–equal):** Dadar 35–38–11; Lower Manhattan 45–44–6; Midtown 47–38–9;
+City of London 41–41–11; Canary Wharf 37–37–16.
 
 **Reading.** The hybrid, with no hindsight, matched the best-of-both chosen with hindsight. It won on
 massing and silhouette, and lost on proportion and constructability. Written reasons repeat these
 points: "B is prettier but stunted"; "A is honest and buildable, B is noise". Engine–architect agreement
-was again weak: Spearman 0.21–0.22 for view metrics vs view capture, 0.47 for compromised share vs
-privacy. The preferred design had more premium flats in 55 % of 309 decisive pairs.
+was again weak: Spearman 0.23 for view metrics vs view capture, 0.48 for compromised share vs
+privacy. The preferred design had more premium flats in 55.5 % of 337 decisive pairs.
 
 **Three faults found from round 2, fixed in hybrid v2:**
 1. The constructability → complexity-weight update in `feedback_to_weights.js` sat inside a code
-   comment and never ran. The complexity weight is now 0.21, up from 0.05.
+   comment and never ran. The complexity weight is now 0.22, up from 0.05.
 2. The hybrid fully evaluated only its first two feasible candidates. The deterministic seed was
    appended last, so it was rarely evaluated.
-3. "Taller" requests (83 in round 2, 90 in round 1) had no effect on the weights, and the appeal model
+3. "Taller" requests (87 in round 2, 90 in round 1) had no effect on the weights, and the appeal model
    had no height feature.
 
 ## 6. Hybrid v2
 - **Candidates:** per site, the deterministic winner, the probabilistic winner and the two best designs
-  generated under the round-1 + round-2 weights (`hybrid_weights_v2.json`, 1,752 critiqued designs) are
+  generated under the round-1 + round-2 weights (`hybrid_weights_v2.json`, 1,824 critiqued designs) are
   all evaluated in full.
 - **Ranking:** the usual engine ranking, then a **near-tie rule** (`TOK.appealPick`). Among best
   trade-offs within 5 % of the top option on sales value, 10 % on premium flats and +5 % of flats
   compromised, the one the appeal model rates highest goes first. The appeal model is refitted on both
-  rounds with a height feature: n = 1,752, cross-validated R² 0.165. In the study it is **cross-fitted**:
+  rounds with a height feature: n = 1,824, cross-validated R² 0.16. In the study it is **cross-fitted**:
   sites are split into 5 folds, and each site is scored by the model trained without its fold.
 - **Rotation:** the ±12° rotation search is kept only when the rotated design is no worse on premium,
   compromised or value (within 2 %).

@@ -1,68 +1,68 @@
 {
  "version": 2,
- "created": "2026-09-27T01:13:10.785Z",
- "designsCritiqued": 1752,
+ "created": "2026-09-27T01:16:35.545Z",
+ "designsCritiqued": 1824,
  "moveCounts": {
-  "splay_or_offset_to_avoid_facing": 281,
-  "podium_or_base_changes": 445,
-  "terrace_toward_outlook": 310,
-  "spread_towers_apart": 40,
-  "crown_or_top_articulation": 304,
-  "taper_more": 229,
-  "corner_gardens_or_cutouts": 461,
-  "chamfer_or_round_corners": 187,
-  "rotate_plate_to_outlook": 409,
-  "stagger_or_cantilever": 187,
-  "twist_more": 142,
-  "simplify_for_constructability": 124,
-  "more_slender": 95,
-  "taller": 173,
-  "lower": 32,
-  "add_variety_between_floors": 103,
-  "fewer_towers": 44,
-  "lean_toward_outlook": 55,
+  "splay_or_offset_to_avoid_facing": 292,
+  "podium_or_base_changes": 463,
+  "terrace_toward_outlook": 321,
+  "spread_towers_apart": 44,
+  "crown_or_top_articulation": 317,
+  "taper_more": 240,
+  "corner_gardens_or_cutouts": 475,
+  "chamfer_or_round_corners": 195,
+  "rotate_plate_to_outlook": 423,
+  "stagger_or_cantilever": 191,
+  "twist_more": 146,
+  "simplify_for_constructability": 127,
+  "more_slender": 101,
+  "taller": 177,
+  "lower": 34,
+  "add_variety_between_floors": 106,
+  "fewer_towers": 46,
+  "lean_toward_outlook": 58,
   "none": 4,
-  "twist_less_or_remove": 106,
+  "twist_less_or_remove": 109,
   "terrace_away": 11,
-  "remove_stagger": 13,
-  "less_slender_or_wider": 45,
-  "taper_less": 22,
+  "remove_stagger": 15,
+  "less_slender_or_wider": 47,
+  "taper_less": 23,
   "split_into_more_towers": 6
  },
  "prior": {
   "base": {
    "square": 0.0909,
    "rectangular": 0.0909,
-   "chamfered": 0.1388,
-   "curved": 0.1388,
+   "chamfered": 0.1389,
+   "curved": 0.1389,
    "diamond": 0.0909,
-   "triangular": 0.1278,
-   "y_shaped": 0.1401,
+   "triangular": 0.1277,
+   "y_shaped": 0.1399,
    "cross": 0.0909,
    "t_shaped": 0.0909
   },
   "twist": {
-   "none": 0.3103,
-   "linear": 0.2931,
+   "none": 0.3098,
+   "linear": 0.2934,
    "band": 0.1667,
-   "ease": 0.2299
+   "ease": 0.2301
   },
   "taper": {
-   "none": 0.187,
-   "linear": 0.4213,
-   "frustum": 0.225,
+   "none": 0.1875,
+   "linear": 0.4217,
+   "frustum": 0.2241,
    "bulge": 0.1667
   },
   "shift": {
-   "none": 0.1862,
-   "stagger": 0.258,
-   "lean": 0.1754,
+   "none": 0.1872,
+   "stagger": 0.257,
+   "lean": 0.176,
    "wave": 0.1429,
-   "pixel": 0.2376
+   "pixel": 0.237
   },
   "terrace": {
-   "none": 0.4011,
-   "view": 0.5989
+   "none": 0.4006,
+   "view": 0.5994
   },
   "cut": {
    "none": 0.3846,
@@ -93,14 +93,14 @@
   ],
   "rot": [
    0,
-   22.1
+   22.2
   ]
  },
  "W": {
   "q": 1,
   "prize": 0.6,
   "priv": 0.7,
-  "complexity": 0.213,
+  "complexity": 0.22,
   "appeal": 0.3
  },
  "towerSplay": 15,

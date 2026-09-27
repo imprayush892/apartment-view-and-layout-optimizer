@@ -1,106 +1,106 @@
 {
  "summary": {
-  "architects": 420,
+  "architects": 456,
   "preference": {
-   "win1": 187,
-   "hyb": 185,
-   "equal": 48
+   "win1": 205,
+   "hyb": 198,
+   "equal": 53
   },
   "ratings": {
    "win1": {
-    "overall": 5.96,
-    "view_capture": 6.01,
-    "privacy_overlooking": 6.14,
-    "massing_silhouette": 5.85,
+    "overall": 5.97,
+    "view_capture": 6.02,
+    "privacy_overlooking": 6.16,
+    "massing_silhouette": 5.86,
     "proportion": 6.74,
-    "context_fit": 5.81,
-    "constructability": 7.48
+    "context_fit": 5.82,
+    "constructability": 7.46
    },
    "hyb": {
-    "overall": 6,
-    "view_capture": 5.98,
-    "privacy_overlooking": 6.12,
-    "massing_silhouette": 6.09,
-    "proportion": 6.52,
-    "context_fit": 5.9,
-    "constructability": 7.12
+    "overall": 5.99,
+    "view_capture": 5.97,
+    "privacy_overlooking": 6.13,
+    "massing_silhouette": 6.08,
+    "proportion": 6.49,
+    "context_fit": 5.88,
+    "constructability": 7.1
    }
   },
   "byCity": {
    "dadar": {
-    "n": 76,
-    "win1": 32,
-    "hyb": 34,
-    "equal": 10,
-    "win1_overall": 5.96,
-    "hyb_overall": 6.07
+    "n": 84,
+    "win1": 35,
+    "hyb": 38,
+    "equal": 11,
+    "win1_overall": 5.99,
+    "hyb_overall": 6.08
    },
    "ldn_city": {
-    "n": 89,
-    "win1": 38,
-    "hyb": 40,
-    "equal": 11,
-    "win1_overall": 6,
-    "hyb_overall": 5.98
-   },
-   "nyc_midtown": {
-    "n": 86,
-    "win1": 41,
-    "hyb": 37,
-    "equal": 8,
-    "win1_overall": 5.98,
-    "hyb_overall": 5.99
-   },
-   "ldn_canary": {
-    "n": 81,
-    "win1": 35,
-    "hyb": 33,
-    "equal": 13,
-    "win1_overall": 5.91,
-    "hyb_overall": 5.99
-   },
-   "nyc_lower": {
-    "n": 88,
+    "n": 93,
     "win1": 41,
     "hyb": 41,
+    "equal": 11,
+    "win1_overall": 6.03,
+    "hyb_overall": 5.97
+   },
+   "nyc_midtown": {
+    "n": 94,
+    "win1": 47,
+    "hyb": 38,
+    "equal": 9,
+    "win1_overall": 5.97,
+    "hyb_overall": 5.93
+   },
+   "ldn_canary": {
+    "n": 90,
+    "win1": 37,
+    "hyb": 37,
+    "equal": 16,
+    "win1_overall": 5.9,
+    "hyb_overall": 5.97
+   },
+   "nyc_lower": {
+    "n": 95,
+    "win1": 45,
+    "hyb": 44,
     "equal": 6,
-    "win1_overall": 5.93,
-    "hyb_overall": 6
+    "win1_overall": 5.96,
+    "hyb_overall": 6.01
    }
   },
   "topMoves": {
-   "podium_or_base_changes": 238,
-   "corner_gardens_or_cutouts": 215,
-   "rotate_plate_to_outlook": 188,
-   "terrace_toward_outlook": 143,
-   "crown_or_top_articulation": 140,
-   "splay_or_offset_to_avoid_facing": 126,
-   "taper_more": 102,
-   "stagger_or_cantilever": 97,
-   "taller": 83,
-   "chamfer_or_round_corners": 79,
-   "simplify_for_constructability": 68,
-   "twist_more": 59,
-   "add_variety_between_floors": 51,
-   "twist_less_or_remove": 50,
-   "more_slender": 46,
-   "lean_toward_outlook": 29,
-   "spread_towers_apart": 18,
-   "lower": 17,
-   "less_slender_or_wider": 16,
-   "taper_less": 14,
-   "fewer_towers": 14,
-   "remove_stagger": 6,
+   "podium_or_base_changes": 256,
+   "corner_gardens_or_cutouts": 229,
+   "rotate_plate_to_outlook": 202,
+   "terrace_toward_outlook": 154,
+   "crown_or_top_articulation": 153,
+   "splay_or_offset_to_avoid_facing": 137,
+   "taper_more": 113,
+   "stagger_or_cantilever": 101,
+   "taller": 87,
+   "chamfer_or_round_corners": 87,
+   "simplify_for_constructability": 71,
+   "twist_more": 63,
+   "add_variety_between_floors": 54,
+   "twist_less_or_remove": 53,
+   "more_slender": 52,
+   "lean_toward_outlook": 32,
+   "spread_towers_apart": 22,
+   "lower": 19,
+   "less_slender_or_wider": 18,
+   "fewer_towers": 16,
+   "taper_less": 15,
+   "remove_stagger": 8,
    "terrace_away": 4,
    "none": 3,
    "split_into_more_towers": 2
   },
   "agreement": {
-   "spearman_livingView_vs_view_capture": 0.212,
-   "spearman_premiumShare_vs_view_capture": 0.219,
-   "spearman_compromisedShare_vs_privacy_overlooking": 0.471,
-   "preferredHasMorePremium": 0.55,
-   "decisivePairs": 309
+   "spearman_livingView_vs_view_capture": 0.228,
+   "spearman_premiumShare_vs_view_capture": 0.228,
+   "spearman_compromisedShare_vs_privacy_overlooking": 0.478,
+   "preferredHasMorePremium": 0.555,
+   "decisivePairs": 337
   }
  },
  "rows": [
@@ -42576,6 +42576,3563 @@
       "height": 154.8,
       "slender": 6.4,
       "fsiUtil": 0.987
+     }
+    }
+   }
+  },
+  {
+   "id": "A050",
+   "city": "ldn_canary",
+   "influences": [
+    "SOM",
+    "Rafael Viñoly"
+   ],
+   "pref": "hyb",
+   "reason": "The rotated plate at least begins to register the river diagonal. B is inert.",
+   "quote": "A has learned to turn its head. Now it needs to learn to speak.",
+   "bySys": {
+    "hyb": {
+     "overall": 5,
+     "view_capture": 5,
+     "privacy_overlooking": 8,
+     "massing_silhouette": 4,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "Single square extrusion, rotated about 12 degrees and held there with barely any variation. The rotation doesn't commit to the Thames to the north, and at around 215 m the silhouette is mute next to the Canary Wharf blocks. The flats on the south face look back at the office cluster, so the views are uneven.",
+     "floor_changes": [
+      {
+       "floors": "40+",
+       "move": "rotate_plate_to_outlook",
+       "direction": "toward the Thames bend to the N/NE",
+       "amount": "another 15 degrees, progressively",
+       "why": "give the upper flats a diagonal to the river"
+      },
+      {
+       "floors": "top 6 floors",
+       "move": "crown_or_top_articulation",
+       "direction": "sloped toward the river",
+       "amount": "one 6-floor stepped chamfer",
+       "why": "skyline identity"
+      },
+      {
+       "floors": "6-58",
+       "move": "chamfer_or_round_corners",
+       "direction": "all four corners",
+       "amount": "3 m chamfers",
+       "why": "corner flats get a second aspect, so views are fairer across the floor"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 106,
+      "premium": 77,
+      "good": 29,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.7264,
+      "livingView": 0.6925,
+      "gdvCr": 1531.2,
+      "marginCr": 881.5,
+      "efficiency": 0.7137,
+      "structural": 0.822,
+      "height": 212.4,
+      "slender": 8.85,
+      "fsiUtil": 0.396
+     }
+    },
+    "win1": {
+     "overall": 4,
+     "view_capture": 4,
+     "privacy_overlooking": 8,
+     "massing_silhouette": 3,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 9,
+     "whats_wrong": "An orthogonal square box with only a slight swell in the mid floors. Nothing is aimed at the river, and the flats on each face are simply stuck with the view that face happens to get.",
+     "floor_changes": [
+      {
+       "floors": "6-58",
+       "move": "twist_more",
+       "direction": "clockwise toward the N river",
+       "amount": "about 0.5 degrees per floor",
+       "why": "views are shared out and the tower gains a sculptural reading"
+      },
+      {
+       "floors": "45+",
+       "move": "taper_more",
+       "direction": "all sides",
+       "amount": "1 m per 5 floors",
+       "why": "slender top"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 106,
+      "premium": 83,
+      "good": 23,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.783,
+      "livingView": 0.6556,
+      "gdvCr": 1497,
+      "marginCr": 846.9,
+      "efficiency": 0.7145,
+      "structural": 0.826,
+      "height": 212.4,
+      "slender": 8.85,
+      "fsiUtil": 0.396
+     }
+    }
+   }
+  },
+  {
+   "id": "A104",
+   "city": "ldn_city",
+   "influences": [
+    "MAD Architects",
+    "B.V. Doshi"
+   ],
+   "pref": "hyb",
+   "reason": "A reads as a sculpted family on the City skyline, and its inefficiency can be tuned.",
+   "quote": "B is a spreadsheet. A is a landscape, even if it wastes a little floor.",
+   "bySys": {
+    "hyb": {
+     "overall": 7,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 8,
+     "proportion": 7,
+     "context_fit": 5,
+     "constructability": 5,
+     "whats_wrong": "The undulating plates, pinched in the middle floors, give the MAD-like organic silhouette I want. But the pinch costs plate efficiency, and the central tower sits within about 30 m of all three others, so the mid-level flats look straight into each other. The Thames to the south is barely addressed.",
+     "floor_changes": [
+      {
+       "floors": "16-36",
+       "move": "less_slender_or_wider",
+       "direction": "the central tower",
+       "amount": "keep the plate within 10% of the base area",
+       "why": "plan efficiency"
+      },
+      {
+       "floors": "all",
+       "move": "splay_or_offset_to_avoid_facing",
+       "direction": "central tower shifted NE, away from the SW tower",
+       "amount": "8 m",
+       "why": "stops flats looking into each other across the site"
+      },
+      {
+       "floors": "30+",
+       "move": "terrace_toward_outlook",
+       "direction": "south to the Thames",
+       "amount": "2 m every 3 floors",
+       "why": "river-facing sky gardens, with deep verandah shading"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 328,
+      "premium": 15,
+      "good": 305,
+      "neutral": 8,
+      "compromised": 0,
+      "premiumShare": 0.0457,
+      "livingView": 0.5073,
+      "gdvCr": 1910,
+      "marginCr": 756.6,
+      "efficiency": 0.5894,
+      "structural": 0.704,
+      "height": 169.20000000000002,
+      "slender": 8,
+      "fsiUtil": 0.719
+     }
+    },
+    "win1": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 5,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "Four uniform rounded-square extrusions: efficient but anonymous. The same close spacing to the central tower means privacy suffers here too.",
+     "floor_changes": [
+      {
+       "floors": "20-40",
+       "move": "add_variety_between_floors",
+       "direction": "alternate slab edges",
+       "amount": "1.5 m oscillation",
+       "why": "some identity without losing the efficiency"
+      },
+      {
+       "floors": "all",
+       "move": "fewer_towers",
+       "direction": "drop the central tower",
+       "amount": "4 to 3, with the remaining towers taller",
+       "why": "opens up the court and the views"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 320,
+      "premium": 14,
+      "good": 297,
+      "neutral": 9,
+      "compromised": 0,
+      "premiumShare": 0.0437,
+      "livingView": 0.5016,
+      "gdvCr": 3034.3,
+      "marginCr": 1574.8,
+      "efficiency": 0.6747,
+      "structural": 0.392,
+      "height": 165.6,
+      "slender": 6.78,
+      "fsiUtil": 0.976
+     }
+    }
+   }
+  },
+  {
+   "id": "A160",
+   "city": "ldn_canary",
+   "influences": [
+    "Renzo Piano",
+    "Heatherwick Studio"
+   ],
+   "pref": "hyb",
+   "reason": "A is calmer and closer to the context, and it fits the triangular site better.",
+   "quote": "The twist in B is a costume. A is closer to a building that belongs there.",
+   "bySys": {
+    "hyb": {
+     "overall": 6,
+     "view_capture": 7,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 7,
+     "whats_wrong": "The chamfered hexagon is steady and fills the plate well, but it barely changes up the tower. It presents a broad face to the office blocks close by on the west, and the dock and river to the NE get no special gesture.",
+     "floor_changes": [
+      {
+       "floors": "14-37",
+       "move": "rotate_plate_to_outlook",
+       "direction": "toward the river to the NE",
+       "amount": "about 15 degrees",
+       "why": "the long face gets the water"
+      },
+      {
+       "floors": "6-20",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "west face toward the neighbouring towers",
+       "amount": "one bay deep",
+       "why": "a privacy screen and buffer zone"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 64,
+      "premium": 33,
+      "good": 7,
+      "neutral": 0,
+      "compromised": 24,
+      "premiumShare": 0.5156,
+      "livingView": 0.573,
+      "gdvCr": 912.2,
+      "marginCr": 456.6,
+      "efficiency": 0.7365,
+      "structural": 0.765,
+      "height": 136.8,
+      "slender": 5.6,
+      "fsiUtil": 0.703
+     }
+    },
+    "win1": {
+     "overall": 5,
+     "view_capture": 6,
+     "privacy_overlooking": 5,
+     "massing_silhouette": 6,
+     "proportion": 5,
+     "context_fit": 5,
+     "constructability": 6,
+     "whats_wrong": "A square that rotates gradually, which gives a lively stepped profile. But the plate is smaller, it wastes the triangular envelope, and the rotating corners swing toward the neighbouring towers to the W.",
+     "floor_changes": [
+      {
+       "floors": "22+",
+       "move": "twist_less_or_remove",
+       "direction": "hold the rotation facing NE",
+       "amount": "cap it at 20 degrees",
+       "why": "a stable river outlook, without corners jutting toward the neighbours"
+      },
+      {
+       "floors": "6-14",
+       "move": "podium_or_base_changes",
+       "direction": "fill the triangle's south corner",
+       "amount": "a low 4-storey plinth",
+       "why": "meets the street edge in a more contextual way"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 64,
+      "premium": 22,
+      "good": 8,
+      "neutral": 0,
+      "compromised": 34,
+      "premiumShare": 0.3438,
+      "livingView": 0.5609,
+      "gdvCr": 545.3,
+      "marginCr": 241.6,
+      "efficiency": 0.6738,
+      "structural": 0.477,
+      "height": 136.8,
+      "slender": 5.97,
+      "fsiUtil": 0.481
+     }
+    }
+   }
+  },
+  {
+   "id": "A215",
+   "city": "ldn_canary",
+   "influences": [
+    "Jean Nouvel",
+    "Charles Correa"
+   ],
+   "pref": "equal",
+   "reason": "Both fail the street and neither does anything about sun. A's slabs are cleaner; B's podium is worse.",
+   "quote": "Neither one bothers with shade or the pavement. Start again at ground level.",
+   "bySys": {
+    "win1": {
+     "overall": 5,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 5,
+     "proportion": 7,
+     "context_fit": 5,
+     "constructability": 8,
+     "whats_wrong": "Four identical rectangular slabs, all turned 45 degrees, parallel to one another, and the same from the ground to the top. Parallel long faces mean flats look straight across into each other. There is no shading and no public realm at the base: the towers just land on a plaza.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "splay_or_offset_to_avoid_facing",
+       "direction": "turn each slab so its long face points away from the central slab",
+       "amount": "20 degrees",
+       "why": "stops the long faces staring across at each other"
+      },
+      {
+       "floors": "1-5",
+       "move": "podium_or_base_changes",
+       "direction": "along the street edges",
+       "amount": "a shaded colonnade 6 m deep",
+       "why": "street life, in a Correa spirit"
+      },
+      {
+       "floors": "all",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "SW faces",
+       "amount": "a double-height loggia every 5 floors",
+       "why": "solar shading and outdoor rooms"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 472,
+      "premium": 144,
+      "good": 297,
+      "neutral": 4,
+      "compromised": 27,
+      "premiumShare": 0.3051,
+      "livingView": 0.5755,
+      "gdvCr": 3952.2,
+      "marginCr": 1976.8,
+      "efficiency": 0.6431,
+      "structural": 0.607,
+      "height": 234,
+      "slender": 14.13,
+      "fsiUtil": 0.714
+     }
+    },
+    "hyb": {
+     "overall": 5,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 5,
+     "proportion": 6,
+     "context_fit": 4,
+     "constructability": 7,
+     "whats_wrong": "Square towers on a big podium that fills the whole site. The podium kills the street, and the towers lean inconsistently and to no purpose.",
+     "floor_changes": [
+      {
+       "floors": "1-6",
+       "move": "podium_or_base_changes",
+       "direction": "carve a public route N-S through it",
+       "amount": "a 12 m wide passage",
+       "why": "public realm"
+      },
+      {
+       "floors": "all",
+       "move": "remove_stagger",
+       "direction": "make the towers vertical",
+       "amount": "n/a",
+       "why": "the lean does nothing for the view"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 472,
+      "premium": 169,
+      "good": 268,
+      "neutral": 8,
+      "compromised": 27,
+      "premiumShare": 0.3581,
+      "livingView": 0.5912,
+      "gdvCr": 4174.3,
+      "marginCr": -2981.6,
+      "efficiency": 0.6482,
+      "structural": 0.825,
+      "height": 234,
+      "slender": 10.99,
+      "fsiUtil": 0.732
+     }
+    }
+   }
+  },
+  {
+   "id": "A270",
+   "city": "ldn_canary",
+   "influences": [
+    "Moshe Safdie",
+    "Rafael Viñoly"
+   ],
+   "pref": "equal",
+   "reason": "The two are practically twins, and neither gives any flat a garden.",
+   "quote": "Every family deserves a garden in the sky. Here nobody gets one.",
+   "bySys": {
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 8,
+     "whats_wrong": "Four square extrusions scattered across the site, slightly rotated, with no outdoor space per flat. This is nothing like Habitat: sealed boxes. The central tower sits between the others and blocks them.",
+     "floor_changes": [
+      {
+       "floors": "17+",
+       "move": "terrace_toward_outlook",
+       "direction": "toward the river to the N",
+       "amount": "3 m every 4 floors",
+       "why": "sky gardens for every flat"
+      },
+      {
+       "floors": "6-28",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "every corner",
+       "amount": "a 4x4 m garden",
+       "why": "outdoor space"
+      },
+      {
+       "floors": "all",
+       "move": "lower",
+       "direction": "the central tower",
+       "amount": "30 m lower",
+       "why": "the other towers see over it"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 360,
+      "premium": 58,
+      "good": 286,
+      "neutral": 16,
+      "compromised": 0,
+      "premiumShare": 0.1611,
+      "livingView": 0.5528,
+      "gdvCr": 2353.6,
+      "marginCr": 1122,
+      "efficiency": 0.6078,
+      "structural": 0.459,
+      "height": 183.6,
+      "slender": 9.21,
+      "fsiUtil": 0.66
+     }
+    },
+    "win1": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 7,
+     "whats_wrong": "Almost identical to A, with the rotation drifting a little more per floor. It still has no terraces, and the towers are still clustered on the NW side of the site.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "spread_towers_apart",
+       "direction": "shift the NW towers south-east",
+       "amount": "10 m",
+       "why": "better separation"
+      },
+      {
+       "floors": "30+",
+       "move": "stagger_or_cantilever",
+       "direction": "toward the N",
+       "amount": "2 m boxes on alternate floors",
+       "why": "hanging gardens"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 360,
+      "premium": 75,
+      "good": 275,
+      "neutral": 10,
+      "compromised": 0,
+      "premiumShare": 0.2083,
+      "livingView": 0.5374,
+      "gdvCr": 2330,
+      "marginCr": 1097.5,
+      "efficiency": 0.6078,
+      "structural": 0.463,
+      "height": 183.6,
+      "slender": 9.21,
+      "fsiUtil": 0.66
+     }
+    }
+   }
+  },
+  {
+   "id": "A325",
+   "city": "ldn_canary",
+   "influences": [
+    "MVRDV",
+    "Studio Gang"
+   ],
+   "pref": "hyb",
+   "reason": "B is more repeatable and easier to refine. A's jitter isn't systematic.",
+   "quote": "I'd rather start from B's discipline and add one good move than tame A's noise.",
+   "bySys": {
+    "win1": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 7,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 6,
+     "whats_wrong": "The stacked, slightly offset boxes have an MVRDV energy, but the jitter is random rather than modular, which is costly. The two towers keep a decent distance apart. The base gives nothing to the street.",
+     "floor_changes": [
+      {
+       "floors": "6-58",
+       "move": "simplify_for_constructability",
+       "direction": "regularise the offsets",
+       "amount": "a 3-floor module shifted 1.5 m",
+       "why": "repetition"
+      },
+      {
+       "floors": "1-3",
+       "move": "podium_or_base_changes",
+       "direction": "toward the park to the E",
+       "amount": "an open ground-floor pavilion",
+       "why": "public realm"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 212,
+      "premium": 111,
+      "good": 101,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.5236,
+      "livingView": 0.6038,
+      "gdvCr": 1488.4,
+      "marginCr": 674,
+      "efficiency": 0.6163,
+      "structural": 0.793,
+      "height": 212.4,
+      "slender": 10.55,
+      "fsiUtil": 0.51
+     }
+    },
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 5,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 9,
+     "whats_wrong": "Two clean diamond-set squares: very buildable but plain. The 45-degree set makes the corners work well.",
+     "floor_changes": [
+      {
+       "floors": "40+",
+       "move": "terrace_toward_outlook",
+       "direction": "toward the Thames to the N",
+       "amount": "3 m every 6 floors",
+       "why": "view terraces"
+      },
+      {
+       "floors": "1-3",
+       "move": "podium_or_base_changes",
+       "direction": "a pavilion linking the two towers",
+       "amount": "2 floors",
+       "why": "street activation"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 212,
+      "premium": 117,
+      "good": 95,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.5519,
+      "livingView": 0.6109,
+      "gdvCr": 2120.7,
+      "marginCr": 1105.3,
+      "efficiency": 0.667,
+      "structural": 0.824,
+      "height": 212.4,
+      "slender": 10.01,
+      "fsiUtil": 0.654
+     }
+    }
+   }
+  },
+  {
+   "id": "A383",
+   "city": "nyc_midtown",
+   "influences": [
+    "Studio Gang",
+    "KPF"
+   ],
+   "pref": "win1",
+   "reason": "A is taller, and its rotation gives it some identity.",
+   "quote": "In Midtown, if you don't go up, you're looking at someone else's air conditioners.",
+   "bySys": {
+    "win1": {
+     "overall": 5,
+     "view_capture": 5,
+     "privacy_overlooking": 4,
+     "massing_silhouette": 5,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 7,
+     "whats_wrong": "A square plate that rotates gently up only about 120 m, buried in Midtown next to much bigger towers. It uses only half of the roughly 270 m allowance, and the lower floors stare into party walls.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "taller",
+       "direction": "vertical",
+       "amount": "to about 250 m",
+       "why": "clear the neighbours for views over the grid"
+      },
+      {
+       "floors": "20+",
+       "move": "rotate_plate_to_outlook",
+       "direction": "diagonal to the avenue axes",
+       "amount": "25 degrees",
+       "why": "views down the streets"
+      },
+      {
+       "floors": "all",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "S and W faces",
+       "amount": "shading fins 1 m deep",
+       "why": "sun control"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 56,
+      "premium": 0,
+      "good": 0,
+      "neutral": 0,
+      "compromised": 56,
+      "premiumShare": 0,
+      "livingView": 0.3009,
+      "gdvCr": 363,
+      "marginCr": 90.8,
+      "efficiency": 0.6664,
+      "structural": 0.7,
+      "height": 122.4,
+      "slender": 5.23,
+      "fsiUtil": 0.962
+     }
+    },
+    "hyb": {
+     "overall": 4,
+     "view_capture": 4,
+     "privacy_overlooking": 4,
+     "massing_silhouette": 4,
+     "proportion": 5,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "A chamfered squat block about 100 m tall, even lower than A. It is hemmed in by neighbours, has no identity, and does no shading.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "more_slender",
+       "direction": "shrink the plate",
+       "amount": "20%, and add height",
+       "why": "proportion and views"
+      },
+      {
+       "floors": "top 10",
+       "move": "crown_or_top_articulation",
+       "direction": "a sculpted crown",
+       "amount": "10 floors",
+       "why": "skyline presence"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 44,
+      "premium": 0,
+      "good": 0,
+      "neutral": 0,
+      "compromised": 44,
+      "premiumShare": 0,
+      "livingView": 0.2786,
+      "gdvCr": 389.5,
+      "marginCr": 131.2,
+      "efficiency": 0.7133,
+      "structural": 0.385,
+      "height": 100.8,
+      "slender": 3.86,
+      "fsiUtil": 0.978
+     }
+    }
+   }
+  },
+  {
+   "id": "A435",
+   "city": "ldn_canary",
+   "influences": [
+    "Rahul Mehrotra",
+    "Renzo Piano"
+   ],
+   "pref": "win1",
+   "reason": "A's triangle is more assertive and aims at the view, though B's plan is more efficient.",
+   "quote": "The triangle points at something. The pebble just sits there.",
+   "bySys": {
+    "win1": {
+     "overall": 6,
+     "view_capture": 7,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 7,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 6,
+     "whats_wrong": "The rotating triangle aims its points at the river and the dock, which I like. But triangular plates waste corners in the plan, and one face is always square-on to the big block to the east.",
+     "floor_changes": [
+      {
+       "floors": "6-20",
+       "move": "chamfer_or_round_corners",
+       "direction": "the triangle's acute corners",
+       "amount": "4 m",
+       "why": "usable rooms"
+      },
+      {
+       "floors": "all",
+       "move": "splay_or_offset_to_avoid_facing",
+       "direction": "the E face turned away from the block to the east",
+       "amount": "10 degrees",
+       "why": "privacy"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 60,
+      "premium": 32,
+      "good": 4,
+      "neutral": 0,
+      "compromised": 24,
+      "premiumShare": 0.5333,
+      "livingView": 0.5882,
+      "gdvCr": 782.4,
+      "marginCr": 393.8,
+      "efficiency": 0.7272,
+      "structural": 0.484,
+      "height": 129.6,
+      "slender": 4,
+      "fsiUtil": 0.616
+     }
+    },
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 7,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 7,
+     "whats_wrong": "A soft rounded plate that tapers slightly and wobbles. It is efficient, but the slab edges bulge without purpose and it has no directional view gesture.",
+     "floor_changes": [
+      {
+       "floors": "20+",
+       "move": "lean_toward_outlook",
+       "direction": "toward the dock to the N",
+       "amount": "1.5 m every 5 floors",
+       "why": "water views"
+      },
+      {
+       "floors": "6-15",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "the side facing the neighbouring towers",
+       "amount": "deep jaali-screened balconies",
+       "why": "privacy"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 60,
+      "premium": 35,
+      "good": 18,
+      "neutral": 0,
+      "compromised": 7,
+      "premiumShare": 0.5833,
+      "livingView": 0.6347,
+      "gdvCr": 928.9,
+      "marginCr": 480.3,
+      "efficiency": 0.7403,
+      "structural": 0.788,
+      "height": 129.6,
+      "slender": 4.58,
+      "fsiUtil": 0.664
+     }
+    }
+   }
+  },
+  {
+   "id": "A488",
+   "city": "nyc_midtown",
+   "influences": [
+    "SOM",
+    "Moshe Safdie"
+   ],
+   "pref": "equal",
+   "reason": "The differences are imperceptible.",
+   "quote": "Twins from the same mould. Give me setbacks and a street wall, then we'll talk.",
+   "bySys": {
+    "win1": {
+     "overall": 6,
+     "view_capture": 5,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "Two rounded-square shafts, tidy and SOM-clean, but too close together and set on a diagonal so that they overlap each other's outlook to the east. There is no crown, and they don't acknowledge the masonry setbacks around them.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "spread_towers_apart",
+       "direction": "the east tower moved further NE",
+       "amount": "10 m",
+       "why": "separation"
+      },
+      {
+       "floors": "1-8",
+       "move": "podium_or_base_changes",
+       "direction": "a street wall on the avenue",
+       "amount": "a 30 m base with a setback above",
+       "why": "Midtown context"
+      },
+      {
+       "floors": "top 8",
+       "move": "crown_or_top_articulation",
+       "direction": "stepped setbacks",
+       "amount": "2 m every 2 floors",
+       "why": "echoes the setback tradition"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 180,
+      "premium": 43,
+      "good": 26,
+      "neutral": 0,
+      "compromised": 111,
+      "premiumShare": 0.2389,
+      "livingView": 0.4508,
+      "gdvCr": 1046.2,
+      "marginCr": 414.8,
+      "efficiency": 0.6172,
+      "structural": 0.386,
+      "height": 183.6,
+      "slender": 8.5,
+      "fsiUtil": 0.497
+     }
+    },
+    "hyb": {
+     "overall": 6,
+     "view_capture": 5,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "Essentially identical to A, with softer corners and a slight wobble. It has the same spacing and street problems.",
+     "floor_changes": [
+      {
+       "floors": "30+",
+       "move": "taper_more",
+       "direction": "all sides",
+       "amount": "1 m per 10 floors",
+       "why": "a slimmer top"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 180,
+      "premium": 43,
+      "good": 24,
+      "neutral": 0,
+      "compromised": 113,
+      "premiumShare": 0.2389,
+      "livingView": 0.45,
+      "gdvCr": 1042,
+      "marginCr": 410.4,
+      "efficiency": 0.6172,
+      "structural": 0.39,
+      "height": 183.6,
+      "slender": 8.5,
+      "fsiUtil": 0.497
+     }
+    }
+   }
+  },
+  {
+   "id": "A051",
+   "city": "dadar",
+   "influences": [
+    "Studio Gang",
+    "Herzog & de Meuron"
+   ],
+   "pref": "hyb",
+   "reason": "The stronger twist gives a more legible form and more faces rotating past the sea, which I can carve into terraces.",
+   "quote": "Make the twist carry balconies and it becomes a building; right now it's a wrapper.",
+   "bySys": {
+    "win1": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 6,
+     "whats_wrong": "A gently twisting square that ends up orthogonal at the top; the rotation reads as decoration rather than a deliberate turn toward the sea to the west and Shivaji Park. No outdoor space per flat at all: a sealed shaft on a tiny plot.",
+     "floor_changes": [
+      {
+       "floors": "10-22",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "west and north-west corners toward the Arabian Sea",
+       "amount": "one double-height corner loggia of about 3 m x 3 m every floor, alternating corners every 2 floors",
+       "why": "Gives every flat its own outdoor room and a sea view, Studio Gang style"
+      },
+      {
+       "floors": "14+",
+       "move": "rotate_plate_to_outlook",
+       "direction": "lock a long face toward the sea to the W",
+       "amount": "about 20 degrees further",
+       "why": "The top floors currently turn back toward the street grid"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 34,
+      "premium": 19,
+      "good": 13,
+      "neutral": 2,
+      "compromised": 0,
+      "premiumShare": 0.5588,
+      "livingView": 0.5719,
+      "gdvCr": 254.9,
+      "marginCr": 108.6,
+      "efficiency": 0.6394,
+      "structural": 0.351,
+      "height": 82.8,
+      "slender": 3.9,
+      "fsiUtil": 0.968
+     }
+    },
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 7,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 5,
+     "whats_wrong": "B twists more and the silhouette is livelier, but it is still a smooth sealed prism with no balconies, and the diamond plates at lower floors throw corners at the neighbours rather than offering faces to the sea.",
+     "floor_changes": [
+      {
+       "floors": "6-22",
+       "move": "stagger_or_cantilever",
+       "direction": "alternating balcony slabs on the west and south-west faces",
+       "amount": "1.8 m projection, shifted per floor",
+       "why": "Turn the twist into a stack of outdoor terraces, Aqua-style, for view equity"
+      },
+      {
+       "floors": "top 4 floors",
+       "move": "crown_or_top_articulation",
+       "direction": "open to the west",
+       "amount": "step back 3 m for a shared roof terrace",
+       "why": "A crown that looks at the sea"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 34,
+      "premium": 20,
+      "good": 13,
+      "neutral": 1,
+      "compromised": 0,
+      "premiumShare": 0.5882,
+      "livingView": 0.5846,
+      "gdvCr": 257.2,
+      "marginCr": 111,
+      "efficiency": 0.6394,
+      "structural": 0.349,
+      "height": 82.8,
+      "slender": 3.9,
+      "fsiUtil": 0.968
+     }
+    }
+   }
+  },
+  {
+   "id": "A105",
+   "city": "ldn_canary",
+   "influences": [
+    "KPF",
+    "Jean Nouvel"
+   ],
+   "pref": "win1",
+   "reason": "A is honest, slender and repetitive; B pays for irregularity it cannot justify.",
+   "quote": "If every floor is different, show me what every floor gains. B doesn't.",
+   "bySys": {
+    "win1": {
+     "overall": 7,
+     "view_capture": 6,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 6,
+     "proportion": 7,
+     "context_fit": 7,
+     "constructability": 9,
+     "whats_wrong": "A chamfered, straight extrusion. Repetitive, buildable and correctly slender, but the plate sits mid-site ignoring which way the docks lie, and the top is a flat cut.",
+     "floor_changes": [
+      {
+       "floors": "30+",
+       "move": "taper_more",
+       "direction": "all faces, more on the south toward the Thames",
+       "amount": "0.4 m per floor over the top 10 floors",
+       "why": "Sharpen the silhouette in a crowded cluster without breaking repetition below"
+      },
+      {
+       "floors": "top 3 floors",
+       "move": "crown_or_top_articulation",
+       "direction": "toward the docks",
+       "amount": "extend facade fins 6 m above roof",
+       "why": "Screen plant, finish the top"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 70,
+      "premium": 45,
+      "good": 12,
+      "neutral": 0,
+      "compromised": 13,
+      "premiumShare": 0.6429,
+      "livingView": 0.611,
+      "gdvCr": 1237.5,
+      "marginCr": 676.2,
+      "efficiency": 0.7541,
+      "structural": 0.791,
+      "height": 147.6,
+      "slender": 5.27,
+      "fsiUtil": 0.474
+     }
+    },
+    "hyb": {
+     "overall": 5,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 4,
+     "whats_wrong": "The wobbling rounded plate changes every floor: every slab edge and curtain wall panel is bespoke. The wobble adds nothing visible to views and the bulge mid-height hurts slenderness.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "simplify_for_constructability",
+       "direction": "n/a",
+       "amount": "one repeated rounded-square plate, max 3 plate types",
+       "why": "Cost and programme"
+      },
+      {
+       "floors": "30+",
+       "move": "taper_less",
+       "direction": "uniform",
+       "amount": "hold the plate until the top 5 floors",
+       "why": "Stop the abrupt shrink at floor 40 that reads as an afterthought"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 70,
+      "premium": 46,
+      "good": 16,
+      "neutral": 0,
+      "compromised": 8,
+      "premiumShare": 0.6571,
+      "livingView": 0.6347,
+      "gdvCr": 1241.8,
+      "marginCr": 675,
+      "efficiency": 0.7523,
+      "structural": 0.778,
+      "height": 147.6,
+      "slender": 4.3,
+      "fsiUtil": 0.464
+     }
+    }
+   }
+  },
+  {
+   "id": "A161",
+   "city": "dadar",
+   "influences": [
+    "MAD Architects",
+    "KPF"
+   ],
+   "pref": "hyb",
+   "reason": "B's continuous rotation is more refined and more equitable; A's pinches create winners and losers.",
+   "quote": "B is a line drawn with one hand; A is still arguing with itself.",
+   "bySys": {
+    "win1": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 7,
+     "proportion": 5,
+     "context_fit": 6,
+     "constructability": 5,
+     "whats_wrong": "The pinched, hourglass-like shifting diamond is expressive but the plates shrink and grow erratically (floor 14 and 36 small), which undermines equity between flats. Corners point at the tall neighbour to the east.",
+     "floor_changes": [
+      {
+       "floors": "14-36",
+       "move": "add_variety_between_floors",
+       "direction": "smooth the size change",
+       "amount": "no more than 10% area change between adjacent floors",
+       "why": "Equal flats up the stack"
+      },
+      {
+       "floors": "20+",
+       "move": "splay_or_offset_to_avoid_facing",
+       "direction": "away from the tower to the east",
+       "amount": "shift plate 3 m west",
+       "why": "Reduce direct overlooking from the neighbouring tower"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 62,
+      "premium": 12,
+      "good": 38,
+      "neutral": 12,
+      "compromised": 0,
+      "premiumShare": 0.1935,
+      "livingView": 0.5117,
+      "gdvCr": 737.7,
+      "marginCr": 341.3,
+      "efficiency": 0.7164,
+      "structural": 0.75,
+      "height": 133.20000000000002,
+      "slender": 4.5,
+      "fsiUtil": 0.471
+     }
+    },
+    "hyb": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 7,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 6,
+     "whats_wrong": "A calm twisting square rising off a podium, plate rotating toward the diagonal at the top. The podium is heavy and fills the triangle; the twist is too even to address the sea or park specifically.",
+     "floor_changes": [
+      {
+       "floors": "podium",
+       "move": "podium_or_base_changes",
+       "direction": "cut back on the north toward the park",
+       "amount": "reduce podium footprint by about 30%",
+       "why": "Open ground level and let the base breathe"
+      },
+      {
+       "floors": "21-36",
+       "move": "lean_toward_outlook",
+       "direction": "toward the sea to the west",
+       "amount": "1 m every 4 floors",
+       "why": "Give upper flats the sea while turning backs to the eastern tower"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 62,
+      "premium": 16,
+      "good": 34,
+      "neutral": 12,
+      "compromised": 0,
+      "premiumShare": 0.2581,
+      "livingView": 0.5319,
+      "gdvCr": 1077.1,
+      "marginCr": 357.8,
+      "efficiency": 0.7594,
+      "structural": 0.546,
+      "height": 133.20000000000002,
+      "slender": 4.41,
+      "fsiUtil": 0.638
+     }
+    }
+   }
+  },
+  {
+   "id": "A216",
+   "city": "dadar",
+   "influences": [
+    "SOM",
+    "Jean Nouvel"
+   ],
+   "pref": "hyb",
+   "reason": "Marginally: A keeps its sharper edge and its broad faces toward water and park.",
+   "quote": "It's the same yacht; A just knows which way to sail.",
+   "bySys": {
+    "hyb": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 8,
+     "proportion": 7,
+     "context_fit": 7,
+     "constructability": 7,
+     "whats_wrong": "A sharp triangular prism with a sail-like edge toward the park; strong skyline identity. The rotation is subtle but the blank short side faces the dense blocks to the east, which is good for privacy. Top is flat.",
+     "floor_changes": [
+      {
+       "floors": "top 5 floors",
+       "move": "crown_or_top_articulation",
+       "direction": "rising toward the sea to the west",
+       "amount": "sloped cut of about 15 degrees",
+       "why": "A marketable skyline signature"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 56,
+      "premium": 53,
+      "good": 3,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.9464,
+      "livingView": 0.7569,
+      "gdvCr": 753.7,
+      "marginCr": 430,
+      "efficiency": 0.7071,
+      "structural": 0.47,
+      "height": 122.4,
+      "slender": 4.02,
+      "fsiUtil": 0.968
+     }
+    },
+    "win1": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 7,
+     "proportion": 7,
+     "context_fit": 7,
+     "constructability": 7,
+     "whats_wrong": "Near-identical sail, but the upper plates flip so a broad face turns north-east toward the city blocks, exposing more glass to neighbours.",
+     "floor_changes": [
+      {
+       "floors": "20+",
+       "move": "twist_less_or_remove",
+       "direction": "keep the broad face west/north-west",
+       "amount": "reduce rotation by about 20 degrees",
+       "why": "Hold the sea and park, keep backs to neighbours"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 56,
+      "premium": 54,
+      "good": 2,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.9643,
+      "livingView": 0.7242,
+      "gdvCr": 739.5,
+      "marginCr": 416.4,
+      "efficiency": 0.7071,
+      "structural": 0.457,
+      "height": 122.4,
+      "slender": 4.02,
+      "fsiUtil": 0.968
+     }
+    }
+   }
+  },
+  {
+   "id": "A272",
+   "city": "nyc_lower",
+   "influences": [
+    "SHoP",
+    "KPF"
+   ],
+   "pref": "win1",
+   "reason": "B climbs clear of the neighbours so every flat above floor 25 has the water; A is buried.",
+   "quote": "On this site, height is the view. B takes it.",
+   "bySys": {
+    "hyb": {
+     "overall": 5,
+     "view_capture": 5,
+     "privacy_overlooking": 5,
+     "massing_silhouette": 5,
+     "proportion": 5,
+     "context_fit": 6,
+     "constructability": 7,
+     "whats_wrong": "Only ~151 m on a 305 m allowance, a squat chunky shaft on a big podium, hemmed in by existing towers to the west, with harbour views only from the top third.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "taller",
+       "direction": "n/a",
+       "amount": "add about 25 floors",
+       "why": "Clear the neighbouring towers to reach the harbour"
+      },
+      {
+       "floors": "20+",
+       "move": "more_slender",
+       "direction": "n/a",
+       "amount": "reduce plate width by 15%",
+       "why": "Proportion"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 74,
+      "premium": 55,
+      "good": 0,
+      "neutral": 0,
+      "compromised": 19,
+      "premiumShare": 0.7432,
+      "livingView": 0.7482,
+      "gdvCr": 1220.4,
+      "marginCr": 138.8,
+      "efficiency": 0.7494,
+      "structural": 0.808,
+      "height": 154.8,
+      "slender": 4.99,
+      "fsiUtil": 0.493
+     }
+    },
+    "win1": {
+     "overall": 8,
+     "view_capture": 8,
+     "privacy_overlooking": 8,
+     "massing_silhouette": 7,
+     "proportion": 8,
+     "context_fit": 7,
+     "constructability": 7,
+     "whats_wrong": "A supertall slender slab using the full height and rotating ~45 degrees over its height; above the neighbours it gets the harbour on all sides. The rotation is linear and slightly bland; the base is abrupt.",
+     "floor_changes": [
+      {
+       "floors": "45+",
+       "move": "rotate_plate_to_outlook",
+       "direction": "long face toward the harbour to the SW",
+       "amount": "hold at final angle from floor 45 up",
+       "why": "Consistent unit types and equitable harbour views"
+      },
+      {
+       "floors": "top 6 floors",
+       "move": "crown_or_top_articulation",
+       "direction": "n/a",
+       "amount": "SHoP-style setback of 2 m",
+       "why": "A finished top"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 156,
+      "premium": 152,
+      "good": 0,
+      "neutral": 0,
+      "compromised": 4,
+      "premiumShare": 0.9744,
+      "livingView": 0.8172,
+      "gdvCr": 2923.7,
+      "marginCr": 1864,
+      "efficiency": 0.7353,
+      "structural": 0.71,
+      "height": 302.40000000000003,
+      "slender": 13.75,
+      "fsiUtil": 0.971
+     }
+    }
+   }
+  },
+  {
+   "id": "A326",
+   "city": "dadar",
+   "influences": [
+    "MVRDV",
+    "Renzo Piano"
+   ],
+   "pref": "win1",
+   "reason": "Slightly: B's slimmer profile and lighter base fit Dadar better, though plan efficiency suffers.",
+   "quote": "B has the better line; now make its corners liveable.",
+   "bySys": {
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 5,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 8,
+     "whats_wrong": "A constant diamond on a heavy full-footprint podium. Efficient, but the podium is bulky and the diamond throws corners, not faces, at the park to the NW.",
+     "floor_changes": [
+      {
+       "floors": "podium",
+       "move": "podium_or_base_changes",
+       "direction": "north-west toward the park",
+       "amount": "step podium down 2 floors on the park edge",
+       "why": "Scale to the street, MVRDV-style public roof"
+      },
+      {
+       "floors": "13-35",
+       "move": "rotate_plate_to_outlook",
+       "direction": "a face toward the park and sea",
+       "amount": "about 20 degrees",
+       "why": "Faces capture views better than corners"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 60,
+      "premium": 28,
+      "good": 29,
+      "neutral": 3,
+      "compromised": 0,
+      "premiumShare": 0.4667,
+      "livingView": 0.5759,
+      "gdvCr": 895.8,
+      "marginCr": -53.4,
+      "efficiency": 0.7368,
+      "structural": 0.514,
+      "height": 129.6,
+      "slender": 4.6,
+      "fsiUtil": 0.36
+     }
+    },
+    "win1": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 6,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 6,
+     "whats_wrong": "A triangle with rotation; more slender and lighter at the ground, but triangular plates are awkward for efficient flats and acute corners waste area.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "chamfer_or_round_corners",
+       "direction": "all three corners",
+       "amount": "3 m chamfers",
+       "why": "Usable corner rooms, Piano-like refinement"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 60,
+      "premium": 34,
+      "good": 23,
+      "neutral": 3,
+      "compromised": 0,
+      "premiumShare": 0.5667,
+      "livingView": 0.5919,
+      "gdvCr": 855.9,
+      "marginCr": 466.6,
+      "efficiency": 0.7272,
+      "structural": 0.497,
+      "height": 129.6,
+      "slender": 4,
+      "fsiUtil": 0.341
+     }
+    }
+   }
+  },
+  {
+   "id": "A384",
+   "city": "ldn_city",
+   "influences": [
+    "KPF",
+    "MAD Architects"
+   ],
+   "pref": "win1",
+   "reason": "B is buildable and efficient; A spends money for no view gain.",
+   "quote": "A is a sculpture; B is a building. I build buildings.",
+   "bySys": {
+    "hyb": {
+     "overall": 5,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 3,
+     "whats_wrong": "Rounded wobbling plates changing every floor. A facade nightmare: every panel a one-off. The shrink at the top is arbitrary.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "simplify_for_constructability",
+       "direction": "n/a",
+       "amount": "one rounded plate, repeating panel module",
+       "why": "Buildability"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 100,
+      "premium": 83,
+      "good": 17,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.83,
+      "livingView": 0.7321,
+      "gdvCr": 1631,
+      "marginCr": 943.5,
+      "efficiency": 0.7306,
+      "structural": 0.847,
+      "height": 201.6,
+      "slender": 8.06,
+      "fsiUtil": 0.441
+     }
+    },
+    "win1": {
+     "overall": 7,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 5,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 9,
+     "whats_wrong": "A plain square extrusion, slightly rotated. Efficient and repeatable, but the rotation ignores the Thames to the south, and the top is dumb.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "rotate_plate_to_outlook",
+       "direction": "a flat face south to the Thames",
+       "amount": "about 20 degrees",
+       "why": "River views for more flats"
+      },
+      {
+       "floors": "top 5",
+       "move": "taper_more",
+       "direction": "all",
+       "amount": "0.5 m per floor",
+       "why": "Slim the top"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 100,
+      "premium": 77,
+      "good": 23,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.77,
+      "livingView": 0.6547,
+      "gdvCr": 1622,
+      "marginCr": 928.5,
+      "efficiency": 0.7321,
+      "structural": 0.825,
+      "height": 201.6,
+      "slender": 7.92,
+      "fsiUtil": 0.452
+     }
+    }
+   }
+  },
+  {
+   "id": "A436",
+   "city": "dadar",
+   "influences": [
+    "KPF",
+    "Renzo Piano"
+   ],
+   "pref": "equal",
+   "reason": "Both are timid; B is softer toward the park, A more practical.",
+   "quote": "Either one could be anywhere; neither says Dadar.",
+   "bySys": {
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 5,
+     "proportion": 5,
+     "context_fit": 6,
+     "constructability": 7,
+     "whats_wrong": "Short (~61 m) squat block with slightly stacked, rotating squares beside Shivaji Park. Reasonable scale for the park edge, but it has no presence and the plates are fat.",
+     "floor_changes": [
+      {
+       "floors": "12+",
+       "move": "taper_more",
+       "direction": "all",
+       "amount": "1 m per 3 floors",
+       "why": "Lighten the silhouette"
+      },
+      {
+       "floors": "6-17",
+       "move": "terrace_toward_outlook",
+       "direction": "toward Shivaji Park to the N/NW",
+       "amount": "2 m every 3 floors",
+       "why": "Engage the park, a heritage landscape"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 24,
+      "premium": 23,
+      "good": 1,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.9583,
+      "livingView": 0.6615,
+      "gdvCr": 191.1,
+      "marginCr": 81.4,
+      "efficiency": 0.6395,
+      "structural": 0.317,
+      "height": 64.8,
+      "slender": 3.05,
+      "fsiUtil": 0.947
+     }
+    },
+    "win1": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 5,
+     "context_fit": 6,
+     "constructability": 6,
+     "whats_wrong": "Rounded pillow plates, wobbling a little; softer on the park edge, but still stubby and fills the envelope.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "taller",
+       "direction": "n/a",
+       "amount": "add about 15 floors within 160 m allowance",
+       "why": "More slender and better sea views"
+      },
+      {
+       "floors": "all",
+       "move": "more_slender",
+       "direction": "n/a",
+       "amount": "reduce plate by 20%",
+       "why": "Proportion"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 22,
+      "premium": 22,
+      "good": 0,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 1,
+      "livingView": 0.7091,
+      "gdvCr": 212,
+      "marginCr": 87.2,
+      "efficiency": 0.6857,
+      "structural": 0.58,
+      "height": 61.2,
+      "slender": 2.65,
+      "fsiUtil": 0.954
+     }
+    }
+   }
+  },
+  {
+   "id": "A490",
+   "city": "ldn_canary",
+   "influences": [
+    "MVRDV",
+    "Sanjay Puri"
+   ],
+   "pref": "hyb",
+   "reason": "A is more slender and elegant; the twist can be tuned for privacy.",
+   "quote": "B is correct; A is alive. Fix A's aim.",
+   "bySys": {
+    "hyb": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 8,
+     "proportion": 8,
+     "context_fit": 6,
+     "constructability": 5,
+     "whats_wrong": "A slender twisting square on a podium; elegant, but the twist is random and the square faces look straight at the dense towers around it.",
+     "floor_changes": [
+      {
+       "floors": "17-50",
+       "move": "splay_or_offset_to_avoid_facing",
+       "direction": "away from the tower to the east",
+       "amount": "hold a blank corner east, rotate 15 degrees",
+       "why": "Privacy from close neighbours"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 90,
+      "premium": 31,
+      "good": 23,
+      "neutral": 0,
+      "compromised": 36,
+      "premiumShare": 0.3444,
+      "livingView": 0.5555,
+      "gdvCr": 461.2,
+      "marginCr": -123,
+      "efficiency": 0.5754,
+      "structural": 0.737,
+      "height": 183.6,
+      "slender": 8.65,
+      "fsiUtil": 0.354
+     }
+    },
+    "win1": {
+     "overall": 7,
+     "view_capture": 6,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 6,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "A straight triangular extrusion; fewer faces toward the neighbours, but monotonous and the acute corners waste plan.",
+     "floor_changes": [
+      {
+       "floors": "30+",
+       "move": "terrace_toward_outlook",
+       "direction": "toward the docks to the north",
+       "amount": "2 m every 4 floors",
+       "why": "Earn outdoor space and views"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 90,
+      "premium": 32,
+      "good": 3,
+      "neutral": 0,
+      "compromised": 55,
+      "premiumShare": 0.3556,
+      "livingView": 0.5791,
+      "gdvCr": 1123.1,
+      "marginCr": 568.4,
+      "efficiency": 0.7272,
+      "structural": 0.539,
+      "height": 183.6,
+      "slender": 5.66,
+      "fsiUtil": 0.705
+     }
+    }
+   }
+  },
+  {
+   "id": "A052",
+   "city": "nyc_lower",
+   "influences": [
+    "Heatherwick Studio",
+    "BIG / Bjarke Ingels"
+   ],
+   "pref": "hyb",
+   "reason": "A has more intent and a human scale, even if it is fussy. B only wins on height.",
+   "quote": "B is a diamond with no ideas. A at least tries, badly.",
+   "bySys": {
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 5,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 6,
+     "whats_wrong": "A chamfered, slightly rotating slab around 60 floors, with stepped ledges. It stops well short of the envelope and sits deep among towers on the south side. The ledges are fussy. They look like terracing, but none of it faces the East River bridges. The base does nothing for the street.",
+     "floor_changes": [
+      {
+       "floors": "40-60",
+       "move": "terrace_toward_outlook",
+       "direction": "toward the East River and bridges to the NE",
+       "amount": "3 m setback every 5 floors on the NE face only",
+       "why": "Turn the random ledges into real sky gardens that face the river"
+      },
+      {
+       "floors": "1-6",
+       "move": "podium_or_base_changes",
+       "direction": "toward the street corner to the SW",
+       "amount": "a 2-storey colonnade recessed 4 m",
+       "why": "Give the dense block a public edge"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 110,
+      "premium": 74,
+      "good": 23,
+      "neutral": 2,
+      "compromised": 11,
+      "premiumShare": 0.6727,
+      "livingView": 0.6191,
+      "gdvCr": 1571.4,
+      "marginCr": 865.9,
+      "efficiency": 0.7179,
+      "structural": 0.901,
+      "height": 219.6,
+      "slender": 9.94,
+      "fsiUtil": 0.991
+     }
+    },
+    "win1": {
+     "overall": 5,
+     "view_capture": 6,
+     "privacy_overlooking": 5,
+     "massing_silhouette": 5,
+     "proportion": 7,
+     "context_fit": 5,
+     "constructability": 8,
+     "whats_wrong": "A dumb extruded diamond about 78 floors high. It is taller and gets a better look over the neighbours at the top. The corner-on orientation catches diagonals, but it is a spreadsheet, not architecture. It ignores the heritage streetwall and has no base and no crown.",
+     "floor_changes": [
+      {
+       "floors": "top 10 floors",
+       "move": "crown_or_top_articulation",
+       "direction": "sloping up toward the river to the NE",
+       "amount": "a slope of about 12 m over 10 floors",
+       "why": "Give it a skyline identity and put penthouse terraces on the view side"
+      },
+      {
+       "floors": "1-8",
+       "move": "podium_or_base_changes",
+       "direction": "aligned to the street grid",
+       "amount": "an 8-storey streetwall base matching the neighbouring cornices",
+       "why": "Respect the context"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 146,
+      "premium": 67,
+      "good": 6,
+      "neutral": 2,
+      "compromised": 71,
+      "premiumShare": 0.4589,
+      "livingView": 0.5937,
+      "gdvCr": 1347.1,
+      "marginCr": 656.8,
+      "efficiency": 0.6676,
+      "structural": 0.912,
+      "height": 284.40000000000003,
+      "slender": 13.41,
+      "fsiUtil": 0.996
+     }
+    }
+   }
+  },
+  {
+   "id": "A106",
+   "city": "dadar",
+   "influences": [
+    "Rafael Viñoly",
+    "Zaha Hadid Architects"
+   ],
+   "pref": "win1",
+   "reason": "It is more elegant and has a lighter footprint, which is better for marketing, and the core stays simple.",
+   "quote": "Rationalise the twist and B sells itself.",
+   "bySys": {
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 8,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 8,
+     "whats_wrong": "A rectangular slab that rotates slightly and tapers at the top, set on a large podium. From the aerial the podium reads heavy against the low-rise Dadar fabric. The plate never commits to the Arabian Sea to the west. The deep west face has no solar shading.",
+     "floor_changes": [
+      {
+       "floors": "6-50",
+       "move": "rotate_plate_to_outlook",
+       "direction": "long face toward the sea to the W",
+       "amount": "about 20 degrees",
+       "why": "Capture the sea and the breeze"
+      },
+      {
+       "floors": "20-50",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "on the W and SW corners",
+       "amount": "a double-height loggia every 4 floors",
+       "why": "Shade the afternoon sun and sell sea balconies"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 90,
+      "premium": 66,
+      "good": 21,
+      "neutral": 1,
+      "compromised": 2,
+      "premiumShare": 0.7333,
+      "livingView": 0.7163,
+      "gdvCr": 1328.2,
+      "marginCr": 515.5,
+      "efficiency": 0.7202,
+      "structural": 0.587,
+      "height": 183.6,
+      "slender": 7.88,
+      "fsiUtil": 0.764
+     }
+    },
+    "win1": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 8,
+     "massing_silhouette": 7,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "A square plate that twists progressively, about 45 degrees over the height, with a lighter base. It is slender and the twist reads well, but it looks arbitrary rather than tuned to the sea. It still has no shading.",
+     "floor_changes": [
+      {
+       "floors": "30-50",
+       "move": "twist_less_or_remove",
+       "direction": "hold one diagonal toward the sea to the W",
+       "amount": "lock the rotation at about 30 degrees",
+       "why": "A twist costs premium floors. Stop it where the sea view is best."
+      },
+      {
+       "floors": "all",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "on the W face",
+       "amount": "1.8 m fins or recessed balconies",
+       "why": "Climate and saleability"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 90,
+      "premium": 76,
+      "good": 10,
+      "neutral": 1,
+      "compromised": 3,
+      "premiumShare": 0.8444,
+      "livingView": 0.6339,
+      "gdvCr": 1050.6,
+      "marginCr": 602,
+      "efficiency": 0.6921,
+      "structural": 0.5,
+      "height": 183.6,
+      "slender": 7.65,
+      "fsiUtil": 0.66
+     }
+    }
+   }
+  },
+  {
+   "id": "A162",
+   "city": "nyc_lower",
+   "influences": [
+    "BIG / Bjarke Ingels",
+    "Rafael Viñoly"
+   ],
+   "pref": "win1",
+   "reason": "B has better slenderness and height, and the long faces take in more water.",
+   "quote": "B has the right proportion; now give it a gesture.",
+   "bySys": {
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 5,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "A rotated square plate with slight shifts in orientation, about 76 floors. It is pragmatic but the silhouette is plain. There is no clear gesture toward the harbour and no top.",
+     "floor_changes": [
+      {
+       "floors": "50+",
+       "move": "taper_more",
+       "direction": "pulling back from the E and W faces",
+       "amount": "about 1 m per 5 floors",
+       "why": "Slenderness on the skyline"
+      },
+      {
+       "floors": "top 6 floors",
+       "move": "crown_or_top_articulation",
+       "direction": "toward the harbour to the S",
+       "amount": "a sloped cut",
+       "why": "Identity"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 142,
+      "premium": 72,
+      "good": 15,
+      "neutral": 0,
+      "compromised": 55,
+      "premiumShare": 0.507,
+      "livingView": 0.562,
+      "gdvCr": 1710.6,
+      "marginCr": 513.1,
+      "efficiency": 0.7012,
+      "structural": 0.572,
+      "height": 277.2,
+      "slender": 11.26,
+      "fsiUtil": 0.997
+     }
+    },
+    "win1": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 8,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "An elongated chamfered octagon, constant at about 83 floors. It is taller and more slender, and the long faces take in the rivers. It is very extruded, though, and there is no sculptural moment.",
+     "floor_changes": [
+      {
+       "floors": "60-83",
+       "move": "terrace_toward_outlook",
+       "direction": "toward the harbour to the S",
+       "amount": "a 2 m step every 6 floors",
+       "why": "Sculpt the top and add terraces with views"
+      },
+      {
+       "floors": "1-6",
+       "move": "podium_or_base_changes",
+       "direction": "toward the street",
+       "amount": "a 6 m-tall lobby recess",
+       "why": "Ground it"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 156,
+      "premium": 86,
+      "good": 11,
+      "neutral": 0,
+      "compromised": 59,
+      "premiumShare": 0.5513,
+      "livingView": 0.5775,
+      "gdvCr": 1427.3,
+      "marginCr": 723.3,
+      "efficiency": 0.6545,
+      "structural": 0.941,
+      "height": 302.40000000000003,
+      "slender": 15.43,
+      "fsiUtil": 0.869
+     }
+    }
+   }
+  },
+  {
+   "id": "A217",
+   "city": "nyc_lower",
+   "influences": [
+    "Renzo Piano",
+    "BIG / Bjarke Ingels"
+   ],
+   "pref": "win1",
+   "reason": "A is cleaner and reads more slender, with a similar view.",
+   "quote": "Same idea twice; A just does it without the stutter.",
+   "bySys": {
+    "win1": {
+     "overall": 6,
+     "view_capture": 7,
+     "privacy_overlooking": 9,
+     "massing_silhouette": 6,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "A square that twists steadily, about 45 degrees, on a triangular waterfront site. It has open water on most sides, yet a simple square wastes the wide harbour arc. The twist has no climate logic and there is no shading.",
+     "floor_changes": [
+      {
+       "floors": "6-76",
+       "move": "rotate_plate_to_outlook",
+       "direction": "a flat face toward the harbour to the S and W",
+       "amount": "hold at about 15 degrees",
+       "why": "Frame the water, not the diagonal"
+      },
+      {
+       "floors": "30+",
+       "move": "taper_more",
+       "direction": "all faces",
+       "amount": "0.5 m every 5 floors",
+       "why": "Wind and slenderness"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 142,
+      "premium": 142,
+      "good": 0,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 1,
+      "livingView": 0.8168,
+      "gdvCr": 2777.2,
+      "marginCr": 1775.5,
+      "efficiency": 0.7419,
+      "structural": 0.591,
+      "height": 277.2,
+      "slender": 9.9,
+      "fsiUtil": 0.898
+     }
+    },
+    "hyb": {
+     "overall": 6,
+     "view_capture": 7,
+     "privacy_overlooking": 9,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 7,
+     "whats_wrong": "A rotating square with jogged, stacked blocks and a triangular podium. The steps between blocks look clumsy on the aerial. The triangle base is awkward and the stagger adds nothing but cost.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "remove_stagger",
+       "direction": "n/a",
+       "amount": "a smooth, continuous rotation",
+       "why": "Clean up the wind and the formwork"
+      },
+      {
+       "floors": "1-4",
+       "move": "podium_or_base_changes",
+       "direction": "toward the water edge",
+       "amount": "cut the podium back to the tower footprint plus 3 m",
+       "why": "Proportion"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 142,
+      "premium": 140,
+      "good": 0,
+      "neutral": 0,
+      "compromised": 2,
+      "premiumShare": 0.9859,
+      "livingView": 0.8514,
+      "gdvCr": 2831.5,
+      "marginCr": 1472.3,
+      "efficiency": 0.7438,
+      "structural": 0.884,
+      "height": 277.2,
+      "slender": 9.21,
+      "fsiUtil": 0.909
+     }
+    }
+   }
+  },
+  {
+   "id": "A273",
+   "city": "nyc_midtown",
+   "influences": [
+    "MAD Architects",
+    "BIG / Bjarke Ingels"
+   ],
+   "pref": "win1",
+   "reason": "The Y plan handles privacy and efficiency better.",
+   "quote": "The Y works. Fix the armpits.",
+   "bySys": {
+    "win1": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 7,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 5,
+     "whats_wrong": "A tripod Y plan that rotates slightly, about 72 floors, on a huge site. The Y gives three wings with views and cuts down facing windows. But the inner corners of the re-entrant angles look straight into each other.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "splay_or_offset_to_avoid_facing",
+       "direction": "wing ends",
+       "amount": "about 10 degrees opening",
+       "why": "Stop flats in adjacent wings looking into each other"
+      },
+      {
+       "floors": "40+",
+       "move": "lean_toward_outlook",
+       "direction": "one wing toward the Hudson to the NW",
+       "amount": "about 6 m",
+       "why": "Water view"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 134,
+      "premium": 108,
+      "good": 11,
+      "neutral": 0,
+      "compromised": 15,
+      "premiumShare": 0.806,
+      "livingView": 0.6701,
+      "gdvCr": 2595.3,
+      "marginCr": 1588.9,
+      "efficiency": 0.7499,
+      "structural": 0.584,
+      "height": 262.8,
+      "slender": 7.55,
+      "fsiUtil": 0.267
+     }
+    },
+    "hyb": {
+     "overall": 5,
+     "view_capture": 5,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 8,
+     "whats_wrong": "A small chamfered square that twists and tapers sharply at the top, on a massive podium. The floor plates are tiny for such a large site, so the plan is inefficient on a small core ratio. The podium is enormous and dumb.",
+     "floor_changes": [
+      {
+       "floors": "6-50",
+       "move": "less_slender_or_wider",
+       "direction": "all faces",
+       "amount": "about +20% plate",
+       "why": "Plan efficiency"
+      },
+      {
+       "floors": "1-6",
+       "move": "podium_or_base_changes",
+       "direction": "n/a",
+       "amount": "break it into a courtyard",
+       "why": "Privacy and a sensible scale"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 134,
+      "premium": 115,
+      "good": 8,
+      "neutral": 0,
+      "compromised": 11,
+      "premiumShare": 0.8582,
+      "livingView": 0.6785,
+      "gdvCr": 2313.1,
+      "marginCr": -108.8,
+      "efficiency": 0.7373,
+      "structural": 0.594,
+      "height": 262.8,
+      "slender": 9.42,
+      "fsiUtil": 0.241
+     }
+    }
+   }
+  },
+  {
+   "id": "A328",
+   "city": "nyc_midtown",
+   "influences": [
+    "Jean Nouvel",
+    "KPF"
+   ],
+   "pref": "win1",
+   "reason": "The height buys view equity. A is buried.",
+   "quote": "A is a box in a canyon. B at least escapes.",
+   "bySys": {
+    "hyb": {
+     "overall": 5,
+     "view_capture": 4,
+     "privacy_overlooking": 4,
+     "massing_silhouette": 5,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "A fat rotated square, about 58 floors, stepping in at the top, jammed among Midtown towers. The lower half looks straight into its neighbours' facades. View equity is poor for flats on the inner faces.",
+     "floor_changes": [
+      {
+       "floors": "1-25",
+       "move": "more_slender",
+       "direction": "away from the tower to the E",
+       "amount": "about 4 m",
+       "why": "Increase the gap to the neighbour"
+      },
+      {
+       "floors": "30+",
+       "move": "taller",
+       "direction": "n/a",
+       "amount": "up to the 320 m limit",
+       "why": "Get above the canopy"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 106,
+      "premium": 27,
+      "good": 15,
+      "neutral": 0,
+      "compromised": 64,
+      "premiumShare": 0.2547,
+      "livingView": 0.4413,
+      "gdvCr": 1624.2,
+      "marginCr": 805,
+      "efficiency": 0.7521,
+      "structural": 0.576,
+      "height": 212.4,
+      "slender": 7.22,
+      "fsiUtil": 0.957
+     }
+    },
+    "win1": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 7,
+     "whats_wrong": "A rotating square, about 87 floors, reaching close to the limit. It rises clear of the canopy, so the upper flats get equitable views. The lower 25 floors still look into the neighbours.",
+     "floor_changes": [
+      {
+       "floors": "6-25",
+       "move": "splay_or_offset_to_avoid_facing",
+       "direction": "away from the tower to the E",
+       "amount": "a 15 degree angle plus fritted glass",
+       "why": "Privacy"
+      },
+      {
+       "floors": "60+",
+       "move": "chamfer_or_round_corners",
+       "direction": "all corners",
+       "amount": "3 m",
+       "why": "Corner views for every flat"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 164,
+      "premium": 89,
+      "good": 12,
+      "neutral": 0,
+      "compromised": 63,
+      "premiumShare": 0.5427,
+      "livingView": 0.5453,
+      "gdvCr": 1699.7,
+      "marginCr": 890.2,
+      "efficiency": 0.6754,
+      "structural": 0.891,
+      "height": 316.8,
+      "slender": 12.83,
+      "fsiUtil": 0.933
+     }
+    }
+   }
+  },
+  {
+   "id": "A385",
+   "city": "ldn_canary",
+   "influences": [
+    "BIG / Bjarke Ingels",
+    "Hafeez Contractor"
+   ],
+   "pref": "equal",
+   "reason": "The drawings appear identical.",
+   "quote": "On the evidence I have, these are the same building.",
+   "bySys": {
+    "win1": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 7,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 6,
+     "whats_wrong": "A triangular plate that twists, about 35 floors to 126 m, with a sloped top. From the images it is identical to B. The deep triangular corners create acute, unusable rooms, and the south and west faces are not shaded.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "chamfer_or_round_corners",
+       "direction": "acute corners",
+       "amount": "about 3 m",
+       "why": "Plan efficiency"
+      },
+      {
+       "floors": "13-35",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "on the SW face",
+       "amount": "a recessed loggia every 3 floors",
+       "why": "Solar shading"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 60,
+      "premium": 46,
+      "good": 14,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.7667,
+      "livingView": 0.6283,
+      "gdvCr": 875,
+      "marginCr": 485.7,
+      "efficiency": 0.7272,
+      "structural": 0.497,
+      "height": 129.6,
+      "slender": 4,
+      "fsiUtil": 0.493
+     }
+    },
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 7,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 6,
+     "whats_wrong": "It shows no visible difference from A, with the same twisting triangle, so it has the same problems: acute corners and no shading.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "chamfer_or_round_corners",
+       "direction": "acute corners",
+       "amount": "about 3 m",
+       "why": "Efficiency"
+      },
+      {
+       "floors": "25-35",
+       "move": "terrace_toward_outlook",
+       "direction": "toward the docks and the Thames",
+       "amount": "2 m per 3 floors",
+       "why": "Views"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 60,
+      "premium": 46,
+      "good": 14,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.7667,
+      "livingView": 0.6283,
+      "gdvCr": 875,
+      "marginCr": 485.7,
+      "efficiency": 0.7272,
+      "structural": 0.497,
+      "height": 129.6,
+      "slender": 4,
+      "fsiUtil": 0.493
+     }
+    }
+   }
+  },
+  {
+   "id": "A437",
+   "city": "nyc_lower",
+   "influences": [
+    "Moshe Safdie",
+    "Herzog & de Meuron"
+   ],
+   "pref": "win1",
+   "reason": "A has a stronger form, the faces diverge, and it gives more privacy.",
+   "quote": "The triangle has a presence the octagon lacks.",
+   "bySys": {
+    "win1": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 8,
+     "massing_silhouette": 8,
+     "proportion": 7,
+     "context_fit": 7,
+     "constructability": 6,
+     "whats_wrong": "A triangular plate that twists, about 37 floors, set by the open plaza and highway. It is sculptural and each face gets a different outlook. The inward corners are awkward, and the twist does not lift view equity toward the harbour. Flats at the acute corners are compromised.",
+     "floor_changes": [
+      {
+       "floors": "15-37",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "toward the harbour to the S and W",
+       "amount": "one garden terrace per 4 floors, Habitat-like",
+       "why": "Give every flat outdoor space and a view"
+      },
+      {
+       "floors": "all",
+       "move": "chamfer_or_round_corners",
+       "direction": "acute corners",
+       "amount": "2.5 m",
+       "why": "Liveability"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 64,
+      "premium": 44,
+      "good": 11,
+      "neutral": 0,
+      "compromised": 9,
+      "premiumShare": 0.6875,
+      "livingView": 0.653,
+      "gdvCr": 924.3,
+      "marginCr": 513.3,
+      "efficiency": 0.7272,
+      "structural": 0.499,
+      "height": 136.8,
+      "slender": 4.22,
+      "fsiUtil": 0.973
+     }
+    },
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "A chamfered octagon that rotates a little and stacks with slight jogs, about 40 floors. It is stocky, generic and without character. The large plate means deep interior units.",
+     "floor_changes": [
+      {
+       "floors": "20-40",
+       "move": "stagger_or_cantilever",
+       "direction": "toward the harbour to the S",
+       "amount": "3 m every 5 floors",
+       "why": "Stacked sky gardens, in Safdie's way"
+      },
+      {
+       "floors": "all",
+       "move": "more_slender",
+       "direction": "n/a",
+       "amount": "-15% plate",
+       "why": "Shallower units get better light"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 70,
+      "premium": 52,
+      "good": 10,
+      "neutral": 0,
+      "compromised": 8,
+      "premiumShare": 0.7429,
+      "livingView": 0.6645,
+      "gdvCr": 938.2,
+      "marginCr": 500.5,
+      "efficiency": 0.7143,
+      "structural": 0.783,
+      "height": 147.6,
+      "slender": 5.72,
+      "fsiUtil": 0.993
+     }
+    }
+   }
+  },
+  {
+   "id": "A491",
+   "city": "dadar",
+   "influences": [
+    "B.V. Doshi",
+    "SHoP"
+   ],
+   "pref": "hyb",
+   "reason": "It is more slender and a gentler presence on the park. The plan loss is acceptable.",
+   "quote": "B is better, but neither of them knows it's in Mumbai.",
+   "bySys": {
+    "win1": {
+     "overall": 5,
+     "view_capture": 6,
+     "privacy_overlooking": 9,
+     "massing_silhouette": 5,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 9,
+     "whats_wrong": "A plain extruded square, about 40 floors, at the south tip of a triangular site in Shivaji Park. It is efficient but has no response to climate, no verandahs, and no sea orientation to the W.",
+     "floor_changes": [
+      {
+       "floors": "6-40",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "on the W and SW corners",
+       "amount": "a double-height verandah every 3 floors",
+       "why": "Shade, cross-ventilation and a sea breeze"
+      },
+      {
+       "floors": "all",
+       "move": "rotate_plate_to_outlook",
+       "direction": "toward the sea to the W",
+       "amount": "about 20 degrees",
+       "why": "Sea view"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 70,
+      "premium": 65,
+      "good": 5,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.9286,
+      "livingView": 0.7253,
+      "gdvCr": 1140.3,
+      "marginCr": 673.3,
+      "efficiency": 0.7323,
+      "structural": 0.767,
+      "height": 147.6,
+      "slender": 5.8,
+      "fsiUtil": 0.59
+     }
+    },
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 9,
+     "massing_silhouette": 7,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 7,
+     "whats_wrong": "A rounded square that tapers at the top. It is softer and more slender, with a good silhouette over the maidan. But it is still sealed and glassy with no verandahs, and the rounded glass is a cost.",
+     "floor_changes": [
+      {
+       "floors": "10-40",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "toward the park and the sea to the W",
+       "amount": "a 3 m-deep verandah at the corners every 4 floors",
+       "why": "Climate"
+      },
+      {
+       "floors": "1-3",
+       "move": "podium_or_base_changes",
+       "direction": "toward the park",
+       "amount": "an open pilotis",
+       "why": "Let the maidan flow through"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 70,
+      "premium": 68,
+      "good": 2,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 0.9714,
+      "livingView": 0.8291,
+      "gdvCr": 1633.9,
+      "marginCr": 1009.2,
+      "efficiency": 0.7679,
+      "structural": 0.777,
+      "height": 147.6,
+      "slender": 4.32,
+      "fsiUtil": 0.765
+     }
+    }
+   }
+  },
+  {
+   "id": "A053",
+   "city": "nyc_midtown",
+   "influences": [
+    "Studio Gang",
+    "Rahul Mehrotra"
+   ],
+   "pref": "win1",
+   "reason": "The small rotation in A at least varies which way the flats look. B is more efficient to build but does nothing about privacy.",
+   "quote": "You've drawn two towers staring at each other across 30 metres. Rotate one or offset it.",
+   "bySys": {
+    "win1": {
+     "overall": 6,
+     "view_capture": 5,
+     "privacy_overlooking": 5,
+     "massing_silhouette": 6,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 6,
+     "whats_wrong": "Two soft-cornered drums set on the NW-SE diagonal, one almost behind the other, so each tower's main face looks straight at its twin. Rotating the plate a few degrees per floor softens the silhouette but does not move the facing faces apart. Deep Midtown blocks close off the outlook below about floor 30.",
+     "floor_changes": [
+      {
+       "floors": "6-30",
+       "move": "splay_or_offset_to_avoid_facing",
+       "direction": "south tower shifted east, north tower shifted west",
+       "amount": "about 8 m each",
+       "why": "breaks the direct window-to-window line between the twins"
+      },
+      {
+       "floors": "30+",
+       "move": "rotate_plate_to_outlook",
+       "direction": "long faces toward the avenue vistas N and S",
+       "amount": "about 20 degrees",
+       "why": "at these floors the view opens down the avenue corridors"
+      },
+      {
+       "floors": "6-18",
+       "move": "podium_or_base_changes",
+       "direction": "streetwall on the east",
+       "amount": "6 floors",
+       "why": "floors this low see only walls, so give them to amenity or commercial use"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 192,
+      "premium": 49,
+      "good": 45,
+      "neutral": 0,
+      "compromised": 98,
+      "premiumShare": 0.2552,
+      "livingView": 0.4989,
+      "gdvCr": 1559.8,
+      "marginCr": 712.6,
+      "efficiency": 0.6609,
+      "structural": 0.764,
+      "height": 194.4,
+      "slender": 9.17,
+      "fsiUtil": 0.45
+     }
+    },
+    "hyb": {
+     "overall": 5,
+     "view_capture": 4,
+     "privacy_overlooking": 5,
+     "massing_silhouette": 5,
+     "proportion": 6,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "The same two drums as straight rounded squares with a plain podium. It is efficient, but every flat faces the other tower or a neighbour, and nothing is done to deal with the overlooking.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "splay_or_offset_to_avoid_facing",
+       "direction": "turn the north tower toward the NW and the south tower toward the SE",
+       "amount": "about 15 degrees",
+       "why": "stops the flats in one tower looking into the other"
+      },
+      {
+       "floors": "top 10 floors",
+       "move": "chamfer_or_round_corners",
+       "direction": "corners facing the NE and SW skyline",
+       "amount": "4 m chamfer",
+       "why": "gives the corner living rooms a view past the neighbouring slabs"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 192,
+      "premium": 52,
+      "good": 42,
+      "neutral": 0,
+      "compromised": 98,
+      "premiumShare": 0.2708,
+      "livingView": 0.5015,
+      "gdvCr": 1957.8,
+      "marginCr": -249.6,
+      "efficiency": 0.6972,
+      "structural": 0.426,
+      "height": 194.4,
+      "slender": 7.51,
+      "fsiUtil": 0.534
+     }
+    }
+   }
+  },
+  {
+   "id": "A107",
+   "city": "nyc_lower",
+   "influences": [
+    "Renzo Piano",
+    "B.V. Doshi"
+   ],
+   "pref": "hyb",
+   "reason": "B's rotation and chamfers share the views more fairly between flats.",
+   "quote": "B shares the water more fairly. Now give it verandahs so the tower can breathe.",
+   "bySys": {
+    "win1": {
+     "overall": 5,
+     "view_capture": 5,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 5,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 9,
+     "whats_wrong": "A square plate turned 45 degrees and extruded unchanged to about 290 m. Pointing the corners at the harbour is fine, but the flats in the NW and SE quadrants face each other's shoulders and get very different views. Every floor is identical and nothing opens toward the water.",
+     "floor_changes": [
+      {
+       "floors": "25-60",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "S and E corners, toward the harbour",
+       "amount": "a 2-storey void every 6 floors",
+       "why": "gives the inland-facing flats a shared glimpse of the water"
+      },
+      {
+       "floors": "60+",
+       "move": "taper_more",
+       "direction": "all sides",
+       "amount": "about 1 m per 5 floors",
+       "why": "more flats per floor get a corner at the top"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 150,
+      "premium": 73,
+      "good": 24,
+      "neutral": 0,
+      "compromised": 53,
+      "premiumShare": 0.4867,
+      "livingView": 0.5716,
+      "gdvCr": 885.6,
+      "marginCr": 372,
+      "efficiency": 0.5865,
+      "structural": 0.866,
+      "height": 291.6,
+      "slender": 14.62,
+      "fsiUtil": 0.463
+     }
+    },
+    "hyb": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 7,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 6,
+     "whats_wrong": "The plate is chamfered, rotated and gently tapered, which shares out the aspect more fairly. The taper is still modest, though, and there are no outdoor rooms or verandahs.",
+     "floor_changes": [
+      {
+       "floors": "6-40",
+       "move": "terrace_toward_outlook",
+       "direction": "toward the East River and the harbour to the SE",
+       "amount": "2 m deep verandah every 3 floors",
+       "why": "shaded outdoor space facing the water, and it adds depth against people looking in"
+      },
+      {
+       "floors": "top 8 floors",
+       "move": "crown_or_top_articulation",
+       "direction": "open toward the SE",
+       "amount": "a 2-storey sky court",
+       "why": "a shared view for all residents"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 150,
+      "premium": 76,
+      "good": 20,
+      "neutral": 0,
+      "compromised": 54,
+      "premiumShare": 0.5067,
+      "livingView": 0.588,
+      "gdvCr": 1699,
+      "marginCr": 867.8,
+      "efficiency": 0.6957,
+      "structural": 0.884,
+      "height": 291.6,
+      "slender": 10.27,
+      "fsiUtil": 0.734
+     }
+    }
+   }
+  },
+  {
+   "id": "A163",
+   "city": "nyc_midtown",
+   "influences": [
+    "MAD Architects",
+    "Zaha Hadid Architects"
+   ],
+   "pref": "hyb",
+   "reason": "B is more buildable and sits better in its context, and the spacing problem is the same in both.",
+   "quote": "Pragmatically, B, but pull those towers apart before anything else.",
+   "bySys": {
+    "win1": {
+     "overall": 5,
+     "view_capture": 5,
+     "privacy_overlooking": 5,
+     "massing_silhouette": 6,
+     "proportion": 7,
+     "context_fit": 5,
+     "constructability": 6,
+     "whats_wrong": "Two stacked rounded cylinders, with an undulating stack on the southern one. It has some sculptural life, but the two towers sit only about a plate-width apart, so the flats on their facing sides look into each other.",
+     "floor_changes": [
+      {
+       "floors": "6-40",
+       "move": "spread_towers_apart",
+       "direction": "north tower to the NW",
+       "amount": "about 10 m",
+       "why": "view equity for the flats on the facing sides"
+      },
+      {
+       "floors": "40+",
+       "move": "twist_more",
+       "direction": "toward the Hudson to the W",
+       "amount": "30 degrees in total",
+       "why": "gives each tower a flowing silhouette with its own view"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 300,
+      "premium": 244,
+      "good": 18,
+      "neutral": 0,
+      "compromised": 38,
+      "premiumShare": 0.8133,
+      "livingView": 0.6787,
+      "gdvCr": 2287,
+      "marginCr": 1207.9,
+      "efficiency": 0.6117,
+      "structural": 0.554,
+      "height": 291.6,
+      "slender": 14.09,
+      "fsiUtil": 0.789
+     }
+    },
+    "hyb": {
+     "overall": 6,
+     "view_capture": 5,
+     "privacy_overlooking": 5,
+     "massing_silhouette": 6,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 8,
+     "whats_wrong": "Cleaner twin extrusions that sit calmly beside the park. The layout has the same too-close problem, and the plates are still identical.",
+     "floor_changes": [
+      {
+       "floors": "43-85",
+       "move": "splay_or_offset_to_avoid_facing",
+       "direction": "rotate the plates away from each other",
+       "amount": "about 15 degrees",
+       "why": "the facing flats get oblique views instead of looking straight across"
+      },
+      {
+       "floors": "6-12",
+       "move": "podium_or_base_changes",
+       "direction": "toward the square to the S",
+       "amount": "match the neighbouring cornice height",
+       "why": "relates the base to the historic streetwall"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 300,
+      "premium": 244,
+      "good": 16,
+      "neutral": 0,
+      "compromised": 40,
+      "premiumShare": 0.8133,
+      "livingView": 0.6766,
+      "gdvCr": 2092.6,
+      "marginCr": 1080,
+      "efficiency": 0.5958,
+      "structural": 0.513,
+      "height": 291.6,
+      "slender": 14.04,
+      "fsiUtil": 0.745
+     }
+    }
+   }
+  },
+  {
+   "id": "A218",
+   "city": "nyc_midtown",
+   "influences": [
+    "Rafael Viñoly",
+    "Sanjay Puri"
+   ],
+   "pref": "win1",
+   "reason": "B's repetition is honest. A shuffles its plate without committing to a form.",
+   "quote": "If you're going to move the plate, commit to it. Otherwise give me B's pure repetition.",
+   "bySys": {
+    "hyb": {
+     "overall": 5,
+     "view_capture": 5,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 5,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 6,
+     "whats_wrong": "Two chamfered octagons with a slight shuffle in the plate, which reads as indecisive rather than as a sculptural move. Even at about 306 m it has no memorable identity on the skyline.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "twist_more",
+       "direction": "clockwise",
+       "amount": "1 degree per floor",
+       "why": "a strong helical identity using a single repeated plate"
+      },
+      {
+       "floors": "top 6 floors",
+       "move": "crown_or_top_articulation",
+       "direction": "toward the river to the W",
+       "amount": "a 12 m sloped crown",
+       "why": "presence on the skyline"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 320,
+      "premium": 170,
+      "good": 48,
+      "neutral": 0,
+      "compromised": 102,
+      "premiumShare": 0.5313,
+      "livingView": 0.5569,
+      "gdvCr": 3215.7,
+      "marginCr": 1677.5,
+      "efficiency": 0.6691,
+      "structural": 0.888,
+      "height": 309.6,
+      "slender": 12.77,
+      "fsiUtil": 0.948
+     }
+    },
+    "win1": {
+     "overall": 6,
+     "view_capture": 5,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 5,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 9,
+     "whats_wrong": "Two identical extruded octagons. They repeat perfectly and are easy to build, but they are silent on the skyline and get no richer toward the top.",
+     "floor_changes": [
+      {
+       "floors": "65+",
+       "move": "taper_more",
+       "direction": "toward the W",
+       "amount": "1.5 m every 5 floors",
+       "why": "a slender top with a view toward the Hudson"
+      },
+      {
+       "floors": "30+",
+       "move": "add_variety_between_floors",
+       "direction": "stepped sky gardens on the N and S faces",
+       "amount": "double-height every 10 floors",
+       "why": "rhythm on the facade"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 320,
+      "premium": 181,
+      "good": 24,
+      "neutral": 0,
+      "compromised": 115,
+      "premiumShare": 0.5656,
+      "livingView": 0.5572,
+      "gdvCr": 2633.3,
+      "marginCr": 1290.2,
+      "efficiency": 0.6393,
+      "structural": 0.892,
+      "height": 309.6,
+      "slender": 13.7,
+      "fsiUtil": 0.828
+     }
+    }
+   }
+  },
+  {
+   "id": "A274",
+   "city": "ldn_city",
+   "influences": [
+    "KPF",
+    "SHoP"
+   ],
+   "pref": "win1",
+   "reason": "The rotation in B turns the upper floors toward the river and makes it the slimmer tower.",
+   "quote": "B has an idea, turning toward the river. Taper it and it could be beautiful.",
+   "bySys": {
+    "hyb": {
+     "overall": 6,
+     "view_capture": 5,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 5,
+     "proportion": 5,
+     "context_fit": 6,
+     "constructability": 9,
+     "whats_wrong": "A chamfered rectangular extrusion that nearly fills its buildable envelope. It is efficient, but it is squat at 144 m, and its long faces point east-west, not toward the Thames.",
+     "floor_changes": [
+      {
+       "floors": "15+",
+       "move": "more_slender",
+       "direction": "narrow the E-W dimension",
+       "amount": "about 4 m",
+       "why": "better proportion"
+      },
+      {
+       "floors": "all",
+       "move": "rotate_plate_to_outlook",
+       "direction": "long face toward the Thames to the S",
+       "amount": "about 20 degrees",
+       "why": "the river view"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 70,
+      "premium": 5,
+      "good": 56,
+      "neutral": 6,
+      "compromised": 3,
+      "premiumShare": 0.0714,
+      "livingView": 0.4936,
+      "gdvCr": 575.3,
+      "marginCr": 196.7,
+      "efficiency": 0.6567,
+      "structural": 0.754,
+      "height": 147.6,
+      "slender": 7.27,
+      "fsiUtil": 0.993
+     }
+    },
+    "win1": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 7,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 7,
+     "whats_wrong": "A rectangular slab that rotates about 25 degrees as it rises, so the upper floors turn toward the river. It is elegant, but the plate stays the same size, which makes the top feel heavy, and the overhangs complicate the facade.",
+     "floor_changes": [
+      {
+       "floors": "33+",
+       "move": "taper_more",
+       "direction": "all sides",
+       "amount": "0.5 m per floor",
+       "why": "a slimmer top to finish the rotation"
+      },
+      {
+       "floors": "top 3 floors",
+       "move": "crown_or_top_articulation",
+       "direction": "toward the S",
+       "amount": "a set-back crown",
+       "why": "a clean finish to the rotation"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 74,
+      "premium": 1,
+      "good": 64,
+      "neutral": 5,
+      "compromised": 4,
+      "premiumShare": 0.0135,
+      "livingView": 0.4816,
+      "gdvCr": 555.8,
+      "marginCr": 256.9,
+      "efficiency": 0.6427,
+      "structural": 0.482,
+      "height": 154.8,
+      "slender": 9.01,
+      "fsiUtil": 0.987
+     }
+    }
+   }
+  },
+  {
+   "id": "A329",
+   "city": "ldn_city",
+   "influences": [
+    "Rafael Viñoly",
+    "Heatherwick Studio"
+   ],
+   "pref": "win1",
+   "reason": "A single slender tower suits the City and its protected views better.",
+   "quote": "One well-shaped tower respects the grain of the City. Three boxes don't.",
+   "bySys": {
+    "win1": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 8,
+     "massing_silhouette": 7,
+     "proportion": 8,
+     "context_fit": 6,
+     "constructability": 7,
+     "whats_wrong": "A single rotating triangular tower, slender and wedge-like, with no one looking in. Its heavy footprint rules out a public ground plane, and its sharp prow sits awkwardly against the medieval street pattern.",
+     "floor_changes": [
+      {
+       "floors": "6-17",
+       "move": "podium_or_base_changes",
+       "direction": "follow the street lines",
+       "amount": "4-storey base at the historic streetwall height",
+       "why": "relates the tower to its heritage context"
+      },
+      {
+       "floors": "40+",
+       "move": "taper_more",
+       "direction": "toward the Thames to the S",
+       "amount": "1 m every 3 floors",
+       "why": "a more refined top"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 92,
+      "premium": 30,
+      "good": 58,
+      "neutral": 2,
+      "compromised": 2,
+      "premiumShare": 0.3261,
+      "livingView": 0.5619,
+      "gdvCr": 1330,
+      "marginCr": 764.8,
+      "efficiency": 0.7272,
+      "structural": 0.533,
+      "height": 187.20000000000002,
+      "slender": 5.77,
+      "fsiUtil": 0.363
+     }
+    },
+    "hyb": {
+     "overall": 5,
+     "view_capture": 5,
+     "privacy_overlooking": 4,
+     "massing_silhouette": 5,
+     "proportion": 6,
+     "context_fit": 4,
+     "constructability": 8,
+     "whats_wrong": "Three square extrusions scattered across the plot, which reads as a crowded group next to the historic fabric, with a large podium. The towers look at each other.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "fewer_towers",
+       "direction": "drop the central tower",
+       "amount": "remove 1",
+       "why": "opens up the view corridors and eases the pressure on the context"
+      },
+      {
+       "floors": "40+",
+       "move": "lower",
+       "direction": "the north tower",
+       "amount": "8 floors",
+       "why": "varies the skyline"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 276,
+      "premium": 63,
+      "good": 142,
+      "neutral": 20,
+      "compromised": 51,
+      "premiumShare": 0.2283,
+      "livingView": 0.5014,
+      "gdvCr": 1903.5,
+      "marginCr": -1620.5,
+      "efficiency": 0.6303,
+      "structural": 0.782,
+      "height": 187.20000000000002,
+      "slender": 9.01,
+      "fsiUtil": 0.663
+     }
+    }
+   }
+  },
+  {
+   "id": "A386",
+   "city": "dadar",
+   "influences": [
+    "BIG / Bjarke Ingels",
+    "MVRDV"
+   ],
+   "pref": "win1",
+   "reason": "B's twist is at least one clear idea. A just fidgets.",
+   "quote": "B commits to one move. A can't make up its mind.",
+   "bySys": {
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 6,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 7,
+     "whats_wrong": "A square plate that pulses in and out and leans slightly. It is fidgety rather than bold, and nothing about it commits to the Arabian Sea or to Shivaji Park. The podium is heavy.",
+     "floor_changes": [
+      {
+       "floors": "15-40",
+       "move": "terrace_toward_outlook",
+       "direction": "stepping down toward the sea to the W",
+       "amount": "3 m every 3 floors",
+       "why": "a bold move that gives the flats real sea terraces"
+      },
+      {
+       "floors": "6-12",
+       "move": "podium_or_base_changes",
+       "direction": "all sides",
+       "amount": "cut it back to 4 floors",
+       "why": "it swallows the tower"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 70,
+      "premium": 9,
+      "good": 53,
+      "neutral": 8,
+      "compromised": 0,
+      "premiumShare": 0.1286,
+      "livingView": 0.5574,
+      "gdvCr": 761.9,
+      "marginCr": 78.9,
+      "efficiency": 0.6967,
+      "structural": 0.733,
+      "height": 147.6,
+      "slender": 5.31,
+      "fsiUtil": 0.554
+     }
+    },
+    "win1": {
+     "overall": 7,
+     "view_capture": 7,
+     "privacy_overlooking": 7,
+     "massing_silhouette": 7,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 7,
+     "whats_wrong": "A clean square plate with a steady twist of about 30 degrees. It is legible and slender, but timid: the twist ends with corners pointing N-S, not at the sea.",
+     "floor_changes": [
+      {
+       "floors": "23+",
+       "move": "twist_more",
+       "direction": "toward the sea to the W",
+       "amount": "a further 15 degrees",
+       "why": "face the flats square to the water"
+      },
+      {
+       "floors": "top 5 floors",
+       "move": "crown_or_top_articulation",
+       "direction": "W",
+       "amount": "a sloping cut",
+       "why": "identity from the Sea Link"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 70,
+      "premium": 21,
+      "good": 41,
+      "neutral": 8,
+      "compromised": 0,
+      "premiumShare": 0.3,
+      "livingView": 0.5236,
+      "gdvCr": 1089.7,
+      "marginCr": 600.4,
+      "efficiency": 0.7419,
+      "structural": 0.475,
+      "height": 147.6,
+      "slender": 5.27,
+      "fsiUtil": 0.756
+     }
+    }
+   }
+  },
+  {
+   "id": "A438",
+   "city": "nyc_midtown",
+   "influences": [
+    "SOM",
+    "Herzog & de Meuron"
+   ],
+   "pref": "win1",
+   "reason": "B is simpler and uses the full height, and it would be easy to fit with fins.",
+   "quote": "Build B, then turn its face to the park and give it fins.",
+   "bySys": {
+    "hyb": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 7,
+     "proportion": 6,
+     "context_fit": 5,
+     "constructability": 6,
+     "whats_wrong": "A chamfered octagon whose plate rotates within the triangular lot. The outlook side is blocked by a huge slab, and the undulation gives no shading logic on the south or west faces.",
+     "floor_changes": [
+      {
+       "floors": "6-23",
+       "move": "rotate_plate_to_outlook",
+       "direction": "toward Bryant Park to the N",
+       "amount": "about 20 degrees",
+       "why": "the slab to the S blocks the view that way"
+      },
+      {
+       "floors": "all",
+       "move": "stagger_or_cantilever",
+       "direction": "S and W faces",
+       "amount": "1 m shading fins or overhangs",
+       "why": "solar shading"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 70,
+      "premium": 62,
+      "good": 0,
+      "neutral": 0,
+      "compromised": 8,
+      "premiumShare": 0.8857,
+      "livingView": 0.661,
+      "gdvCr": 999.8,
+      "marginCr": 474.5,
+      "efficiency": 0.7249,
+      "structural": 0.595,
+      "height": 147.6,
+      "slender": 5.66,
+      "fsiUtil": 0.993
+     }
+    },
+    "win1": {
+     "overall": 6,
+     "view_capture": 6,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 5,
+     "proportion": 7,
+     "context_fit": 6,
+     "constructability": 9,
+     "whats_wrong": "A rotated square extruded to about 210 m, which is slender and simple. Its faces point at the big neighbouring slab, and it has no shading.",
+     "floor_changes": [
+      {
+       "floors": "32+",
+       "move": "rotate_plate_to_outlook",
+       "direction": "toward the park to the N",
+       "amount": "about 15 degrees",
+       "why": "a view over the park from above the neighbours"
+      },
+      {
+       "floors": "6-19",
+       "move": "splay_or_offset_to_avoid_facing",
+       "direction": "away from the slab to the SE",
+       "amount": "shift 3 m NW",
+       "why": "privacy from the slab"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 106,
+      "premium": 84,
+      "good": 0,
+      "neutral": 0,
+      "compromised": 22,
+      "premiumShare": 0.7925,
+      "livingView": 0.6621,
+      "gdvCr": 749.2,
+      "marginCr": 354,
+      "efficiency": 0.6153,
+      "structural": 0.496,
+      "height": 212.4,
+      "slender": 10.5,
+      "fsiUtil": 0.881
+     }
+    }
+   }
+  },
+  {
+   "id": "A492",
+   "city": "nyc_lower",
+   "influences": [
+    "Studio Gang",
+    "Herzog & de Meuron"
+   ],
+   "pref": "hyb",
+   "reason": "A's single tower keeps the park and the water views open, and its stagger gives the flats outdoor space.",
+   "quote": "Every flat should step out onto the harbour. A is almost there.",
+   "bySys": {
+    "hyb": {
+     "overall": 7,
+     "view_capture": 8,
+     "privacy_overlooking": 9,
+     "massing_silhouette": 7,
+     "proportion": 6,
+     "context_fit": 7,
+     "constructability": 6,
+     "whats_wrong": "A single tapering, rotating tower on the harbour point with a staggered, balcony-like edge. It has lovely open water all round, but the stagger is irregular and hard to repeat.",
+     "floor_changes": [
+      {
+       "floors": "6-53",
+       "move": "terrace_toward_outlook",
+       "direction": "toward the harbour to the S and W",
+       "amount": "2.5 m cantilevered balcony slabs every floor, repeating in a 4-floor pattern",
+       "why": "outdoor space for every flat and a repeatable facade"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 96,
+      "premium": 96,
+      "good": 0,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 1,
+      "livingView": 0.8567,
+      "gdvCr": 1764.2,
+      "marginCr": 1110,
+      "efficiency": 0.7427,
+      "structural": 0.706,
+      "height": 194.4,
+      "slender": 6.75,
+      "fsiUtil": 0.348
+     }
+    },
+    "win1": {
+     "overall": 6,
+     "view_capture": 7,
+     "privacy_overlooking": 6,
+     "massing_silhouette": 6,
+     "proportion": 7,
+     "context_fit": 5,
+     "constructability": 8,
+     "whats_wrong": "Three straight octagonal towers crowd a waterfront park. The pair in the NW is quite close together, and there are no balconies.",
+     "floor_changes": [
+      {
+       "floors": "all",
+       "move": "spread_towers_apart",
+       "direction": "west tower toward the W",
+       "amount": "6 m",
+       "why": "privacy"
+      },
+      {
+       "floors": "6-53",
+       "move": "corner_gardens_or_cutouts",
+       "direction": "harbour corners",
+       "amount": "a 3 m inset corner on every floor",
+       "why": "a balcony for every flat"
+      }
+     ],
+     "engine": {
+      "feasible": true,
+      "units": 288,
+      "premium": 288,
+      "good": 0,
+      "neutral": 0,
+      "compromised": 0,
+      "premiumShare": 1,
+      "livingView": 0.8217,
+      "gdvCr": 2366.3,
+      "marginCr": 1287.7,
+      "efficiency": 0.6225,
+      "structural": 0.767,
+      "height": 194.4,
+      "slender": 9.69,
+      "fsiUtil": 0.57
      }
     }
    }
