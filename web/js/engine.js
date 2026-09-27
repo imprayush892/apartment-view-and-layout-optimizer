@@ -487,7 +487,7 @@ function evaluateViews(ev, S, C, V) {
     privacy: 1 - mean(units.map(u => Math.max(...u.rooms.map(r => r.privacy)))), minMargin: Math.min(...units.map(u => u.margin)),
     rateCV: rates.length ? Math.sqrt(mean(rates.map(r => (r - mean(rates)) ** 2))) / mean(rates) : 0, risk: gdv ? risky / gdv : 0, evalLevels: evaluated.length });
   const m = ev.metrics;
-  ev.explain.unshift(`${m.units} units: ${m.premium} premium, ${m.good} good, ${m.neutral} neutral, ${m.compromised} compromised.`, `GDV ₹${Math.round(m.gdvCr).toLocaleString("en-IN")} cr on ${Math.round(m.carpet).toLocaleString("en-IN")} m² carpet (efficiency ${f2(m.efficiency, 2)}, FSI used ${f2(100 * m.fsiUtil, 0)}%).`);
+  ev.explain.unshift(`${m.units} units: ${m.premium} premium, ${m.good} good, ${m.neutral} neutral, ${m.compromised} compromised.`, `GDV ${(C.money || {}).sym || "₹"}${Math.round(m.gdv / ((C.money || {}).big || 1e7)).toLocaleString("en-IN")} ${(C.money || {}).bigL || "cr"} on ${Math.round(m.carpet).toLocaleString("en-IN")} m² carpet (efficiency ${f2(m.efficiency, 2)}, FSI used ${f2(100 * m.fsiUtil, 0)}%).`);
   const comp = units.filter(u => u.cls === "compromised"); if (comp.length) { const lo = comp.reduce((a, b) => a.level <= b.level ? a : b); ev.explain.push(`Lowest compromised unit ${lo.id}: ${lo.reasons[0]}.`); }
   const neu = units.filter(u => u.cls === "neutral"); if (neu.length) ev.explain.push(`Neutral units sit on levels ${Math.min(...neu.map(u => u.level))}–${Math.max(...neu.map(u => u.level))}.`);
   return ev;

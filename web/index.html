@@ -145,24 +145,28 @@ table.sens td.neg{color:var(--bad);font-weight:600}
 .compass i{position:absolute;left:50%;top:3px;width:0;height:0;margin-left:-5px;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:13px solid #e0584f;transform-origin:5px 14px}
 .compass::after{content:"N";position:absolute;left:50%;top:-15px;transform:translateX(-50%);font-size:10px}
 .glossary{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:6px 14px;font-size:13px;margin:0}.glossary dt{font-weight:700}.glossary dd{margin:0;color:var(--ink-2)}
-.mobnav{display:none}
+#btnRun{position:sticky;bottom:8px;z-index:6;box-shadow:0 -6px 12px var(--surface)}
+#edgeFold summary{cursor:pointer;font-size:12.5px;color:var(--ink-2);margin:4px 0}
+.jumplink{display:none}
+.legend3d{position:absolute;left:10px;bottom:10px;background:rgba(251,252,252,.94);color:#15201e;border-radius:7px;padding:6px 10px;font-size:12px;display:flex;gap:10px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.1)}.legend3d i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.scrollcue{background:linear-gradient(to right,var(--surface) 30%,transparent),linear-gradient(to left,var(--surface) 30%,transparent) 100% 0,radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.18),transparent),radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.18),transparent) 100% 0;background-repeat:no-repeat;background-size:40px 100%,40px 100%,14px 100%,14px 100%;background-attachment:local,local,scroll,scroll}
 .modecards{display:grid;grid-template-columns:1fr 1fr;gap:6px}.modecard{display:flex;flex-direction:column;gap:3px;text-align:left;font-weight:400;padding:8px 10px}.modecard b{font-size:13px}.modecard span{font-size:11.5px;color:var(--ink-2)}.modecard[aria-checked=true]{border-color:var(--accent);background:var(--accent-soft)}
 @media (max-width:960px){
   .shell{display:flex;flex-direction:column;align-items:stretch}
-  body{padding-bottom:70px}
-  .exportbar{padding-right:70px}
   header.top p{font-size:13px}
   header.top{flex-wrap:wrap}
   main.work{order:-1}
   .stage{height:62vh;min-height:340px}
-  .mobnav{display:flex;flex-direction:column;position:fixed;right:10px;bottom:10px;gap:4px;z-index:20}
-  .mobnav a{color:#fff;background:rgba(21,32,30,.82);text-decoration:none;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:99px;text-align:center}
+  header.top p{display:none}
+  main.work{display:flex;flex-direction:column}
+  #verdict{order:1} main.work nav.tabs{order:2} main.work .panel{order:3} #kpis{order:4} .exportbar{order:5}
+  .jumplink{display:inline-block;font-size:12.5px;font-weight:600;margin:4px 0}
   .hud{max-width:calc(100% - 120px)}
   nav.tabs{flex-wrap:wrap;overflow:visible}
   nav.tabs button{padding:7px 9px}
   .glossary{grid-template-columns:1fr}
 }
-body.present aside.controls, body.present nav.tabs, body.present .exportbar, body.present header.top p, body.present .mobnav, body.present #kpis{display:none!important}
+body.present aside.controls, body.present nav.tabs, body.present .exportbar, body.present header.top p, body.present #kpis{display:none!important}
 body.present .shell{grid-template-columns:minmax(0,1fr)}
 body.present .stage{height:78vh}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
@@ -173,7 +177,6 @@ body.present .stage{height:78vh}
   <p>Pin a location or upload a georeferenced DXF, confirm the buildable envelope and limits, then search tower typologies in a 3D city model. Click any floor of a result to see its view cone, or jump in to stand at the window.</p>
   <button type="button" class="chip" id="btnPresent" aria-pressed="false" title="Hide the inputs and show the tower and its verdict full width, for a client or buyer">Present</button>
 </header>
-<nav class="mobnav" aria-label="Jump to"><a href="#results" aria-label="Go to results">▲ Results</a><a href="#inputs" aria-label="Go to inputs">Inputs ▼</a></nav>
 
 <div class="shell">
 <aside class="controls" aria-label="Inputs" id="inputs">
@@ -206,7 +209,7 @@ body.present .stage{height:78vh}
       <label class="f">Longitude<input type="number" id="lon" step="0.0001" value="72.8375"></label>
       <label class="f">Radius (m)<input type="number" id="rad" value="1500" min="300" max="2500" step="100"></label>
     </div>
-    <div class="row"><button type="button" id="btnFetch" class="primary">Load context here</button><label class="f" style="flex:1 1 120px">Unknown heights (m)<input type="number" id="defH" value="" placeholder="by building type"></label></div>
+    <div class="row"><button type="button" id="btnFetch" class="primary">Load context here</button><label class="f" style="flex:1 1 120px">Unknown heights (m)<input type="number" id="defH" value="" placeholder="auto" title="Blank = estimated by building type and calibrated against tagged buildings nearby"></label></div>
     <p class="status" id="ctxInfo"></p>
   </section>
 
@@ -245,7 +248,7 @@ body.present .stage{height:78vh}
     <h2><b>3</b>Buildable envelope</h2>
     <div class="q"><p><strong id="envQtext">Is this outline the buildable envelope?</strong></p>
       <div class="row"><button type="button" class="chip" id="envYes" aria-pressed="false">Yes, build to the line</button><button type="button" class="chip" id="envNo" aria-pressed="true">No, set setbacks</button></div></div>
-    <div id="setbackBox"><p class="hint">Click a side in the Site plan tab, or edit the list.</p><div class="edges" id="edgeList"></div></div>
+    <div id="setbackBox"><p class="hint">Click a side in the Site plan tab, or edit the list.</p><div class="row"><label class="f" style="flex:1 1 110px">Same setback on every side (m)<input type="number" id="sbAll" min="0" step="0.5" placeholder="e.g. 6"></label><button type="button" class="chip" id="sbAllGo">Apply to all</button></div><details id="edgeFold" open><summary id="edgeSum">Sides</summary><div class="edges" id="edgeList"></div></details></div>
     <p class="status" id="envInfo"></p>
   </section>
 
@@ -299,8 +302,8 @@ body.present .stage{height:78vh}
       <p class="hint">Compromised if any: living view &lt; <input type="number" id="cQ" value="0.25" step="0.05" style="width:62px">, obstruction within <input type="number" id="cD" value="100" style="width:62px"> m, horizon angle &gt; <input type="number" id="cA" value="10" style="width:62px">°, privacy &gt; <input type="number" id="cP" value="0.35" step="0.05" style="width:62px">.</p>
       <p class="hint">Premium: living sea ≥ <input type="number" id="prW" value="0.45" step="0.05" style="width:62px"> and view ≥ <input type="number" id="prQ" value="0.6" step="0.05" style="width:62px">, plus at least <input type="number" id="prShare" value="50" step="5" style="width:58px"> % of bedrooms with sea ≥ <input type="number" id="prBW" value="0.3" step="0.05" style="width:62px">. Thresholds calibrated on Dadar test plots (seafront ≈ 75 % premium, 600 m inland ≈ 25 %, 900 m ≈ 10 %).</p>
       <div class="grid2">
-        <label class="f">Base rate (₹/ft² carpet)<input type="number" id="eRate" value="45000" step="500"></label>
-        <label class="f">Construction (₹/ft² BUA)<input type="number" id="eCost" value="12000" step="500"></label>
+        <label class="f"><span data-cur="Base rate ({s}/ft² carpet)">Base rate (₹/ft² carpet)</span><input type="number" id="eRate" value="45000" step="500"></label>
+        <label class="f"><span data-cur="Construction ({s}/ft² BUA)">Construction (₹/ft² BUA)</span><input type="number" id="eCost" value="12000" step="500"></label>
         <label class="f">Floor rise (% per floor)<input type="number" id="eRise" value="0.5" step="0.1"></label>
         <label class="f">Pricing<select id="ePricing"><option value="continuous" selected>Continuous in living-room view</option><option value="class">By class</option></select></label>
         <label class="f">Premium / good / neutral / compromised ×<input type="text" id="eMult" value="1.15, 1.00, 0.90, 0.75"></label>
@@ -316,6 +319,7 @@ body.present .stage{height:78vh}
 </aside>
 
 <main class="work" id="results">
+  <a class="jumplink" href="#inputs">Edit inputs ↓</a>
   <div id="verdict"></div>
   <div class="summary" id="kpis"></div>
   <div class="exportbar" role="group" aria-label="Export and share"><span class="lab">Export &amp; share:</span>
@@ -348,6 +352,7 @@ body.present .stage{height:78vh}
       </div>
       <div class="jumpbar" id="jumpbar" hidden><span class="compass" aria-hidden="true"><i id="jumpNeedle"></i></span><span><span id="jumpText"></span><br>Looking <b id="jumpHeading"></b> · drag to look · W A S D or the pad to step</span><div class="jpad"><button type="button" data-jturn="-20" aria-label="Turn left">⟲</button><button type="button" data-jkey="w" aria-label="Step forward">▲</button><button type="button" data-jturn="20" aria-label="Turn right">⟳</button><button type="button" data-jkey="a" aria-label="Step left">◀</button><button type="button" data-jkey="s" aria-label="Step back">▼</button><button type="button" data-jkey="d" aria-label="Step right">▶</button></div><button type="button" id="jumpSea">Face the sea</button><button type="button" id="jumpExit">Exit (Esc)</button></div>
       <div class="attrib" id="attrib">© OpenStreetMap contributors</div>
+      <div class="legend3d" id="legend3d" hidden></div>
     </div>
     <div class="card" id="coneCard" hidden>
       <div class="row" style="justify-content:space-between"><h3 id="coneTitle">View cone</h3>
@@ -387,7 +392,8 @@ body.present .stage{height:78vh}
     <div class="card">
       <div class="row" style="justify-content:space-between"><h3>Ranked options</h3><button type="button" id="btnCopy" class="chip">Copy results JSON</button></div>
       <p class="hint">“Best” options are best trade-offs: no other option beats them on every measure (sales value minus construction cost, fewer compromised flats, more premium flats, living-room views, efficiency, simpler structure). Lower numbers are further from that front. Click a column heading to sort, or a row to show it in 3D.</p>
-      <div class="tablewrap scroll"><table id="optTbl"></table></div>
+      <div id="optChart"></div>
+      <div class="tablewrap scroll scrollcue"><table id="optTbl"></table></div>
     </div>
     <div class="card"><h3>Rejected options</h3><div class="tablewrap scroll"><table id="rejTbl"></table></div></div>
   </section>
@@ -403,7 +409,7 @@ body.present .stage{height:78vh}
     <div class="two">
       <div class="card"><div class="row" style="justify-content:space-between"><h3>Economics</h3><span class="badge r">Placeholder rates</span></div>
         <div class="grid2">
-          <label class="f">Land cost (₹ cr)<input type="number" id="xLand" value="" placeholder="enter to include" min="0" step="10"></label>
+          <label class="f"><span data-cur="Land cost ({s} {b})">Land cost (₹ cr)</span><input type="number" id="xLand" value="" placeholder="enter to include" min="0" step="10"></label>
           <label class="f">Soft costs (% of construction)<input type="number" id="xSoft" value="15" step="1"></label>
           <label class="f">Sales &amp; marketing (% of GDV)<input type="number" id="xSales" value="3" step="0.5"></label>
           <label class="f">Target margin (% of GDV)<input type="number" id="xTarget" value="20" step="1"></label>
@@ -411,7 +417,7 @@ body.present .stage{height:78vh}
           <label class="f">Sales per quarter (% of flats)<input type="number" id="xAbs" value="6" min="0.5" step="0.5"></label>
           <label class="f">Discount rate (% a year)<input type="number" id="xDisc" value="12" step="0.5"></label>
         </div>
-        <p class="hint">Construction uses the ₹/ft² built-up rate in step 5 (advanced) times the whole tower incl. podium, plus a premium for structurally complex shapes.</p>
+        <p class="hint">Construction uses the per-ft² built-up rate in step 5 (advanced) times the whole tower incl. podium, plus a premium for structurally complex shapes.</p>
         <div id="econOut"></div></div>
       <div class="card"><div class="row" style="justify-content:space-between"><h3>Building-height uncertainty</h3><button type="button" class="chip" id="btnHeight">Test this tower</button></div><div id="htOut"></div></div>
     </div>

@@ -1,0 +1,2502 @@
+[
+ {
+  "profile": "Priya R., principal product designer, B2B proptech SaaS, Bengaluru (14 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_04 Design detail header",
+    "severity": "blocker",
+    "issue": "Subtitle leaks 'taper [object Object] \u00b7 cut [object Object] \u00b7 crown [object Object]', a raw serialisation bug on the design you are asking people to trust.",
+    "fix": "Serialise the taper/cut/crown params into readable strings, or hide the line until they are formatted; add a UI test that fails on '[object Object]'."
+   },
+   {
+    "screen": "A_03/A_06 KPI row",
+    "severity": "major",
+    "issue": "New York and London results are priced in \u20b9 crore (\u20b93,489 cr, \u20b9938 cr), which makes no sense to a US or UK developer.",
+    "fix": "Tie currency and units to the city snapshot (USD/GBP with $M/\u00a3M), or show 'placeholder, INR' next to the value."
+   },
+   {
+    "screen": "A_05 Options table",
+    "severity": "major",
+    "issue": "Every row has a 'best' badge, so the badge does not tell rows apart, and the right-hand columns are cut off ('VALU').",
+    "fix": "Show rank numbers, keep the 'best-for' tags as the differentiator, and make the table scroll horizontally with a sticky Typology column."
+   },
+   {
+    "screen": "A_03 verdict",
+    "severity": "minor",
+    "issue": "The 'Token:' prefix is internal jargon in the headline.",
+    "fix": "Drop the prefix and name the source in a small tag ('from library')."
+   }
+  ],
+  "liked": [
+   "The plain-words verdict banner stays at the top",
+   "The height-reliability pill is honest about the data",
+   "The multi-tower result reads clearly in the 3D view"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "The cards explain what each engine does. The dropdown label is truncated ('architect feedb')."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "The colour shows the canyon problem (the orange lower floors) straight away, which is the point of the product."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Clients understand 'narrows toward the top' and the Kanchanjunga precedent."
+  },
+  "quote": "The engine is getting smarter than the interface around it; fix the \u20b9 in Manhattan and the [object Object] before anyone important sees it."
+ },
+ {
+  "profile": "Marcus T., data-visualisation lead, real-estate analytics firm, New York (11 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_03 Compromised units KPI",
+    "severity": "major",
+    "issue": "'80' in red with the caption 'existing context' reads as if the context were compromised. It hides that 61% of flats are compromised.",
+    "fix": "Show '80 / 132 (61%) compromised: lower floors in street canyon' and add a stacked bar of strong / good / compromised."
+   },
+   {
+    "screen": "A_05 Options table",
+    "severity": "major",
+    "issue": "ROT \u00b0 values of 75.9 next to 5.2 are shown with no meaning, and there is no visual encoding of the trade-off front.",
+    "fix": "Add a small scatter (value vs compromised flats) above the table with the Pareto front highlighted, and explain rotation in a tooltip."
+   },
+   {
+    "screen": "A_03 3D legend",
+    "severity": "major",
+    "issue": "There is no legend for purple, lilac and orange in the 3D view.",
+    "fix": "Add a compact legend chip in the canvas corner with counts per class."
+   },
+   {
+    "screen": "A_04 Rule checks",
+    "severity": "minor",
+    "issue": "Only 'tower 1' rows are visible on a two-tower site.",
+    "fix": "Group the checks by tower with a pass count per tower."
+   }
+  ],
+  "liked": [
+   "The floor colouring makes the canyon floors obvious",
+   "The KPI cards use a consistent monospaced number style"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "The trade-offs between the engines are clearer on the cards."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Neutral massing removes the most information-dense encoding on the screen."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Readable, but keep the technical parameters in a tooltip."
+  },
+  "quote": "Colour is your best chart here; don't hide it behind a click."
+ },
+ {
+  "profile": "Elena V., 3D/spatial interface designer, AEC visualisation, Berlin (9 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 4,
+  "trust": 3,
+  "mobile": 2,
+  "overall_new": 7,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_01 3D loaded",
+    "severity": "major",
+    "issue": "The default camera sits inside a canyon of grey slabs that fills the viewport, so there is no sense of the site or the plot outline.",
+    "fix": "Frame the camera on the plot at 45\u00b0 with the plot footprint highlighted, and fit the view to the envelope when the snapshot loads."
+   },
+   {
+    "screen": "A_03 3D result",
+    "severity": "major",
+    "issue": "The two towers are small and partly hidden behind a foreground skyscraper, while a foreground tower occupies the right third of the view.",
+    "fix": "Auto-frame the camera on the generated towers after a run, and fade context buildings that sit between the camera and the result."
+   },
+   {
+    "screen": "A_07 Phone",
+    "severity": "major",
+    "issue": "The phone result shows no 3D or massing at all above the fold.",
+    "fix": "Add a small static 3D thumbnail card after the verdict."
+   },
+   {
+    "screen": "B_03 Neutral",
+    "severity": "minor",
+    "issue": "The warm massing is barely distinguishable from the context.",
+    "fix": "If B is kept, add an outline or accent edge to the proposed towers."
+   }
+  ],
+  "liked": [
+   "The Thames and the London context read well",
+   "The floor banding on the towers",
+   "Reset view and Top view controls"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards suit a choice among four engines."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "In B the proposal gets lost in the context, as the Midtown view shows."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "The precedent helps people imagine the form."
+  },
+  "quote": "The camera should find the building for me after every run."
+ },
+ {
+  "profile": "Aisha K., accessibility specialist (WCAG auditor), London (12 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 3D colours",
+    "severity": "major",
+    "issue": "Purple versus lilac is a low-contrast, hue-only distinction that colour-blind users cannot tell apart, and there is no legend.",
+    "fix": "Use distinct lightness steps plus a pattern or labels, add a text legend, and offer the class list as a table."
+   },
+   {
+    "screen": "A_01 Left panel",
+    "severity": "major",
+    "issue": "The mono placeholders ('by building typ') are truncated and light grey on grey.",
+    "fix": "Use a proper visible label, avoid truncating placeholders, and raise contrast to 4.5:1."
+   },
+   {
+    "screen": "A_07 Phone",
+    "severity": "major",
+    "issue": "The floating Results and Inputs buttons sit over the Units CSV and CAD chips.",
+    "fix": "Reserve bottom padding equal to the floating-bar height."
+   },
+   {
+    "screen": "B_02 Cards",
+    "severity": "minor",
+    "issue": "Selected state is shown only by a pale blue fill.",
+    "fix": "Add a check icon or a thicker border, and use radio semantics."
+   }
+  ],
+  "liked": [
+   "The numbered steps",
+   "Good heading hierarchy in the verdict"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "More text context helps, provided it is built as a radio group."
+  },
+  "ab_neutral3d": {
+   "choice": "no preference",
+   "reason": "Both fail without a legend. A is better if the palette is fixed."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain language is an accessibility win."
+  },
+  "quote": "Don't make premium versus good depend on telling two purples apart."
+ },
+ {
+  "profile": "Kenji M., mobile UX lead, consumer and pro apps, Tokyo (10 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 5,
+  "top_issues": [
+   {
+    "screen": "A_07 Phone",
+    "severity": "major",
+    "issue": "The floating Results and Inputs pills still overlap the export chips.",
+    "fix": "Use a bottom tab bar with safe-area padding, or pin the pills at the right edge with content inset."
+   },
+   {
+    "screen": "A_07 Phone",
+    "severity": "major",
+    "issue": "The intro paragraph and Present button use the first screen before the result.",
+    "fix": "Collapse the intro on mobile after the first visit."
+   },
+   {
+    "screen": "A_07 KPI grid",
+    "severity": "minor",
+    "issue": "'1/floor \u00b7 61 floors \u00b7 220 m' wraps awkwardly ('220' then 'm').",
+    "fix": "Use a non-breaking space between number and unit."
+   }
+  ],
+  "liked": [
+   "The pills are smaller than in the previous version and cover less",
+   "The 2-column KPI grid reads well"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards are better tap targets than a native select."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Tapping floors on a phone is hard, so the colour has to carry the class."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Shorter words fit small screens better."
+  },
+  "quote": "Better than last time, but the floating bar still eats the export row."
+ },
+ {
+  "profile": "Lars H., design-systems architect, enterprise tools, Copenhagen (15 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_04 Design detail",
+    "severity": "blocker",
+    "issue": "The '[object Object]' leak shows there is no formatter layer for parameters.",
+    "fix": "Build a single typed formatter per token parameter and reuse it in the header, the tables and the exports."
+   },
+   {
+    "screen": "A_03 KPI cards",
+    "severity": "minor",
+    "issue": "The KPI card heights are uneven because labels wrap ('MAIN VIEW ARC (SEA OR SKYLINE)').",
+    "fix": "Use shorter labels such as 'View arc' with a qualifier underneath."
+   },
+   {
+    "screen": "Global",
+    "severity": "minor",
+    "issue": "Mixed chip semantics: 'best' uses teal-filled pills, tags use grey pills, and status uses outlined pills.",
+    "fix": "Define chip variants (status, tag, action) and document them."
+   },
+   {
+    "screen": "A_02 Left panel",
+    "severity": "minor",
+    "issue": "'Core offset from sea (m)' appears on inland Manhattan.",
+    "fix": "Make the field label follow the view target ('from main view')."
+   }
+  ],
+  "liked": [
+   "The consistent card and pill language",
+   "The restrained palette"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "This is a reusable choice-card pattern."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Keep the semantic colour tokens."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain labels, with the technical terms kept in the data."
+  },
+  "quote": "One formatter bug tells me the design system stops at the CSS."
+ },
+ {
+  "profile": "Dr. Nora S., UX research director, architecture software, Boston (13 yrs)",
+  "clarity": 3,
+  "ease": 2,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 7,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_02 Step 5",
+    "severity": "major",
+    "issue": "The dossier says FSI and 'every flat compromised' badges exist, but they were not visible in these runs, so users won't learn they exist.",
+    "fix": "Always show a verdict badge row: 'Height limited by max height 260 m', 'FSI 93% used'."
+   },
+   {
+    "screen": "A_03 verdict",
+    "severity": "major",
+    "issue": "The verdict does not say which search method produced the result or its runtime (5 designs in 25 s).",
+    "fix": "Add 'Hybrid \u00b7 5 designs evaluated' to the verdict meta line."
+   },
+   {
+    "screen": "A_02 Left panel",
+    "severity": "major",
+    "issue": "A long list of edge setbacks (E0 to E11) pushes the Run button far down.",
+    "fix": "Collapse the edge list into 'Setbacks: 0 m all sides \u00b7 edit' and keep Run sticky."
+   }
+  ],
+  "liked": [
+   "The Rejected options section is transparent",
+   "The rule checks with codes help trust"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Novices can't map 'probabilistic' to anything. The cards test better."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Users would never discover click-to-see."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Precedents anchor understanding."
+  },
+  "quote": "Tell me which engine answered and why it stopped at 72 floors."
+ },
+ {
+  "profile": "Rahul D., information architect, government and urban platforms, Pune (8 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 7,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_05 Options",
+    "severity": "major",
+    "issue": "Rows look like duplicates ('curved \u00b7 twist \u00b7 stagger' appears twice) because the differing field (units per floor) is lost.",
+    "fix": "Include the distinguishing attribute in the row name ('\u2026 \u00b7 2 flats/floor')."
+   },
+   {
+    "screen": "A_03 Top option KPI",
+    "severity": "minor",
+    "issue": "'Chamfered \u00d72 (token)' does not match the verdict name 'chamfered \u00b7 taper \u00b7 gardens'.",
+    "fix": "Use one canonical name everywhere."
+   },
+   {
+    "screen": "A_01 Tabs",
+    "severity": "minor",
+    "issue": "The export bar comes before the tabs even when there is no result.",
+    "fix": "Hide or disable exports until a run completes."
+   }
+  ],
+  "liked": [
+   "The five-step left rail",
+   "Clear tab names"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Self-describing options."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "The class is the core information."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Consistent plain naming."
+  },
+  "quote": "Name things once and use that name everywhere."
+ },
+ {
+  "profile": "Sophie L., visual and brand designer, luxury real-estate marketing, Paris (10 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 3D",
+    "severity": "major",
+    "issue": "The flat grey context with harsh purple and orange looks like a debugging view, not a pitch view.",
+    "fix": "Use soft ambient occlusion, a warm context tone and a refined class palette, as in B, with accents."
+   },
+   {
+    "screen": "Global type",
+    "severity": "minor",
+    "issue": "Monospace values in KPIs and inputs feel engineering-grade.",
+    "fix": "Use tabular figures in the UI sans for KPIs."
+   },
+   {
+    "screen": "B_03",
+    "severity": "minor",
+    "issue": "The neutral massing is elegant but the proposal disappears.",
+    "fix": "Add a subtle glow or outline on the proposal."
+   }
+  ],
+  "liked": [
+   "The B warm massing is more presentable",
+   "The clean card layout"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "The cards look more considered."
+  },
+  "ab_neutral3d": {
+   "choice": "B",
+   "reason": "Better for client presentation. Offer a toggle for analysis."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "It is marketing-ready language."
+  },
+  "quote": "Give me a presentation skin; the analysis colours can be a toggle."
+ },
+ {
+  "profile": "Wei C., service designer, developer feasibility workflows, Singapore (7 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 verdict",
+    "severity": "major",
+    "issue": "The result is shown as 'best trade-off' while 61% of flats are compromised, with no warning or next step.",
+    "fix": "Surface the 'most flats compromised' badge and suggest actions (raise podium, fewer towers, shift the plot)."
+   },
+   {
+    "screen": "A_03 GDV",
+    "severity": "major",
+    "issue": "Placeholder \u20b9 rates are applied to foreign cities.",
+    "fix": "Prompt the user to enter local rates before showing a GDV. Otherwise, show it as an index."
+   },
+   {
+    "screen": "A_06 London",
+    "severity": "minor",
+    "issue": "Search time and design count are not shown, so users can't judge search depth.",
+    "fix": "Add a run summary line."
+   }
+  ],
+  "liked": [
+   "The Board pack and share link for handoff",
+   "The honest 'Placeholder rates' tag"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "It explains the cost and benefit of each method."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Stakeholders need to see compromised floors at a glance."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "It is understandable across the team."
+  },
+  "quote": "When 80 of 132 flats are compromised, the app should say so loudly and offer what to try next."
+ },
+ {
+  "profile": "Priya Raman, Principal B2B product designer, Bengaluru, 14 yrs on proptech and developer tools",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_04 / B_04 Design detail",
+    "severity": "blocker",
+    "issue": "The subtitle under the token name shows 'taper [object Object] \u00b7 cut [object Object] \u00b7 crown [object Object]'. Raw serialisation bugs on the main detail screen undermine every number next to them.",
+    "fix": "Format the taper, cut and crown objects into readable strings, and add a test that fails if 'object Object' appears in rendered text."
+   },
+   {
+    "screen": "A_03 / A_06 verdict and GDV tile",
+    "severity": "major",
+    "issue": "The Manhattan and London sales values are in \u20b9 crore (\u20b93,489 cr, \u20b9938 cr). A New York developer would not read these as credible numbers.",
+    "fix": "Take currency and units from the city snapshot (USD m, GBP m), or label the value 'INR placeholder' more loudly than the grey chip does."
+   },
+   {
+    "screen": "A_05 Options",
+    "severity": "major",
+    "issue": "All five rows carry the same 'best' badge, so the badge tells the user nothing. The ROT column is cryptic, and the VALUE column is cut off at the right edge.",
+    "fix": "Rank the rows 1-5 and keep 'best' for the frontier only when some options are dominated. Rename ROT to 'Rotation \u00b0' and make the table scroll with a sticky first column."
+   },
+   {
+    "screen": "A_03 verdict",
+    "severity": "major",
+    "issue": "The verdict says '1 flat per floor, 72 floors' while the tile says 'Chamfered \u00d72', so it is unclear whether 132 flats spans both towers.",
+    "fix": "Write 'two towers \u00d7 72 floors, 1 flat per floor each = 132 flats' in the verdict."
+   }
+  ],
+  "liked": [
+   "The plain-words verdict sentence at the top",
+   "The height-data reliability chip",
+   "Numbered steps in the left rail"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "The cards explain what each method does. The dropdown label 'Hybrid (generative + architect feedb\u2026' is cut off."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Colour by class shows the canyon problem (orange base, purple top) at a glance, and that is the main story for Midtown."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "The Kanchanjunga precedent gives clients something to picture, but the [object Object] string has to go first."
+  },
+  "quote": "The engine is serious; a single [object Object] makes it look like a hackathon demo."
+ },
+ {
+  "profile": "Marcus Hale, Senior data-visualisation designer, New York, ex-newsroom graphics",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 7,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 3D",
+    "severity": "major",
+    "issue": "The class colours have no legend: purple, lilac and orange are not explained anywhere on the canvas.",
+    "fix": "Add a small legend in the 3D view: purple = strong view, lilac = good, orange = compromised, with counts."
+   },
+   {
+    "screen": "A_03 KPI tiles",
+    "severity": "major",
+    "issue": "The 48 strong / 4 good / 80 compromised split is buried in prose. The tiles show only 'compromised 80' and 'premium 48/132'.",
+    "fix": "Show one stacked bar of view classes per tower in place of two separate tiles."
+   },
+   {
+    "screen": "A_05 Options",
+    "severity": "minor",
+    "issue": "The table is numbers only. The trade-off frontier the text describes is never drawn.",
+    "fix": "Add a small scatter plot of value against compromised flats, with frontier points highlighted and linked to the rows."
+   },
+   {
+    "screen": "A_03 3D camera",
+    "severity": "minor",
+    "issue": "A foreground building blocks the right third of the default camera view.",
+    "fix": "Frame the default camera on the site towers and avoid occluders."
+   }
+  ],
+  "liked": [
+   "Orange-to-purple banding shows view quality by floor",
+   "The London view is well framed",
+   "The mono type in the KPI tiles aligns well"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Four options are few enough for cards, and the descriptions help people choose."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Hiding the class until a floor is clicked throws away the single most informative encoding."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain language wins with non-architects."
+  },
+  "quote": "Your best chart is the tower itself \u2014 give it a legend."
+ },
+ {
+  "profile": "Dr. Lena Vogt, 3D/spatial interface lead, Munich, 10 yrs in BIM viewers",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 4,
+  "trust": 3,
+  "mobile": 2,
+  "overall_new": 7,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_01 3D",
+    "severity": "major",
+    "issue": "Before a result exists, the initial camera sits inside the Midtown canyon and the view is mostly a grey wall with no site marker.",
+    "fix": "Open on an oblique aerial of the site and highlight the plot outline."
+   },
+   {
+    "screen": "A_03 3D",
+    "severity": "major",
+    "issue": "The two towers stand side by side with no labels, so the user cannot tell which is tower 1 and which is tower 2.",
+    "fix": "Add floating T1/T2 labels and let the user select a tower for its own stats."
+   },
+   {
+    "screen": "A_04 Floor plan",
+    "severity": "minor",
+    "issue": "Unit labels ('U', 'd') overlap the core inside the plate, and the second tower is cut off at the frame edge.",
+    "fix": "Auto-fit the plan to both plates and place labels outside the core."
+   },
+   {
+    "screen": "B_03 neutral",
+    "severity": "minor",
+    "issue": "The neutral massing blends into the grey OSM context and the proposal almost disappears.",
+    "fix": "If B is kept, use a warm accent with an outline so the proposal stays distinct from the context."
+   }
+  ],
+  "liked": [
+   "Reset view and Top view controls",
+   "The dismissible interaction hint",
+   "The London context density looks convincing"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "The cards are clearer."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "In B the proposal gets lost among the grey context blocks."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "More human, and the precedents help."
+  },
+  "quote": "In B the proposal is camouflaged in its own context."
+ },
+ {
+  "profile": "Aisha Karim, Accessibility specialist (WCAG auditor), London",
+  "clarity": 3,
+  "ease": 2,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 3D colours",
+    "severity": "major",
+    "issue": "The purple/lilac/orange scheme is the only carrier of view class. It fails for users who cannot see colour and is not available to screen readers.",
+    "fix": "Add a text summary per tower, a pattern or hatch for compromised floors, and a legend with counts."
+   },
+   {
+    "screen": "A_01 / A_03 chips",
+    "severity": "minor",
+    "issue": "The green and amber chip text on pale fills looks close to or below 4.5:1 contrast.",
+    "fix": "Darken the chip text colours and check them with a contrast tool."
+   },
+   {
+    "screen": "A_02 Towers on the site",
+    "severity": "minor",
+    "issue": "Some field labels ('Consumable FSI area (m\u00b2)') wrap awkwardly, and the placeholder 'e.g. 20, 30' is the only hint for the field.",
+    "fix": "Add persistent helper text below the field."
+   },
+   {
+    "screen": "B_02 cards",
+    "severity": "minor",
+    "issue": "The selected card is marked only by a pale blue fill.",
+    "fix": "Add a check icon and a thicker border, and implement the cards as a radio group."
+   }
+  ],
+  "liked": [
+   "Tabs have clear underline states",
+   "The verdict is written in plain words",
+   "Focus ring visible on the towers input"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Readable and explanatory, as long as it is marked up as a radio group."
+  },
+  "ab_neutral3d": {
+   "choice": "no preference",
+   "reason": "A relies on colour alone and B hides the information. Both need a text alternative."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain language is an accessibility win."
+  },
+  "quote": "Colour is doing all the talking; give it words too."
+ },
+ {
+  "profile": "Kenji Watanabe, Mobile UX lead, Tokyo, consumer and enterprise apps",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 5,
+  "top_issues": [
+   {
+    "screen": "A_07 Phone",
+    "severity": "major",
+    "issue": "The Results/Inputs floating buttons still overlap the export chips.",
+    "fix": "Reserve bottom padding equal to the button height, or move the toggle into a sticky top segment control."
+   },
+   {
+    "screen": "A_07 Phone",
+    "severity": "major",
+    "issue": "The 3D view, the most valuable output, is below the fold under six tiles and the export chips.",
+    "fix": "Put a 3D thumbnail right after the verdict and collapse the tiles into a swipeable row."
+   },
+   {
+    "screen": "A_07 Phone",
+    "severity": "minor",
+    "issue": "The long app description takes the first screen on every visit.",
+    "fix": "Collapse the description after first use."
+   }
+  ],
+  "liked": [
+   "The verdict card reads well on a phone",
+   "The two-column tile grid holds up at 390 px",
+   "The floating toggle is smaller and less intrusive than in the previous version"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards are better touch targets than a native select that truncates."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "On a small screen the user cannot tap floors precisely, so colour must carry the class."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Short plain phrases fit the phone better."
+  },
+  "quote": "Better than before, but the floating button still eats the export row."
+ },
+ {
+  "profile": "Sofia Lindqvist, Design systems manager, Stockholm",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 KPI tiles",
+    "severity": "minor",
+    "issue": "The KPI values use a monospace face while the rest of the UI is sans, and long values ('Chamfered \u00d72 (token)') wrap awkwardly in that face.",
+    "fix": "Use tabular-figure sans for numbers and sans for text values."
+   },
+   {
+    "screen": "A_05 badges",
+    "severity": "minor",
+    "issue": "Tag chips ('highest value', 'most premium flats') sit inline with names and push the name text around.",
+    "fix": "Move the tags to their own 'Best for' column."
+   },
+   {
+    "screen": "A_03 Export row",
+    "severity": "minor",
+    "issue": "Seven identical pill buttons give no hierarchy.",
+    "fix": "Make Board pack primary and group the rest in an Export menu."
+   },
+   {
+    "screen": "A_04 Rule checks",
+    "severity": "minor",
+    "issue": "Rule codes such as GR-CORE-RATIO-01 dominate the list.",
+    "fix": "Lead with a plain description and put the code in muted text."
+   }
+  ],
+  "liked": [
+   "The card and chip language is consistent",
+   "The teal accent is restrained",
+   "The numbered step badges"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "This is a reusable choice-card pattern."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "It uses the palette with a purpose."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Friendlier content design."
+  },
+  "quote": "Good bones; tighten type roles and button hierarchy."
+ },
+ {
+  "profile": "Rahul Mehta, UX researcher, Mumbai, ran studies with developers and brokers",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_03 verdict",
+    "severity": "major",
+    "issue": "80 of 132 flats are compromised, yet this is presented as the 'Best trade-off' with no badge saying every option is heavily compromised. The dossier says such badges exist, but none is visible here.",
+    "fix": "Show a warning chip: 'Most flats below floor ~30 face the canyon; consider fewer, taller floors or a podium'."
+   },
+   {
+    "screen": "A_05 Options",
+    "severity": "major",
+    "issue": "Five designs were evaluated and all five are 'best'. Users will ask what was actually compared.",
+    "fix": "Show 'evaluated 5 in 25 s' and whether any options were dominated."
+   },
+   {
+    "screen": "A_02 Search method",
+    "severity": "minor",
+    "issue": "Users will not know that 'Designs to evaluate in full (token modes)' applies to some methods and not others.",
+    "fix": "Show or hide the field based on the selected method."
+   }
+  ],
+  "liked": [
+   "The rule checks give credibility",
+   "The previous Mumbai version had a clearer success story"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "In testing, described cards reduce hesitation."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Brokers want to see at a glance which floors to sell as premium."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Developers relate to named precedents."
+  },
+  "quote": "Calling 80 compromised flats the 'best' will confuse a client."
+ },
+ {
+  "profile": "Claire Dubois, Information architect, Paris, complex configurators",
+  "clarity": 2,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_02 left rail",
+    "severity": "major",
+    "issue": "The inputs form one very long scroll: the edge table E0-E11, FSI and so on. Run search is far below the fold.",
+    "fix": "Put a sticky Run button at the bottom of the rail and collapse the edge table by default."
+   },
+   {
+    "screen": "A_04 Rule checks",
+    "severity": "major",
+    "issue": "Only tower 1 checks are visible on a two-tower site.",
+    "fix": "Group the checks per tower with a pass/fail summary."
+   },
+   {
+    "screen": "A_03 tab order",
+    "severity": "minor",
+    "issue": "The Options tab sits between 3D and Design detail, but users look at the ranked list first.",
+    "fix": "Order the tabs Options, 3D, Design detail, Site plan, Method."
+   }
+  ],
+  "liked": [
+   "The step numbering 1-5 is a good mental model",
+   "'Method & data' keeps the provenance out of the way"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "It exposes the choice with enough information scent."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Less hidden state."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plainer labels, but keep the technical terms in a tooltip."
+  },
+  "quote": "The rail needs a sticky Run button; the long form hides the most important button."
+ },
+ {
+  "profile": "Oliver Grant, Visual/brand designer, Manchester, architecture-studio identities",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 7,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_01 / A_03 overall",
+    "severity": "minor",
+    "issue": "Grey on grey everywhere: the canvas background, the context blocks and the panels. The page lacks the premium feel a developer pitch needs.",
+    "fix": "Give the 3D sky a subtle gradient, lighten the context, and add a stronger brand accent."
+   },
+   {
+    "screen": "A_06 London",
+    "severity": "minor",
+    "issue": "The purple tower on a grey city looks like a debug render.",
+    "fix": "Soften the class colours to a refined palette and add ambient occlusion or shadows."
+   },
+   {
+    "screen": "B_06 neutral",
+    "severity": "minor",
+    "issue": "The neutral massing is elegant, but it loses the view story.",
+    "fix": "Offer a toggle between the two colourings."
+   }
+  ],
+  "liked": [
+   "The London skyline shot has real presence",
+   "The logotype is clean"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "More designed and more inviting."
+  },
+  "ab_neutral3d": {
+   "choice": "B",
+   "reason": "For presentations, neutral massing looks more architectural. Put the classes behind a toggle."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "The precedent language suits the brand."
+  },
+  "quote": "B's massing looks like a model; A's looks like a heatmap."
+ },
+ {
+  "profile": "Mei Lin Tan, Service designer, Singapore, developer sales journeys",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 7,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_06 London result",
+    "severity": "major",
+    "issue": "The 'sea or skyline' label appears for inland London and Midtown, which confuses the view taxonomy.",
+    "fix": "Label the view type per site, for example 'skyline/river view' for London."
+   },
+   {
+    "screen": "A_03 verdict",
+    "severity": "minor",
+    "issue": "'Placeholder rates' is easy to miss next to a big GDV number.",
+    "fix": "Put a 'placeholder' label next to the number itself."
+   },
+   {
+    "screen": "A_01 empty state",
+    "severity": "minor",
+    "issue": "The empty verdict says 'Set the site and press Run' but does not say roughly how long the run takes.",
+    "fix": "Add an expected time, for example 'about 25 s for the hybrid method'."
+   }
+  ],
+  "liked": [
+   "The new cities and multi-tower support broaden the tool's reach",
+   "The Board pack export fits the sales flow"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Clients can understand the cards when the screen is shared."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "The sales team needs premium floors to be visible."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Precedents sell."
+  },
+  "quote": "The new cities are impressive; now make the labels speak each city's language."
+ },
+ {
+  "profile": "Priya Raman, principal product designer, B2B proptech SaaS, Bengaluru (12 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_04/B_04 Design detail header",
+    "severity": "blocker",
+    "issue": "Spec line prints 'taper [object Object] \u00b7 cut [object Object] \u00b7 crown [object Object]' - a raw serialisation bug in the most-read line of the detail page.",
+    "fix": "Format each token param to readable text (e.g. 'taper 80 % linear') and add a test that no rendered string contains '[object'."
+   },
+   {
+    "screen": "A_03/A_06 KPI row",
+    "severity": "major",
+    "issue": "Midtown and City of London GDV shown as \u20b93,489 cr / \u20b9938 cr; Indian currency for NY/London sites undermines credibility even with 'Placeholder rates'.",
+    "fix": "Tie currency and unit to the snapshot's city (USD / GBP, millions) or show 'index units' until rates are calibrated."
+   },
+   {
+    "screen": "A_05 Options",
+    "severity": "major",
+    "issue": "All 5 rows carry a 'best' badge, so the badge carries no information.",
+    "fix": "Show 'best' only on the recommended row; label others as 'on the frontier' in a lighter chip, and show dominated ones for contrast."
+   },
+   {
+    "screen": "A_03 verdict",
+    "severity": "minor",
+    "issue": "Promised verdict badges (FSI limits height / every flat compromised) are not visible despite 80 of 132 flats compromised.",
+    "fix": "Surface a warning badge 'Canyon: 61 % of flats compromised below floor N' next to the height-data chip."
+   }
+  ],
+  "liked": [
+   "Plain-language verdict sentence up top",
+   "Honest height-data reliability chip",
+   "Rule checks with codes and values"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards explain consequences; a dropdown truncated to 'Hybrid (generative + architect feedb' explains nothing."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "In B_03 the two towers disappear into the grey Manhattan context; colour is the result."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain language wins, but pick precedents local to the site."
+  },
+  "quote": "The engine got smarter; the header still says [object Object] - fix that before anyone sees it."
+ },
+ {
+  "profile": "Marcus Webb, data-visualisation lead, urban analytics consultancy, New York (15 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_03 3D",
+    "severity": "major",
+    "issue": "The two result towers are small and mid-frame, occluded by a foreground slab on the right; the class colouring is hard to read at that scale and there is no legend.",
+    "fix": "Auto-frame the camera on the result towers after a run and add a 3-swatch legend (premium/good/compromised) in the viewport corner."
+   },
+   {
+    "screen": "A_05 Options",
+    "severity": "major",
+    "issue": "Columns 'ROT \u00b0' and truncated 'VALU' are opaque; the frontier is described in prose but never drawn.",
+    "fix": "Add a small scatter (value vs compromised flats) with frontier highlighted; rename ROT to 'Rotation' and fit or scroll columns with a visible cue."
+   },
+   {
+    "screen": "A_03 KPI 'Main view arc'",
+    "severity": "minor",
+    "issue": "'Sea or skyline' arc 308\u00b0-22\u00b0 with no indication of which part is sea and which is skyline.",
+    "fix": "Split into two numbers or show a mini compass diagram in the card."
+   },
+   {
+    "screen": "A_03 KPI 'Top option'",
+    "severity": "minor",
+    "issue": "'Chamfered \u00d72 (token)' and wrapped '259 m' read awkwardly; 'token' is jargon.",
+    "fix": "Use 'Chamfered, 2 towers' and keep units on one line."
+   }
+  ],
+  "liked": [
+   "Class-coloured floors show the canyon effect at a glance",
+   "Consistent KPI grid across cities"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Four options with meaningful differences deserve visible descriptions."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Encoding the outcome directly on the massing is the whole point of the view."
+  },
+  "ab_wording": {
+   "choice": "no preference",
+   "reason": "Both are buried in a grey subtitle next to the [object Object] bug; hierarchy matters more."
+  },
+  "quote": "The data is there; the chart that would make the trade-off obvious is not."
+ },
+ {
+  "profile": "Lena Hoffmann, 3D/spatial interface designer, AEC software, Munich (9 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 2,
+  "overall_new": 7,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "B_03 3D neutral",
+    "severity": "major",
+    "issue": "Neutral warm massing is nearly indistinguishable from grey context buildings; users cannot find the proposal.",
+    "fix": "If neutral is kept, add an outline/halo or subtle tint on proposed towers and a 'focus' camera."
+   },
+   {
+    "screen": "A_01 3D before run",
+    "severity": "minor",
+    "issue": "Loaded view is a close, flat grey wall of buildings with no plot marker visible.",
+    "fix": "Start at an oblique view centred on a highlighted plot outline."
+   },
+   {
+    "screen": "A_04 Floor plan",
+    "severity": "minor",
+    "issue": "Plan shows two coloured footprints but level selector applies to which tower is unclear; rule checks list only 'tower 1'.",
+    "fix": "Add a tower switcher and label footprints T1/T2."
+   }
+  ],
+  "liked": [
+   "Real OSM context for NY/London is convincing",
+   "Reset/Top view controls",
+   "Podium in orange clearly separated from premium floors"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Clear mental model of what the search does."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Colour-coded floors give immediate spatial feedback; B hides the answer behind clicks."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Architects know Kanchanjunga, but clients need plain words."
+  },
+  "quote": "In the neutral variant I spent seconds hunting for the building I just designed."
+ },
+ {
+  "profile": "Aisha Okafor, accessibility specialist, public-sector digital, London (11 yrs)",
+  "clarity": 3,
+  "ease": 2,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03/A_06 3D",
+    "severity": "major",
+    "issue": "Purple vs lilac vs orange is the only encoding of view class; purple/lilac are hard to separate for low vision and there is no legend or text alternative.",
+    "fix": "Add legend with counts, patterned or banded alternates, and a text summary per floor band."
+   },
+   {
+    "screen": "A_03 KPI",
+    "severity": "minor",
+    "issue": "Compromised count '80' conveyed in red only.",
+    "fix": "Add an icon or word ('high') alongside colour."
+   },
+   {
+    "screen": "A_02 Search method",
+    "severity": "major",
+    "issue": "Dropdown option text truncates ('architect feedb'), so screen-reader and sighted users see different content.",
+    "fix": "Use radio cards (B) with full labels and descriptions."
+   },
+   {
+    "screen": "A_01 Unknown heights field",
+    "severity": "minor",
+    "issue": "Placeholder 'by building typ' truncated and used as a label substitute.",
+    "fix": "Widen the field or use a select with a visible label."
+   }
+  ],
+  "liked": [
+   "Numbered steps in the left rail",
+   "Chips with text, not just colour, for data reliability"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Radio cards with descriptions are more accessible than truncated select text."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Keep colour but add legend and non-colour cue; B makes information depend on precise pointer clicks."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain language improves comprehension for all users."
+  },
+  "quote": "Colour is carrying the headline result with no legend - that fails more users than you think."
+ },
+ {
+  "profile": "Kenji Sato, mobile product designer, consumer real-estate apps, Tokyo (7 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_07 phone",
+    "severity": "major",
+    "issue": "Floating 'Results'/'Inputs' pills overlap the export chips (same overlap as the previous 16_phone_results, now smaller but still colliding).",
+    "fix": "Reserve bottom padding equal to the pill bar height or dock it as a sticky bottom tab bar."
+   },
+   {
+    "screen": "A_07 phone",
+    "severity": "major",
+    "issue": "No 3D view above the fold; first screen is intro text and KPIs.",
+    "fix": "Collapse the intro after first visit and show a small 3D thumbnail with class colours above KPIs."
+   },
+   {
+    "screen": "A_07 KPI cards",
+    "severity": "minor",
+    "issue": "Units wrap onto their own line ('75 m', '220 m').",
+    "fix": "Use non-breaking spaces between numbers and units."
+   }
+  ],
+  "liked": [
+   "Verdict readable on phone",
+   "Two-column KPI cards fit well at 390 px"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards are tap-friendly on touch."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Tapping floors on a phone is fiddly; colour shows the answer without precision taps."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Short plain phrases scan better on small screens."
+  },
+  "quote": "Phone is usable, but the floating nav still sits on top of buttons."
+ },
+ {
+  "profile": "Sofia Marquez, design systems lead, enterprise SaaS, Barcelona (10 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_04 Design detail",
+    "severity": "blocker",
+    "issue": "'[object Object]' leaks into the typology description.",
+    "fix": "Central formatter for token params; lint rendered strings in tests."
+   },
+   {
+    "screen": "A_03 header",
+    "severity": "minor",
+    "issue": "Mix of monospace numerals in inputs/KPIs and proportional text makes the UI look like a dev tool; input values in monospace feel unfinished.",
+    "fix": "Use tabular-figure proportional font for numbers."
+   },
+   {
+    "screen": "A_05 Options",
+    "severity": "minor",
+    "issue": "Badge styles vary ('best' dark pill vs light 'highest value' chips) without a documented meaning.",
+    "fix": "Define status vs attribute chip tokens and apply consistently."
+   },
+   {
+    "screen": "A_03 export bar",
+    "severity": "minor",
+    "issue": "Six equal-weight export buttons compete with tabs.",
+    "fix": "Group into a single 'Export' menu with Board pack as primary."
+   }
+  ],
+  "liked": [
+   "Consistent card and chip components",
+   "Clear tab bar"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards scale better when methods are added."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Colour tokens for classes already exist; use them."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain language, but keep technical terms in a tooltip for architects."
+  },
+  "quote": "The component system is solid; the content pipeline needs guards."
+ },
+ {
+  "profile": "David Chen, UX researcher, architecture and planning tools, San Francisco (13 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_03 verdict",
+    "severity": "major",
+    "issue": "Verdict calls a design with 80 of 132 compromised flats the 'Best trade-off' without flagging why; users will distrust the recommendation.",
+    "fix": "Add a caveat line: 'Lower 40 floors sit in the street canyon; consider a taller podium or fewer lower flats.'"
+   },
+   {
+    "screen": "A_03/A_06 GDV",
+    "severity": "major",
+    "issue": "\u20b9 crore for New York/London sites.",
+    "fix": "Localise currency by city."
+   },
+   {
+    "screen": "B_04 wording",
+    "severity": "minor",
+    "issue": "Precedent 'like Kanchanjunga' (Mumbai) on a Manhattan site will mean little to NY users.",
+    "fix": "Choose precedents by region or show two (local + global)."
+   },
+   {
+    "screen": "A_02 Search",
+    "severity": "minor",
+    "issue": "'Designs to evaluate in full (token modes)' is jargon; users won't know if it applies to Hybrid.",
+    "fix": "Hide or disable fields that don't apply to the selected method."
+   }
+  ],
+  "liked": [
+   "Illustrative plot disclaimers ('not a real project')",
+   "Data reliability chip"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Users can predict outcome of each method."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Colour builds trust by showing where compromised flats are."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Precedents aid recall, if regionally relevant."
+  },
+  "quote": "Calling 60 % compromised flats 'best' without explanation is where trust breaks."
+ },
+ {
+  "profile": "Rohan Mehta, information architect, developer-facing platforms, Mumbai (8 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 7,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_01/A_03 left rail",
+    "severity": "major",
+    "issue": "Envelope setback list (E0-E11) pushes Development limits and Search far below the fold; Run search is only reachable after long scroll.",
+    "fix": "Collapse setback list by default with a summary line and make Run search sticky."
+   },
+   {
+    "screen": "A_02 step 5",
+    "severity": "minor",
+    "issue": "Method-specific fields (units per floor, designs to evaluate) all show regardless of method.",
+    "fix": "Progressive disclosure per method."
+   },
+   {
+    "screen": "A_05 Options",
+    "severity": "minor",
+    "issue": "'Rejected options: No options were rejected' takes a whole card.",
+    "fix": "Collapse to one line."
+   }
+  ],
+  "liked": [
+   "Five numbered steps map cleanly to the workflow",
+   "Tabs separate 3D, plan, options, detail, method"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards double as explanation of the product's capabilities."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Result should be visible without interaction."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain labels improve findability in the options list too."
+  },
+  "quote": "Good bones; the left rail needs folding so the action is never buried."
+ },
+ {
+  "profile": "Claire Dubois, visual/brand designer, luxury residential marketing, Paris (14 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 3D",
+    "severity": "major",
+    "issue": "Flat grey context with an uncomposed camera; presentation-grade output would need better framing and lighting.",
+    "fix": "Add soft shadows/ambient occlusion and a default hero camera on the proposal."
+   },
+   {
+    "screen": "A_06 London 3D",
+    "severity": "minor",
+    "issue": "Tower shows a jagged notch mid-height that reads as a render artefact.",
+    "fix": "Label garden cut-outs or render them with a different material."
+   },
+   {
+    "screen": "Header",
+    "severity": "minor",
+    "issue": "Long instructional paragraph beside the logo dominates the header.",
+    "fix": "Shorten to one line and move guidance into onboarding."
+   }
+  ],
+  "liked": [
+   "Purple premium colour is elegant against grey",
+   "Restrained palette"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards feel more considered and product-like."
+  },
+  "ab_neutral3d": {
+   "choice": "B",
+   "reason": "Neutral massing looks more like an architectural model for client presentations, but needs a highlight."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Precedent language sells design intent."
+  },
+  "quote": "It looks like a capable engineering tool, not yet like something you'd show a buyer."
+ },
+ {
+  "profile": "Tom Nakamura-Reid, service designer, planning consultancy workflows, Singapore (6 yrs)",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 7,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 results",
+    "severity": "major",
+    "issue": "Multi-tower result doesn't say which tower gets which views or whether towers block each other.",
+    "fix": "Add a per-tower breakdown row (T1/T2 strong/good/compromised) in the verdict."
+   },
+   {
+    "screen": "A_03 Status",
+    "severity": "minor",
+    "issue": "Run time and designs evaluated (5 in 25 s) are not shown after the run.",
+    "fix": "Show a run summary line with method, count and time."
+   },
+   {
+    "screen": "A_04 Rule checks",
+    "severity": "minor",
+    "issue": "Only tower 1 checks visible; gap-between-towers rule not shown.",
+    "fix": "List site-level checks (tower spacing) first."
+   }
+  ],
+  "liked": [
+   "New cities widen use cases",
+   "Export set covers the handoff to CAD and boards"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Helps first-time users choose; experts are not slowed down."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Stakeholders in reviews need the answer visible in screenshots."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Clients and planners understand it; keep technical in exports."
+  },
+  "quote": "Two towers is a big step - now tell me how they share the view."
+ },
+ {
+  "profile": "Priya Raman, Bengaluru \u2014 principal product designer, B2B proptech SaaS, 14 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_04/B_04 Design detail header",
+    "severity": "blocker",
+    "issue": "Spec line prints 'taper [object Object] \u00b7 cut [object Object] \u00b7 crown [object Object]' \u2014 a raw serialisation bug in the most-read line of the design sheet.",
+    "fix": "Format taper/cut/crown objects into readable strings (e.g. 'taper to 90 % from L40') and add a test that fails on '[object'."
+   },
+   {
+    "screen": "A_03 verdict + GDV card (Midtown, City of London)",
+    "severity": "major",
+    "issue": "New York and London results are priced in \u20b9 crore (\u20b93,489 cr, \u20b9938 cr); a US/UK developer will dismiss the whole result.",
+    "fix": "Tie currency and area units to the context snapshot (USD/sq ft for NYC, GBP for London) or show 'rates: Mumbai placeholder' next to the figure."
+   },
+   {
+    "screen": "A_05 Options table",
+    "severity": "major",
+    "issue": "Every row carries a 'best' badge, so the badge no longer distinguishes anything.",
+    "fix": "Show 'best' only on the Pareto set and number or grey the rest; if all five are Pareto, say 'all 5 are trade-offs' once above the table."
+   },
+   {
+    "screen": "A_03 verdict",
+    "severity": "major",
+    "issue": "80 of 132 flats compromised (61 %) yet no warning badge, whereas the previous version flagged conditions with amber chips.",
+    "fix": "Add an amber chip such as 'Most flats sit in the canyon: 61 % compromised' when compromised share exceeds a threshold."
+   }
+  ],
+  "liked": [
+   "Plain-language verdict sentence at the top",
+   "KPI strip is consistent across cities",
+   "Rule checks list with IDs is audit-friendly"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards explain what each method does; the dropdown truncates 'Hybrid (generative + architect feedb\u2026'."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Colouring by class tells the story at a glance in Midtown: the orange podium floors are exactly the compromised flats."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Clients understand 'narrows toward the top' and the Kanchanjunga reference; engineers can still read the spec line."
+  },
+  "quote": "The engine got smarter but '[object Object]' and rupees in Manhattan undo the trust in one glance."
+ },
+ {
+  "profile": "Marcus Hale, New York \u2014 data-visualisation lead, real-estate analytics, 11 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 3D view",
+    "severity": "major",
+    "issue": "Purple/lilac/orange class colouring has no on-canvas legend; lilac 'good' is barely distinguishable from purple 'premium'.",
+    "fix": "Add a small legend chip set in the 3D corner with counts (48 / 4 / 80) and increase lightness separation between premium and good."
+   },
+   {
+    "screen": "A_05 Options table",
+    "severity": "major",
+    "issue": "The ROT \u00b0 column (75.9, 79.4, 5.2) is unlabelled jargon and the VALUE column is clipped at the right edge.",
+    "fix": "Rename to 'Rotation (\u00b0)', add a tooltip, and make the table scroll horizontally with a visible shadow cue or drop low-value columns."
+   },
+   {
+    "screen": "A_03 KPI strip",
+    "severity": "minor",
+    "issue": "Main view arc card says 'sea or skyline' but gives one arc (308\u00b0\u201322\u00b0) without saying which it is.",
+    "fix": "Split into 'Sea arc' and 'Skyline arc' or label the dominant component."
+   },
+   {
+    "screen": "A_03 Compromised units card",
+    "severity": "minor",
+    "issue": "Sub-label 'existing context' under 80 does not explain what it means.",
+    "fix": "Use 'blocked by neighbours (floors 7\u201330)' to give the reason and location."
+   }
+  ],
+  "liked": [
+   "Red number for compromised units draws the eye",
+   "Height-data reliability chip with calibration factor",
+   "Monospace figures align well"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Descriptions reduce mis-selection; four options fit a 2x2 grid well."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Encoding the key metric on the geometry is the whole point of the 3D; neutral massing hides the answer."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain language, keep the technical string in a tooltip."
+  },
+  "quote": "Colour on the tower is the best chart you have; give it a legend and it becomes the product."
+ },
+ {
+  "profile": "Sofia Lindqvist, Stockholm \u2014 3D/spatial interface designer, AEC tools, 9 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 4,
+  "trust": 3,
+  "mobile": 2,
+  "overall_new": 7,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03/B_03 3D view",
+    "severity": "major",
+    "issue": "Default camera places a huge neighbour slab across the right third; the two proposed towers are small and mid-frame.",
+    "fix": "Auto-frame the camera on the proposed towers after a search, with neighbours faded or cut by a near-clip."
+   },
+   {
+    "screen": "B_03 3D neutral massing",
+    "severity": "major",
+    "issue": "Warm-neutral towers are almost the same value as the grey context, so the proposal disappears in Midtown.",
+    "fix": "If neutral is chosen, add an outline or subtle accent hue so the proposal stays figure against ground."
+   },
+   {
+    "screen": "A_01 empty 3D",
+    "severity": "minor",
+    "issue": "Before a search the camera sits in a street canyon showing only grey walls; the site is not visible.",
+    "fix": "Open with a top-down or oblique site-centred view and highlight the plot outline."
+   }
+  ],
+  "liked": [
+   "Real OSM context in NYC and London reads convincingly",
+   "Floor striping shows storey count",
+   "Reset/Top view controls"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards set expectations for how inventive the output will be."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "In B_03 the proposal blends into the city; colour gives figure-ground and meaning."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Precedents give designers a shared mental image."
+  },
+  "quote": "The city model is convincing now; frame the camera on what we designed, not on the neighbour."
+ },
+ {
+  "profile": "Aisha Okafor, London \u2014 accessibility specialist (WCAG), public-sector digital, 12 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 3D colouring",
+    "severity": "major",
+    "issue": "Class is encoded by hue only (purple vs lilac vs orange); lilac/purple fails for many colour-vision profiles.",
+    "fix": "Pair colour with pattern or labels on click, and provide a text table of floors by class."
+   },
+   {
+    "screen": "A_02/B_02 form",
+    "severity": "minor",
+    "issue": "Labels such as 'Designs to evaluate in full (token modes)' and light grey helper text are low contrast and jargon heavy.",
+    "fix": "Raise helper text contrast to 4.5:1 and hide irrelevant fields depending on the chosen method."
+   },
+   {
+    "screen": "A_05 Options table",
+    "severity": "minor",
+    "issue": "'best' badges and tag pills are small and pale; tag text is below comfortable size.",
+    "fix": "Increase pill text to 13px and contrast; ensure row selection is keyboard reachable."
+   },
+   {
+    "screen": "A_07 phone",
+    "severity": "minor",
+    "issue": "Floating Results/Inputs pills overlap the export chip row.",
+    "fix": "Reserve bottom padding equal to the floating bar height."
+   }
+  ],
+  "liked": [
+   "Numbered step headings",
+   "Plain-English verdict",
+   "Visible focus ring on the towers input in A_02"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Radio-card groups with descriptions are more accessible than a truncated select."
+  },
+  "ab_neutral3d": {
+   "choice": "no preference",
+   "reason": "A is informative but colour-only; B hides info behind a click. Either needs a non-colour alternative."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain language benefits everyone, including non-native speakers."
+  },
+  "quote": "Good bones, but meaning still lives in colour alone."
+ },
+ {
+  "profile": "Kenji Watanabe, Tokyo \u2014 mobile UX lead, consumer and field apps, 10 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 5,
+  "top_issues": [
+   {
+    "screen": "A_07 phone results",
+    "severity": "major",
+    "issue": "No 3D or tower image above the fold on phone; users see six cards and chips but not the tower.",
+    "fix": "Put a compact 3D or elevation thumbnail directly under the verdict."
+   },
+   {
+    "screen": "A_07 phone",
+    "severity": "minor",
+    "issue": "Stacked Results/Inputs pills still collide with 'Board pack' and 'CAD massing' chips.",
+    "fix": "Add bottom safe-area padding or dock the switch as a proper tab bar."
+   },
+   {
+    "screen": "A_07 phone header",
+    "severity": "minor",
+    "issue": "Intro paragraph and Present button take a quarter of the first screen.",
+    "fix": "Collapse the intro to one line on phone after first visit."
+   }
+  ],
+  "liked": [
+   "Pills are smaller than the old overlapping bar",
+   "Two-column KPI cards fit well at 390px",
+   "Verdict text wraps cleanly"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards are tappable targets; selects are fiddly on mobile."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "On a small screen you cannot afford a tap to learn the class."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Short plain phrases read better on phone."
+  },
+  "quote": "Better than last time, but on a phone I still cannot see the tower I just made."
+ },
+ {
+  "profile": "Laura Becker, Berlin \u2014 design systems architect, enterprise platforms, 15 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 chips",
+    "severity": "minor",
+    "issue": "Chip semantics are inconsistent: green outlined for data reliability, grey for placeholder rates, previous amber for warnings; new cities show no amber at all.",
+    "fix": "Define info/caution/warning chip tokens and apply the warning chip whenever a verdict condition fires."
+   },
+   {
+    "screen": "A_03 KPI cards",
+    "severity": "minor",
+    "issue": "Card values mix monospace names ('Chamfered \u00d72 (token)') with numbers, and wrap unevenly ('259 m' orphaned).",
+    "fix": "Keep monospace for numbers only; put typology name in the sans face with truncation."
+   },
+   {
+    "screen": "A_05 Options table",
+    "severity": "major",
+    "issue": "Duplicate-looking rows (two 'curved \u00b7 twist \u00b7 stagger' at 79.4) are only distinguished by units/floor.",
+    "fix": "Include the differentiating parameter in the row name, e.g. '\u2026 \u00b7 2 flats/floor'."
+   }
+  ],
+  "liked": [
+   "Consistent card and tab components",
+   "Pill buttons for exports",
+   "Clear primary button style"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Card group is a reusable component and scales to more methods."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Consistent with class colours used in floor plan and legend."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Better default copy; technical string can remain in metadata."
+  },
+  "quote": "The component kit is solid; the semantic layer of chips and badges needs rules."
+ },
+ {
+  "profile": "Daniel Cho, San Francisco \u2014 UX researcher, developer-facing tools, 8 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 verdict (Midtown)",
+    "severity": "major",
+    "issue": "'Best trade-off' labels a scheme with 61 % compromised flats without explaining why this is still best.",
+    "fix": "Add a sentence: 'Lower floors face the canyon; raising the podium to X floors would cut compromised to Y.'"
+   },
+   {
+    "screen": "A_02 search method",
+    "severity": "major",
+    "issue": "Users cannot tell expected run time or determinism per method (25 s vs 8 s in facts).",
+    "fix": "Show estimated time and 'same result each run' vs 'varies each run' on each option."
+   },
+   {
+    "screen": "A_04 Rule checks",
+    "severity": "minor",
+    "issue": "Only tower 1 checks visible for a two-tower site.",
+    "fix": "Group checks per tower with a pass summary at the top."
+   }
+  ],
+  "liked": [
+   "Plain-words promise in the empty state",
+   "Rejected options section is transparent",
+   "Placeholder rates flagged openly"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Goal-phrased labels match user intent better than algorithm names."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Users will not discover click-to-reveal; colour answers the first question immediately."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Precedents are more memorable in stakeholder discussions."
+  },
+  "quote": "Tell me why the 'best' option is best when most of its flats are compromised."
+ },
+ {
+  "profile": "Ananya Ghosh, Mumbai \u2014 information architect, real-estate portals, 10 yrs",
+  "clarity": 2,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_01/A_02 left panel",
+    "severity": "major",
+    "issue": "Setback list E0\u2013E11 pushes step 5 and Run search far below the fold; the primary action is several screens away.",
+    "fix": "Collapse the setback list behind 'Edit 12 edges' and keep a sticky Run search button."
+   },
+   {
+    "screen": "A_02 step 5",
+    "severity": "minor",
+    "issue": "Fields irrelevant to the chosen method (e.g. 'Designs to evaluate (token modes)') remain visible.",
+    "fix": "Show method-specific fields only."
+   },
+   {
+    "screen": "A_03 tabs",
+    "severity": "minor",
+    "issue": "'Method & data' and 'Design detail' overlap in purpose with KPI strip; hierarchy unclear.",
+    "fix": "Rename tabs by user question: 'Compare options', 'This design', 'How we calculated'."
+   }
+  ],
+  "liked": [
+   "Five numbered steps",
+   "Tabs keep results organised",
+   "Export row near results"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Self-describing cards reduce need for help text."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Information should be visible, not hidden behind interaction."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain labels with a local precedent resonate with Indian clients."
+  },
+  "quote": "Run search should never be three scrolls away."
+ },
+ {
+  "profile": "Oliver Grant, Manchester \u2014 visual/brand designer, architecture studios, 7 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 3D",
+    "severity": "minor",
+    "issue": "Orange podium floors in Midtown look like an error highlight rather than a class.",
+    "fix": "Use a muted desaturated tone for compromised and reserve saturated colour for premium."
+   },
+   {
+    "screen": "A_03 overall",
+    "severity": "minor",
+    "issue": "Grey-on-grey UI with grey city is visually flat; proposal lacks presentation quality for Present mode.",
+    "fix": "Add soft sky gradient, ambient occlusion and a subtle accent for the proposal."
+   },
+   {
+    "screen": "A_04 floor plan",
+    "severity": "minor",
+    "issue": "Floor plan shows a tiny label ('U d') overlapping the core.",
+    "fix": "Hide labels below a size threshold or place them outside with leaders."
+   }
+  ],
+  "liked": [
+   "Teal brand colour used sparingly",
+   "Clean typography",
+   "London render with river context is attractive"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards look more considered and premium."
+  },
+  "ab_neutral3d": {
+   "choice": "B",
+   "reason": "Neutral massing presents better to clients; reveal class on demand."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Precedent language sells the design."
+  },
+  "quote": "It looks like a tool; for client presentation it needs a bit more atmosphere."
+ },
+ {
+  "profile": "Mei Lin Tan, Singapore \u2014 service designer, developer sales journeys, 13 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03/A_06 GDV",
+    "severity": "major",
+    "issue": "Rupee placeholder rates on foreign cities make the Board pack unusable for a real client conversation.",
+    "fix": "Block or watermark the Board pack export with 'placeholder rates' when rates are not local."
+   },
+   {
+    "screen": "A_06 London verdict",
+    "severity": "minor",
+    "issue": "'Strong sea or skyline view' in the City of London is confusing; there is no sea.",
+    "fix": "Use the context-specific term: 'river or skyline view'."
+   },
+   {
+    "screen": "A_05 Options",
+    "severity": "minor",
+    "issue": "No way to shortlist or compare two options side by side for a sales meeting.",
+    "fix": "Add a 'Compare' checkbox and a two-up comparison view."
+   }
+  ],
+  "liked": [
+   "Save/Load scenario and share link",
+   "Present button",
+   "Transparent 'not a real project' notes"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Plain language matches how sales and development teams talk."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Showing where premium stock is supports pricing conversations."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Precedents like Kanchanjunga help clients picture it."
+  },
+  "quote": "The outputs are close to meeting-ready; localise the money and the words."
+ },
+ {
+  "profile": "Priya R., principal product designer for B2B proptech, Bengaluru, 14 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_04/B_04 Design detail header",
+    "severity": "blocker",
+    "issue": "Subtitle literally reads 'taper [object Object] \u00b7 cut [object Object] \u00b7 crown [object Object]' in both variants: a serialisation bug on the one screen meant to explain the design.",
+    "fix": "Format taper/cut/crown objects into text (e.g. 'taper to 90 % from floor 40') and add a test that fails on the string '[object Object]'."
+   },
+   {
+    "screen": "A_03 verdict + GDV KPI (Midtown, London)",
+    "severity": "major",
+    "issue": "New York and London results are priced in \u20b9 crore (\u20b93,489 cr, \u20b9938 cr), which makes the numbers meaningless to a US or UK client even with the 'Placeholder rates' chip.",
+    "fix": "Tie the currency and rate card to the context city (USD/GBP), or hide GDV for cities with no calibrated rates and say so."
+   },
+   {
+    "screen": "A_03 verdict banner",
+    "severity": "major",
+    "issue": "Hybrid search was selected but the winner is labelled 'Token: chamfered\u2026', so the user can't tell whether the generator or the library produced it.",
+    "fix": "Show the source method as a chip on the verdict and in each options row (Library / Generated / Hybrid)."
+   },
+   {
+    "screen": "A_05 Options",
+    "severity": "minor",
+    "issue": "Every row carries a 'best' pill, so the pill tells the user nothing.",
+    "fix": "Drop the pill when all rows are on the front; keep only the 'best for \u2026' tags."
+   }
+  ],
+  "liked": [
+   "Plain-language verdict sentence with flat counts",
+   "Clear rule-check list with IDs",
+   "Skyline counted as a view makes NY/London usable"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "The cards explain what each mode actually does; 'Token library, deterministic' is jargon to a developer client."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "The purple/orange split shows the canyon problem at a glance, and in B it only appears after a click."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "'Cut-corner floor plan\u2026 like Kanchanjunga' reads well to a client, but the fix is wasted while [object Object] sits right beside it."
+  },
+  "quote": "The engine got smarter, but a single [object Object] and rupees in Manhattan undo a lot of trust."
+ },
+ {
+  "profile": "Marcus L., senior data-visualisation designer, New York, 11 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_03 KPI row",
+    "severity": "major",
+    "issue": "80 of 132 flats are compromised (61 %), but that shows only as a small red '80' with the caption 'existing context'. No verdict badge warns that most of the tower is in the canyon, even though the dossier says such badges exist.",
+    "fix": "Add an amber badge in the verdict ('61 % of flats sit below the canyon line; views start at floor ~40') and a stacked bar of premium/good/compromised."
+   },
+   {
+    "screen": "A_05 Options table",
+    "severity": "major",
+    "issue": "The ROT column jumps from 75.9 to 5.2 between rows with no unit explanation, and the VALUE column is cut off on the right edge.",
+    "fix": "Label it 'Rotation \u00b0', make the table scroll horizontally with a sticky first column, or drop low-value columns."
+   },
+   {
+    "screen": "A_03 3D",
+    "severity": "minor",
+    "issue": "There is no legend for purple/lilac/orange in the 3D view.",
+    "fix": "Add a small persistent legend in the viewport corner with counts per class."
+   }
+  ],
+  "liked": [
+   "Coloured massing reads instantly as the view gradient up the tower",
+   "Height-data reliability chip",
+   "The 'best trade-off' definition sentence above the table"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards expose the difference between methods; a dropdown hides three of the four choices."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Encoding class on the geometry is the core insight of the product, and neutral massing throws it away."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Precedents give people something they already know to anchor on."
+  },
+  "quote": "A is the chart, and B hides the chart behind a click."
+ },
+ {
+  "profile": "Sven K., 3D/spatial interface lead, Berlin, 9 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 7,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_03 3D Midtown",
+    "severity": "major",
+    "issue": "The default camera is blocked by a huge foreground grey slab covering the right third, and the two proposed towers are small in mid-frame.",
+    "fix": "Auto-frame on the proposed towers after a search, and fade or x-ray buildings between the camera and the site."
+   },
+   {
+    "screen": "A_01 3D before search",
+    "severity": "minor",
+    "issue": "The loaded view is a close-up of grey blocks with no marked site, so there's nothing to orient by.",
+    "fix": "Outline the plot in a highlight colour and start from an oblique overview."
+   },
+   {
+    "screen": "B_03 neutral massing",
+    "severity": "major",
+    "issue": "The warm-white towers almost vanish against light-grey context.",
+    "fix": "If neutral is kept, give the proposal a distinct tint and edge outline."
+   }
+  ],
+  "liked": [
+   "Floor banding on the towers reads as storeys",
+   "Water and skyline are recognisable in the London and Midtown snapshots",
+   "Reset/Top view controls"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "More legible and not harder to use."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "In B the proposal loses its figure-ground contrast against the city."
+  },
+  "ab_wording": {
+   "choice": "no preference",
+   "reason": "Both are secondary to fixing the object bug; B is a bit friendlier."
+  },
+  "quote": "Frame the thing you designed: right now the neighbours are the stars of the shot."
+ },
+ {
+  "profile": "Aisha M., accessibility specialist (WCAG auditor), London, 12 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 2,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_03 3D colouring",
+    "severity": "major",
+    "issue": "Purple vs lilac is a low-contrast pair and depends on colour alone, so it's hard for colour-blind users and on projectors.",
+    "fix": "Add pattern or hatching for compromised floors, a legend with counts, and check contrast between the class colours."
+   },
+   {
+    "screen": "A_07 phone",
+    "severity": "major",
+    "issue": "The floating 'Results / Inputs' buttons overlap the export chips (same overlap as the previous version, only moved).",
+    "fix": "Reserve bottom padding equal to the FAB height, or dock the buttons as a tab bar."
+   },
+   {
+    "screen": "A_03 verdict chips",
+    "severity": "minor",
+    "issue": "The green-on-pale-green chip text is small and low-contrast.",
+    "fix": "Raise the text to at least 4.5:1 contrast and 13 px."
+   },
+   {
+    "screen": "B_02 method cards",
+    "severity": "minor",
+    "issue": "The selected card is shown mainly by a pale blue fill.",
+    "fix": "Add a check icon and aria-pressed/radio semantics."
+   }
+  ],
+  "liked": [
+   "Numbered steps in the left rail",
+   "Plain-words verdict",
+   "Big, legible KPI numerals"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards give larger targets with descriptions, as long as they're built as a radio group."
+  },
+  "ab_neutral3d": {
+   "choice": "no preference",
+   "reason": "A needs non-colour cues, and B needs a click that keyboard users may not be able to make, so neither is accessible yet."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Plain language helps cognitive accessibility."
+  },
+  "quote": "Colour carries the key finding here, so it needs a second channel."
+ },
+ {
+  "profile": "Kenji T., mobile product designer, Tokyo, 8 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 6,
+  "top_issues": [
+   {
+    "screen": "A_07 phone",
+    "severity": "major",
+    "issue": "The first screen spends about 150 px on the intro paragraph, and the export chips are covered by the Results/Inputs buttons.",
+    "fix": "Collapse the intro to one line after first use; keep the Results/Inputs control out of the content flow."
+   },
+   {
+    "screen": "A_07 phone KPIs",
+    "severity": "minor",
+    "issue": "Captions like '1/floor \u00b7 61 floors \u00b7 220 m' wrap awkwardly, leaving the 'm' orphaned on its own line.",
+    "fix": "Use non-breaking spaces between numbers and units."
+   },
+   {
+    "screen": "A_07 phone",
+    "severity": "minor",
+    "issue": "No 3D or tower image is visible above the fold, so the result is all text.",
+    "fix": "Show a small thumbnail of the coloured tower next to the verdict."
+   }
+  ],
+  "liked": [
+   "Stacked 2-column KPI cards fit well at 390 px",
+   "Results/Inputs toggle is a good idea",
+   "The verdict wraps cleanly"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards are much easier to tap than a native select with truncated labels."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "On a phone, tapping individual floors is fiddly, so colour does the work."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Shorter concepts read better on a small screen."
+  },
+  "quote": "Getting close on mobile. Get the floating buttons off the content."
+ },
+ {
+  "profile": "Elena V., design-systems lead, Amsterdam, 13 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_04 Design detail",
+    "severity": "blocker",
+    "issue": "Leaked '[object Object]' tokens mean there's no formatting layer for design parameters.",
+    "fix": "Add a single formatter per parameter type, shared by the header, board pack and CSV."
+   },
+   {
+    "screen": "A_03 KPI cards",
+    "severity": "minor",
+    "issue": "Card heights vary because titles wrap ('MAIN VIEW ARC (SEA OR SKYLINE)', 'GDV (PLACEHOLDER RATES)'), and the monospace values sit awkwardly next to sans captions.",
+    "fix": "Shorten the labels ('View arc', 'GDV'), move the qualifiers into a tooltip, and set a fixed card height."
+   },
+   {
+    "screen": "A_05 Options",
+    "severity": "minor",
+    "issue": "'highest value' and 'most efficient' chips use the same style as the 'best' pill, so the hierarchy is flat.",
+    "fix": "Keep the dark pill for rank and a subtle outline style for 'best for' tags."
+   }
+  ],
+  "liked": [
+   "A consistent chip language for data caveats",
+   "The teal accent is used sparingly",
+   "Rule-check IDs look systematic"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards are a reusable, self-documenting component."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "It keeps the class colours consistent with the floor plan and site plan."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Better copy, but it should come from one content source."
+  },
+  "quote": "The components are sound, but the content formatting layer is missing."
+ },
+ {
+  "profile": "Rahul S., UX researcher for real-estate developers, Mumbai, 10 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 2,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_03 verdict",
+    "severity": "major",
+    "issue": "'Strong sea or skyline view' for a Midtown tower with 61 % compromised flats. Users won't know whether a 'skyline' flat is worth the same as a sea flat.",
+    "fix": "Split the counts into sea / skyline / compromised and state how skyline is valued."
+   },
+   {
+    "screen": "A_02 step 5",
+    "severity": "major",
+    "issue": "'Designs to evaluate in full (token modes)' stays visible and editable in Hybrid, yet the dossier says only 5 designs were evaluated.",
+    "fix": "Show only the inputs relevant to the chosen method and echo the evaluated count in the verdict."
+   },
+   {
+    "screen": "A_04 Rule checks",
+    "severity": "minor",
+    "issue": "Only tower 1 checks are visible for a two-tower result.",
+    "fix": "Group checks by tower with pass counts in each header."
+   }
+  ],
+  "liked": [
+   "Test plots are clearly marked 'not a real project'",
+   "Height-data reliability with a percentage",
+   "Rejected options section"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Developers in our tests don't know what 'probabilistic' means, but 'Invent new towers' they get."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Sales teams want to see which floors sell at a glance."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Local precedents such as Kanchanjunga resonate with Indian clients."
+  },
+  "quote": "Tell me which floors are skyline and which are sea, because I price them differently."
+ },
+ {
+  "profile": "Claire D., information architect, Paris, 15 yrs",
+  "clarity": 2,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_01/A_02 left rail",
+    "severity": "major",
+    "issue": "Step 3 lists 12 edge setbacks (E0\u2013E11) that push steps 4\u20135 and Run search far below the fold.",
+    "fix": "Collapse the setback list to one summary line ('12 edges, 3 m default \u00b7 edit') and make Run search sticky."
+   },
+   {
+    "screen": "A_03 page structure",
+    "severity": "minor",
+    "issue": "The export bar sits above the tabs, before the user has looked at a design.",
+    "fix": "Move exports into a single 'Export' menu at the end, or into the Design detail tab."
+   },
+   {
+    "screen": "A_02 step 5",
+    "severity": "minor",
+    "issue": "'Core offset from sea (m)' sits in a Manhattan workflow.",
+    "fix": "Rename to 'from main view direction' when the view is a skyline."
+   }
+  ],
+  "liked": [
+   "Five numbered steps map to the real workflow",
+   "Clear tab set",
+   "Verdict sits at the top of the results"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Cards expose the whole choice set."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "It keeps the answer on the first screen."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "More findable language."
+  },
+  "quote": "The run button shouldn't be three scrolls away."
+ },
+ {
+  "profile": "Tom\u00e1s R., visual/brand designer, Barcelona, 7 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 6,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_03 3D",
+    "severity": "minor",
+    "issue": "Flat grey context with harsh white roofs looks like a technical debug render next to the polished UI.",
+    "fix": "Add soft ambient occlusion and a subtle sky gradient, and tone the roofs down."
+   },
+   {
+    "screen": "A_03 3D",
+    "severity": "minor",
+    "issue": "The orange compromised base clashes with the purple, and together they look like two unrelated products.",
+    "fix": "Use one hue family (deep to pale) with a neutral grey for compromised floors."
+   },
+   {
+    "screen": "B_03",
+    "severity": "major",
+    "issue": "The neutral warm massing reads as unfinished.",
+    "fix": "Keep class colours as the default."
+   }
+  ],
+  "liked": [
+   "Restrained typography",
+   "The verdict card with its accent rule",
+   "The London screenshot is presentation-worthy"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "Warmer, more human cards."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "The colour gives the render its story."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Copy with personality."
+  },
+  "quote": "The UI chrome is calm and credible, but the 3D still looks like a debug viewport."
+ },
+ {
+  "profile": "Nnamdi O., service designer for planning & development workflows, Manchester, 10 yrs",
+  "clarity": 3,
+  "ease": 3,
+  "visual": 3,
+  "trust": 3,
+  "mobile": 3,
+  "overall_new": 7,
+  "overall_old": 7,
+  "top_issues": [
+   {
+    "screen": "A_03 verdict",
+    "severity": "major",
+    "issue": "No 'what next' after the result. With 80 compromised flats in Midtown the app should suggest actions (raise the podium, reduce the tower count).",
+    "fix": "Add 1\u20132 suggested next moves under the verdict, each linked to a pre-filled rerun."
+   },
+   {
+    "screen": "A_06 London",
+    "severity": "minor",
+    "issue": "London context uses UK planning norms but the FSI terminology and \u20b9 remain.",
+    "fix": "Localise the terms (plot ratio, GIA, \u00a3) per city pack."
+   },
+   {
+    "screen": "A_03",
+    "severity": "minor",
+    "issue": "No run log is visible (5 designs in 25 s, 3 workers), so users can't compare runs.",
+    "fix": "Show the run meta line under the verdict and keep a run history list."
+   }
+  ],
+  "liked": [
+   "Save/Load scenario and share link",
+   "Board pack export",
+   "Honest 'placeholder rates' labelling"
+  ],
+  "ab_method": {
+   "choice": "B",
+   "reason": "It fits how clients brief architects."
+  },
+  "ab_neutral3d": {
+   "choice": "A",
+   "reason": "Better for the board-pack story."
+  },
+  "ab_wording": {
+   "choice": "B",
+   "reason": "Easier for non-architect stakeholders."
+  },
+  "quote": "The app tells me the result, but it doesn't tell me what to try next."
+ }
+]

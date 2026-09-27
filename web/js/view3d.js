@@ -161,6 +161,9 @@ function clearCone() { setGroup("cone", null); }
 /* ---------- camera modes */
 /* Look from the land side towards the sea (the premium arc bisector), slightly off-axis. */
 function frameTower(H) {
+  // dense cities: look down from higher and further out so neighbouring towers do not fill the frame
+  if (T.ctx && T.ctx.profile === "dense") { const az = (T.seaAz ?? 270) * D2R, dist = Math.max(420, H * 2.6), el = 40 * D2R, dx = Math.sin(az), dz = -Math.cos(az), side = 0.35;
+    T.controls.target.set(0, H * 0.45, 0); T.camera.position.set((-dx + dz * side) * dist * Math.cos(el), H * 0.45 + dist * Math.sin(el), (-dz - dx * side) * dist * Math.cos(el)); T.camera.fov = 42; T.camera.updateProjectionMatrix(); return; }
   const az = (T.seaAz ?? 270) * D2R, back = Math.max(260, H * 1.9), side = 0.45;
   const dx = Math.sin(az), dz = -Math.cos(az), px = -dz, pz = dx;
   T.controls.target.set(dx * H * 0.35, H * 0.38, dz * H * 0.35);

@@ -19,6 +19,8 @@ New towers are then composed from the moves that work on this site, at this heig
 | shift | amplitude m; mode stagger (±A/2 every P floors), lean (A·t), wave (A·sin), pixel (random ±A per band); direction toward/away from the view | translate the plate | 56 Leonard, Vancouver House, Aqua slab edges |
 | terrace | every E floors, step m, direction | clip the plate back by step·⌊k/E⌋ on the given side | Mountain Dwellings, Habitat 67, 111 W 57th |
 | cut | every E floors (2 floors each), size m | cut a corner (rotating by band): double-height gardens | Kanchanjunga (Correa), Waves sky gardens (Puri) |
+| podium | none, street | floors below the podium follow the buildable envelope (street wall) instead of the tower plate | added after round 1 (207 architects asked for base changes) |
+| crown | none, crown, crown_turn; floors, scale, rotation | the top F floors shrink to the given scale and may turn | added after round 1 (164 requests for top articulation) |
 
 The core stays on the tower axis (it turns with a linear twist, as in Cayan). The existing hard rules
 bound the moves: overhang per floor ≤ 3 m, core fit with slab margin, depth, span, envelope.

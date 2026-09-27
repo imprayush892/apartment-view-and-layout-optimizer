@@ -9,6 +9,9 @@ const A = () => window.VTApp, $ = id => document.getElementById(id);
 const fmt = (v, d = 2) => Number.isFinite(v) ? v.toFixed(d) : "–", fmtInt = v => Number.isFinite(v) ? Math.round(v).toLocaleString("en-IN") : "–";
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const CLS = ["premium", "good", "neutral", "compromised"];
+/* what the "prize" view is on this site: sea (coastline), river/water, or the city skyline */
+function viewKind() { const st = A().st, f = st.field; if (!f || !f.rose) return "sea or skyline"; const top = f.heights[f.heights.length - 1], r = f.rose[top], w = VT.mean(Array.from(r.water)), k = VT.mean(Array.from(r.skyline || [])); const coast = st.ctx && st.ctx.coast && st.ctx.coast.length;
+  if (w > 1.5 * k) return coast ? "sea" : "river"; if (k > 1.5 * w) return "skyline"; return coast ? "sea and skyline" : "river and skyline"; }
 const CLS_TXT = { premium: "strong sea or skyline view", good: "good view", neutral: "ordinary view", compromised: "compromised view" };
 
 /* ---------------------------------------------------------------- file saving */
@@ -67,12 +70,19 @@ function verdictHTML() {
   badges.push(`<span class="badge r" title="Rates are placeholders for comparing options, not market figures">Placeholder rates</span>`);
   if (!best) return `<div class="verdict"><p><b>Set the site and press Run search.</b> Results appear here in plain words.</p><div class="row">${badges.join("")}</div></div>`;
   const m = best.metrics, sp = best.sp, ht = best.heightTest;
-  const words = CLS.filter(k => m[k]).map(k => `<b>${m[k]}</b> ${CLS_TXT[k]}`).join(", ");
+  const vk = viewKind(), words = CLS.filter(k => m[k]).map(k => `<b>${m[k]}</b> ${k === "premium" ? `strong ${vk} view` : CLS_TXT[k]}`).join(", ");
+  const tws = best.towers || [best], nT = tws.length, what = nT > 1 ? `${nT} towers × ${sp.n} floors (${fmt(m.height, 0)} m), ${sp.upf} flat${sp.upf > 1 ? "s" : ""} per floor each` : `${sp.upf} flat${sp.upf > 1 ? "s" : ""} per floor, ${sp.n} floors (${fmt(m.height, 0)} m)`;
+  // where the view opens: lowest floor from which most flats are premium
+  let opens = null; { const lv = {}; for (const u of best.units) { (lv[u.level] = lv[u.level] || [0, 0])[0] += u.cls === "premium" ? 1 : 0; lv[u.level][1]++; } const L = Object.keys(lv).map(Number).sort((x, y) => x - y); for (const l of L) if (L.filter(q => q >= l).every(q => lv[q][0] / lv[q][1] >= 0.5)) { opens = l; break; } }
+  const canyon = m.compromised && opens != null && opens > sp.podium ? ` Floors below ${opens} (about ${fmt(opens * sp.ftf, 0)} m) mostly look into nearby buildings; from floor ${opens} most flats get a strong ${vk} view.` : "";
+  const perTower = nT > 1 ? ` By tower: ${tws.map((t, i) => `T${i + 1} ${t.metrics.premium} strong / ${t.metrics.compromised} compromised`).join(" · ")}.` : "";
+  const meta = st.lastRun ? `<p class="hint" style="margin:0">${esc(st.lastRun)}</p>` : "";
   const lim = st.C || {}; if (best && lim.hmax && best.metrics.height < 0.7 * lim.hmax && (best.metrics.fsiUtil || 0) > 0.95) badges.push(`<span class="badge medium" title="The consumable FSI area runs out before the height limit; raise it (step 4) to go taller where the views are">FSI limits the tower to ${fmtInt(best.metrics.height)} m of the ${fmtInt(lim.hmax)} m allowed</span>`);
   if (best && best.metrics.units && best.metrics.compromised === best.metrics.units) badges.push(`<span class="badge low" title="At this height every flat looks into nearby buildings; a taller or relocated tower may escape">Every flat is compromised at this height</span>`);
   const all = st.results, minMargin = Math.min(...all.map(e => e.metrics.minMargin)), noneComp = all.every(e => e.metrics.compromised === 0);
   if (noneComp && minMargin > 0.2) badges.push(`<span class="badge medium" title="Every flat in every option clears the compromised thresholds by a wide margin, so this goal does not separate the options here; compare premium flats and value instead">Zero compromised is easy on this site</span>`);
-  return `<div class="verdict"><p><b>Best trade-off: ${esc(a.label(sp))}, ${sp.upf} flat${sp.upf > 1 ? "s" : ""} per floor, ${sp.n} floors (${fmt(m.height, 0)} m).</b> Of ${m.units} flats: ${words}. Estimated sales value ₹${fmtInt(m.gdvCr)} cr.${m.compromised ? "" : " No compromised flats."}${ht ? ` If the estimated building heights are off (×0.75 to ×1.5), ${ht.robust} flats stay premium in every case and the value ranges ₹${fmtInt(ht.gdv[0])}–${fmtInt(ht.gdv[1])} cr.` : ""}</p><div class="row">${badges.join("")}</div></div>`;
+  if (m.units && m.compromised / m.units > 0.4 && m.compromised < m.units) badges.push(`<span class="badge low" title="Most compromised flats are on the lower floors; a taller podium, fewer low floors or a different spot on the site may help">${fmt(100 * m.compromised / m.units, 0)}% of flats compromised</span>`);
+  return `<div class="verdict"><p><b>Best trade-off: ${esc(a.label(sp))}, ${what}.</b> Of ${m.units} flats: ${words}.${canyon}${perTower} Estimated sales value ${MB(m.gdv)}.${m.compromised ? "" : " No compromised flats."}${ht ? ` If the estimated building heights are off (×0.75 to ×1.5), ${ht.robust} flats stay premium in every case and the value ranges ${MB(ht.gdv[0] * 1e7)}–${MB(ht.gdv[1] * 1e7)}.` : ""}</p>${meta}<div class="row">${badges.join("")}</div></div>`;
 }
 
 /* ---------------------------------------------------------------- "best for" badges */
@@ -94,14 +104,14 @@ function bindSort() {
     const th = e.target.closest("table.sortable thead th"); if (!th) return;
     const table = th.closest("table"), tb = table.tBodies[0]; if (!tb) return; const i = [...th.parentNode.children].indexOf(th);
     const dir = th.getAttribute("aria-sort") === "ascending" ? -1 : 1; th.parentNode.querySelectorAll("th").forEach(h => h.removeAttribute("aria-sort")); th.setAttribute("aria-sort", dir > 0 ? "ascending" : "descending");
-    const val = tr => { const t = (tr.children[i] ? tr.children[i].textContent : "").trim(), n = parseFloat(t.replace(/[₹,%\s]|1:/g, "")); return Number.isFinite(n) && /^[-\d₹.,%\s1:]+/.test(t) ? n : t.toLowerCase(); };
+    const val = tr => { const t = (tr.children[i] ? tr.children[i].textContent : "").trim(), n = parseFloat(t.replace(/[₹$£,%\s]|1:/g, "")); return Number.isFinite(n) && /^[-\d₹$£.,%\s1:]+/.test(t) ? n : t.toLowerCase(); };
     [...tb.rows].sort((a, b) => { const x = val(a), y = val(b); return (typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y))) * dir; }).forEach(r => tb.appendChild(r));
   });
 }
 
 /* ---------------------------------------------------------------- economics */
 function econ(ev) {
-  const land = (+$("xLand").value || 0) * 1e7, soft = (+$("xSoft").value || 0) / 100, sales = (+$("xSales").value || 0) / 100, target = (+$("xTarget").value || 0) / 100;
+  const land = (+$("xLand").value || 0) * MON.big, soft = (+$("xSoft").value || 0) / 100, sales = (+$("xSales").value || 0) / 100, target = (+$("xTarget").value || 0) / 100;
   const m = ev.metrics, build = m.cost, calc = (pk, ck) => { const gdv = m.gdv * pk, c = build * ck, total = land + c * (1 + soft) + gdv * sales; return { gdv, build: c, soft: c * soft, sales: gdv * sales, land, total, profit: gdv - total, margin: gdv ? (gdv - total) / gdv : 0 }; };
   const base = calc(1, 1), residual = m.gdv * (1 - target - sales) - build * (1 + soft);
   return { base, calc, residual, land };
@@ -126,7 +136,7 @@ function cashflow(ev) {
 function renderEcon() {
   const ev = A().st.sel, box = $("econOut"); if (!box) return;
   if (!ev) { box.innerHTML = `<p class="hint">Pick an option to see its economics.</p>`; return; }
-  const { base, calc, residual, land } = econ(ev), cr = v => `₹${fmtInt(v / 1e7)} cr`;
+  const { base, calc, residual, land } = econ(ev), cr = v => MB(v);
   const rows = [["Sales value (GDV)", cr(base.gdv)], ["Construction (incl. structure premium)", cr(base.build)], ["Soft costs", cr(base.soft)], ["Sales & marketing", cr(base.sales)], ["Land", land ? cr(base.land) : "not entered"], ["Total cost", cr(base.total)], ["Profit", cr(base.profit)], ["Margin on GDV", `${fmt(100 * base.margin, 1)}%`], ["Residual land value at target margin", cr(residual)]];
   const P = [-0.2, -0.1, 0, 0.1, 0.2], Cc = [-0.1, 0, 0.1];
   box.innerHTML = `<div class="tablewrap"><table><tbody>${rows.map(([a, b]) => `<tr><td>${a}</td><td class="n">${b}</td></tr>`).join("")}</tbody></table></div>
@@ -136,7 +146,7 @@ function renderEcon() {
     ${(() => { const c = cashflow(ev), W = 360, H = 90, mx = Math.max(...c.flows.map(Math.abs)) || 1; let cum = 0; const cm = c.flows.map(f => (cum += f)), cmx = Math.max(...cm.map(Math.abs)) || 1;
       return `<h3 style="font-size:14px">Cash flow (simple, quarterly)</h3>
       <div class="tablewrap"><table><tbody><tr><td>Build period / sell-out</td><td class="n">${c.months} months / ${c.sellout} quarters at ${fmt(100 * c.absorb, 1)}% per quarter</td></tr>
-      <tr><td>Project IRR (unlevered, annual)</td><td class="n">${c.irr == null ? "n/a" : fmt(100 * c.irr, 1) + "%"}</td></tr><tr><td>NPV at ${fmt(100 * c.disc, 0)}%</td><td class="n">₹${fmtInt(c.npv / 1e7)} cr</td></tr><tr><td>Peak funding need</td><td class="n">₹${fmtInt(c.peak / 1e7)} cr</td></tr></tbody></table></div>
+      <tr><td>Project IRR (unlevered, annual)</td><td class="n">${c.irr == null ? "n/a" : fmt(100 * c.irr, 1) + "%"}</td></tr><tr><td>NPV at ${fmt(100 * c.disc, 0)}%</td><td class="n">${MB(c.npv)}</td></tr><tr><td>Peak funding need</td><td class="n">${MB(c.peak)}</td></tr></tbody></table></div>
       <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Quarterly and cumulative cash flow"><line x1="0" x2="${W}" y1="${H / 2}" y2="${H / 2}" stroke="var(--line)"/>${c.flows.map((f, i) => { const w = W / c.flows.length, h = Math.abs(f) / mx * (H / 2 - 4); return `<rect x="${(i * w + 1).toFixed(1)}" y="${(f >= 0 ? H / 2 - h : H / 2).toFixed(1)}" width="${Math.max(1, w - 2).toFixed(1)}" height="${h.toFixed(1)}" fill="${f >= 0 ? "var(--premium)" : "var(--compromised)"}" opacity=".75"/>`; }).join("")}<polyline fill="none" stroke="var(--ink)" stroke-width="1.5" points="${cm.map((v, i) => `${((i + 0.5) * W / cm.length).toFixed(1)},${(H / 2 - v / cmx * (H / 2 - 4)).toFixed(1)}`).join(" ")}"/></svg>
       <p class="hint">Bars: quarterly net cash (orange out, purple in); line: cumulative. Land at quarter 0, construction and soft costs spread evenly, sales at a steady rate from launch, collections linked to construction progress with the balance at completion. No debt, tax, GST, approvals phasing or price escalation.</p>`; })()}`;
 }
@@ -169,7 +179,7 @@ async function heightTest() {
 function renderHeightTest() {
   const ev = A().st.sel, out = $("htOut"); if (!out) return; if (!ev) { out.innerHTML = ""; return; }
   const h = ev.heightTest; if (!h) { out.innerHTML = `<p class="hint">Most building heights in OpenStreetMap are estimated. This re-runs the selected tower with estimated heights 25 % lower and 50 % higher and shows which flats keep their class.</p>`; return; }
-  out.innerHTML = `<div class="tablewrap"><table><thead><tr><th>Estimated heights</th>${CLS.map(c => `<th class="n">${c}</th>`).join("")}<th class="n">GDV ₹ cr</th></tr></thead><tbody>${h.rows.map(r => `<tr><td>×${r.k}${r.k === 1 ? " (as loaded)" : ""}</td>${CLS.map(c => `<td class="n">${r[c]}</td>`).join("")}<td class="n">${fmtInt(r.gdv)}</td></tr>`).join("")}</tbody></table></div>
+  out.innerHTML = `<div class="tablewrap"><table><thead><tr><th>Estimated heights</th>${CLS.map(c => `<th class="n">${c}</th>`).join("")}<th class="n">GDV ${MU()}</th></tr></thead><tbody>${h.rows.map(r => `<tr><td>×${r.k}${r.k === 1 ? " (as loaded)" : ""}</td>${CLS.map(c => `<td class="n">${r[c]}</td>`).join("")}<td class="n">${fmtInt(r.gdv * 1e7 / MON.big)}</td></tr>`).join("")}</tbody></table></div>
     <p><b>${h.robust}</b> flats are premium in all three cases; <b>${h.sens}</b> change class depending on the heights (${h.sens ? "these are the ones to verify on site" : "the result does not depend on the uncertain heights"}).</p>`;
 }
 
@@ -217,7 +227,7 @@ function flatSheetHTML() {
 <style>body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#15201e;max-width:760px;margin:0 auto;padding:22px 16px;line-height:1.45}h1{font-size:22px;margin:0}img,svg{max-width:100%;border-radius:8px}.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:14px 0}.k div{border:1px solid #c9d1ce;border-radius:8px;padding:8px 10px}.k span{display:block;font-size:11px;text-transform:uppercase;color:#72807c}.k b{font-size:17px}.note{font-size:12px;color:#4a5854}</style></head><body>
 <h1>Flat ${esc(unit.id.split("-")[1])} · floor ${unit.level} · about ${fmt(unit.z + 1.6, 0)} m eye height</h1><p class="note">${esc(st.siteName)} · ${esc(a.label(ev.sp))} tower, ${ev.sp.n} floors · prepared ${new Date().toISOString().slice(0, 10)}</p>
 <p><b>${words}.</b></p>
-<div class="k">${[["Carpet area", `${fmtInt(unit.carpet * VT.FT2)} ft²`], ["Bedrooms", beds.length], ["Bedrooms with sea view", `${beds.filter(b => b.water >= C.R.vcBR.w_min).length} of ${beds.length}`], ["Living-room sea view", lr ? `${fmt(100 * Math.min(1, lr.water), 0)}% of a full sea view` : "–"], ["Indicative price*", `₹${fmt(unit.value / 1e7, 2)} cr`], ["Indicative rate*", `₹${fmtInt(unit.rate)}/ft²`]].map(([x, y]) => `<div><span>${x}</span><b>${y}</b></div>`).join("")}</div>
+<div class="k">${[["Carpet area", `${fmtInt(unit.carpet * VT.FT2)} ft²`], ["Bedrooms", beds.length], ["Bedrooms with sea view", `${beds.filter(b => b.water >= C.R.vcBR.w_min).length} of ${beds.length}`], ["Living-room sea view", lr ? `${fmt(100 * Math.min(1, lr.water), 0)}% of a full sea view` : "–"], ["Indicative price*", `${MB(unit.value, 2)}`], ["Indicative rate*", `${MR(unit.rate)}`]].map(([x, y]) => `<div><span>${x}</span><b>${y}</b></div>`).join("")}</div>
 ${img ? `<img src="${img}" alt="3D view from the tower with the view cone">` : ""}
 <p>${esc($("coneTitle").textContent)}. ${esc($("coneSectors").textContent)}</p>
 <p class="note">Sea visibility from this facade point, floor by floor (blue), and overall view quality (dashed):</p>${chart}
@@ -228,14 +238,14 @@ ${img ? `<img src="${img}" alt="3D view from the tower with the view cone">` : "
 function assumptionsLines() {
   const a = A(), st = a.st, C = st.C || a.readConfig(), r = reliability();
   return [`Viewtower Studio export, ${new Date().toISOString().slice(0, 16).replace("T", " ")} UTC`, `Site: ${st.siteName}${st.anchor ? `; anchor ${st.anchor[0].toFixed(6)}, ${st.anchor[1].toFixed(6)} (WGS84); local grid x east, y north, metres` : "; synthetic, not georeferenced"}`,
-    `Limits: consumable FSI ${C.fsi} m2, max height ${C.hmax} m. Statutory rules are not modelled.`, `Rates are placeholders: base Rs ${C.E.rate}/ft2 carpet, ${C.E.pricing === "continuous" ? "continuous view multiplier 0.655 + 0.69 x living view within 0.80-1.20 (compromised 0.75)" : "class multipliers " + JSON.stringify(C.E.mult)}, floor rise ${C.E.rise}%/floor.`,
+    `Limits: consumable FSI ${C.fsi} m2, max height ${C.hmax} m. Statutory rules are not modelled.`, `Rates are placeholders: base ${MON.code} ${C.E.rate}/ft2 carpet, ${C.E.pricing === "continuous" ? "continuous view multiplier 0.655 + 0.69 x living view within 0.80-1.20 (compromised 0.75)" : "class multipliers " + JSON.stringify(C.E.mult)}, floor rise ${C.E.rise}%/floor.`,
     `Classes: compromised if living view < ${C.R.vcComp.q_lr_min}, obstruction < ${C.R.vcComp.d_min} m, horizon > ${C.R.vcComp.alpha_max} deg or privacy > ${C.R.vcComp.p_max}; premium if living sea >= ${C.R.vcLR.w_min}, view >= ${C.R.vcLR.q_min} and >= ${Math.round(100 * C.R.vcBR.share)}% of bedrooms sea >= ${C.R.vcBR.w_min}.`,
     r ? `Height data: ${r.level} reliability (${Math.round(100 * r.share)}% of buildings in the main view directions within 1 km have estimated heights${r.cal && r.cal.scale !== 1 ? `, calibrated x${r.cal.scale} from ${r.cal.tagged} tagged buildings` : ""}).` : "", `Context: ${(st.dataNote || "").replace(/<[^>]+>/g, "")}`].filter(Boolean);
 }
 const csvCell = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 function unitsCSV(ev) {
-  const C = A().st.C, head = ["unit", "level", "floor_height_m", "class", "carpet_m2", "carpet_ft2", "rate_rs_ft2", "value_rs_cr", "price_multiplier", "living_view", "living_sea", "living_obstruction_m", "bedrooms_with_sea", "bedrooms", "view_checked_on_this_floor", "why"];
-  const rows = ev.units.map(u => { const lr = u.rooms.find(r => r.room === "living"), beds = u.rooms.filter(r => r.room.startsWith("bed")); return [u.id, u.level, fmt(u.z, 1), u.cls, fmt(u.carpet, 1), Math.round(u.carpet * VT.FT2), Math.round(u.rate), fmt(u.value / 1e7, 3), fmt(u.mult, 3), lr ? fmt(lr.q, 3) : "", lr ? fmt(lr.water, 3) : "", lr ? (lr.dMed >= 2999 ? ">3000" : Math.round(lr.dMed)) : "", beds.filter(b => b.water >= C.R.vcBR.w_min).length, beds.length, u.evaluated === false ? "no" : "yes", u.reasons.join(" | ")]; });
+  const C = A().st.C, head = ["unit", "level", "floor_height_m", "class", "carpet_m2", "carpet_ft2", "rate_per_ft2 (" + MON.code + ")", "value (" + MON.code + " " + MON.bigL + ")", "price_multiplier", "living_view", "living_sea", "living_obstruction_m", "bedrooms_with_sea", "bedrooms", "view_checked_on_this_floor", "why"];
+  const rows = ev.units.map(u => { const lr = u.rooms.find(r => r.room === "living"), beds = u.rooms.filter(r => r.room.startsWith("bed")); return [u.id, u.level, fmt(u.z, 1), u.cls, fmt(u.carpet, 1), Math.round(u.carpet * VT.FT2), Math.round(u.rate), fmt(u.value / MON.big, 3), fmt(u.mult, 3), lr ? fmt(lr.q, 3) : "", lr ? fmt(lr.water, 3) : "", lr ? (lr.dMed >= 2999 ? ">3000" : Math.round(lr.dMed)) : "", beds.filter(b => b.water >= C.R.vcBR.w_min).length, beds.length, u.evaluated === false ? "no" : "yes", u.reasons.join(" | ")]; });
   return assumptionsLines().map(l => "# " + l).join("\n") + "\n" + [head, ...rows].map(r => r.map(csvCell).join(",")).join("\n") + "\n";
 }
 function massingDXF(ev) {
@@ -264,7 +274,7 @@ function boardPackHTML(ev) {
   const a = A(), st = a.st, m = ev.metrics, sp = ev.sp, img = V3D.snapshot(1400), cs = getComputedStyle(document.documentElement), col = k => cs.getPropertyValue("--" + k).trim();
   const plan = $("plan") ? $("plan").outerHTML.replace(/var\(--([a-z0-9-]+)\)/g, (_, k) => col(k) || "#888") : "";
   const top = (st.results || []).slice(0, 6), bf = bestFor(st.results), e = econ(ev).base, ht = ev.heightTest;
-  const mix = CLS.map(c => `<tr><td>${c}</td><td class="n">${m[c]}</td><td class="n">${fmt(100 * m[c] / Math.max(1, m.units), 0)}%</td><td class="n">${fmtInt(ev.units.filter(u => u.cls === c).reduce((s, u) => s + u.value, 0) / 1e7)}</td></tr>`).join("");
+  const mix = CLS.map(c => `<tr><td>${c}</td><td class="n">${m[c]}</td><td class="n">${fmt(100 * m[c] / Math.max(1, m.units), 0)}%</td><td class="n">${fmtInt(ev.units.filter(u => u.cls === c).reduce((s, u) => s + u.value, 0) / MON.big)}</td></tr>`).join("");
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Board pack · ${esc(a.label(sp))} · ${esc(st.siteName)}</title>
 <style>body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#15201e;max-width:1000px;margin:0 auto;padding:24px 16px;line-height:1.45}h1{font-size:24px;margin:0 0 4px}h2{font-size:16px;margin:26px 0 8px;border-bottom:1px solid #c9d1ce;padding-bottom:4px}
 table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:5px 8px;border-bottom:1px solid #e3e8e6;text-align:left}.n{text-align:right;font-variant-numeric:tabular-nums}img{max-width:100%;border-radius:8px;border:1px solid #c9d1ce}
@@ -272,12 +282,12 @@ table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:5px 8px;b
 .note{font-size:12px;color:#4a5854}svg{max-width:520px;width:100%;height:auto}@media print{h2{break-after:avoid}img,svg{break-inside:avoid}}</style></head><body>
 <h1>${esc(a.label(sp))} · ${sp.upf} flat${sp.upf > 1 ? "s" : ""}/floor · ${sp.n} floors (${fmt(m.height, 0)} m)</h1><p class="note">${esc(st.siteName)} · generated ${new Date().toISOString().slice(0, 10)} by Viewtower Studio · option ${ev.id}</p>
 ${verdictHTML().replace(/<span class="badge[^"]*"[^>]*>/g, "<span style=\"display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:99px;background:#e3e8e6;font-size:12px\">")}
-<div class="k">${[["Sales value", `₹${fmtInt(m.gdvCr)} cr`], ["Flats", m.units], ["Premium", `${m.premium} (${fmt(100 * m.premiumShare, 0)}%)`], ["Compromised", m.compromised], ["Carpet", `${fmtInt(m.carpet)} m²`], ["Efficiency", fmt(m.efficiency, 2)], ["Margin (excl. land if not entered)", `${fmt(100 * e.margin, 1)}%`], ["Slenderness", `1:${fmt(m.slender, 1)}`]].map(([x, y]) => `<div><span>${x}</span><b>${y}</b></div>`).join("")}</div>
+<div class="k">${[["Sales value", `${MB(m.gdv)}`], ["Flats", m.units], ["Premium", `${m.premium} (${fmt(100 * m.premiumShare, 0)}%)`], ["Compromised", m.compromised], ["Carpet", `${fmtInt(m.carpet)} m²`], ["Efficiency", fmt(m.efficiency, 2)], ["Margin (excl. land if not entered)", `${fmt(100 * e.margin, 1)}%`], ["Slenderness", `1:${fmt(m.slender, 1)}`]].map(([x, y]) => `<div><span>${x}</span><b>${y}</b></div>`).join("")}</div>
 ${img ? `<h2>3D view</h2><img src="${img}" alt="3D view of the selected tower in its OpenStreetMap context">` : ""}
-<h2>Flat mix by view class</h2><table><thead><tr><th>Class</th><th class="n">Flats</th><th class="n">Share</th><th class="n">Value ₹ cr</th></tr></thead><tbody>${mix}</tbody></table>
-${ht ? `<h2>Building-height uncertainty</h2><table><thead><tr><th>Estimated heights</th>${CLS.map(c => `<th class="n">${c}</th>`).join("")}<th class="n">GDV ₹ cr</th></tr></thead><tbody>${ht.rows.map(r => `<tr><td>×${r.k}</td>${CLS.map(c => `<td class="n">${r[c]}</td>`).join("")}<td class="n">${fmtInt(r.gdv)}</td></tr>`).join("")}</tbody></table><p class="note">${ht.robust} flats are premium in all three cases; ${ht.sens} change class.</p>` : ""}
+<h2>Flat mix by view class</h2><table><thead><tr><th>Class</th><th class="n">Flats</th><th class="n">Share</th><th class="n">Value ${MU()}</th></tr></thead><tbody>${mix}</tbody></table>
+${ht ? `<h2>Building-height uncertainty</h2><table><thead><tr><th>Estimated heights</th>${CLS.map(c => `<th class="n">${c}</th>`).join("")}<th class="n">GDV ${MU()}</th></tr></thead><tbody>${ht.rows.map(r => `<tr><td>×${r.k}</td>${CLS.map(c => `<td class="n">${r[c]}</td>`).join("")}<td class="n">${fmtInt(r.gdv * 1e7 / MON.big)}</td></tr>`).join("")}</tbody></table><p class="note">${ht.robust} flats are premium in all three cases; ${ht.sens} change class.</p>` : ""}
 ${plan ? `<h2>Typical floor (level ${st.level})</h2>${plan}` : ""}
-<h2>Options compared</h2><table><thead><tr><th>Option</th><th class="n">Floors</th><th class="n">GDV ₹ cr</th><th class="n">Premium</th><th class="n">Compromised</th><th class="n">Efficiency</th><th>Best for</th></tr></thead><tbody>${top.map(o => `<tr${o === ev ? ' style="background:#d3e6ec"' : ""}><td>${esc(a.label(o.sp))}, ${o.sp.upf}/floor, rot ${o.sp.rotation}°</td><td class="n">${o.sp.n}</td><td class="n">${fmtInt(o.metrics.gdvCr)}</td><td class="n">${o.metrics.premium}</td><td class="n">${o.metrics.compromised}</td><td class="n">${fmt(o.metrics.efficiency, 2)}</td><td>${(bf.get(o.id) || []).join(", ")}</td></tr>`).join("")}</tbody></table>
+<h2>Options compared</h2><table><thead><tr><th>Option</th><th class="n">Floors</th><th class="n">GDV ${MU()}</th><th class="n">Premium</th><th class="n">Compromised</th><th class="n">Efficiency</th><th>Best for</th></tr></thead><tbody>${top.map(o => `<tr${o === ev ? ' style="background:#d3e6ec"' : ""}><td>${esc(a.label(o.sp))}, ${o.sp.upf}/floor, rot ${o.sp.rotation}°</td><td class="n">${o.sp.n}</td><td class="n">${fmtInt(o.metrics.gdv / MON.big)}</td><td class="n">${o.metrics.premium}</td><td class="n">${o.metrics.compromised}</td><td class="n">${fmt(o.metrics.efficiency, 2)}</td><td>${(bf.get(o.id) || []).join(", ")}</td></tr>`).join("")}</tbody></table>
 <h2>Why this result</h2><ul>${ev.explain.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
 <h2>Assumptions and data</h2><ul class="note">${assumptionsLines().map(l => `<li>${esc(l)}</li>`).join("")}</ul>
 </body></html>`;
