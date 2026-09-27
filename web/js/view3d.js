@@ -110,6 +110,9 @@ function showDesign(ev, opts = {}) {
     }
     g.add(extrude(shapeOf(ccw(ev.cores[l])), sp.ftf, z, mat(COL.core)));
   } });
+  if ((ev.towers || []).length > 1) ev.towers.forEach((tw, ti) => { const p = tw.plates[tw.sp.n - 1], cx = p.reduce((a, q) => a + q[0], 0) / p.length, cy = p.reduce((a, q) => a + q[1], 0) / p.length;
+    const cv = document.createElement("canvas"); cv.width = 128; cv.height = 64; const x = cv.getContext("2d"); x.fillStyle = "rgba(21,32,30,.85)"; x.beginPath(); x.roundRect ? x.roundRect(8, 8, 112, 48, 12) : x.rect(8, 8, 112, 48); x.fill(); x.fillStyle = "#fff"; x.font = "bold 30px sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText("T" + (ti + 1), 64, 33);
+    const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: false })); spr.position.copy(W3(cx, cy, tw.sp.n * tw.sp.ftf + 18)); spr.scale.set(36, 18, 1); spr.renderOrder = 10; g.add(spr); });
   setGroup("design", g);
   if (opts.frame) frameTower(Math.max(...(ev.towers || [ev]).map(t => t.sp.n * t.sp.ftf)));
 }
@@ -161,17 +164,19 @@ function clearCone() { setGroup("cone", null); }
 /* ---------- camera modes */
 /* Look from the land side towards the sea (the premium arc bisector), slightly off-axis. */
 function frameTower(H) {
-  // dense cities: look down from higher and further out so neighbouring towers do not fill the frame
-  if (T.ctx && T.ctx.profile === "dense") { const az = (T.seaAz ?? 270) * D2R, dist = Math.max(420, H * 2.6), el = 40 * D2R, dx = Math.sin(az), dz = -Math.cos(az), side = 0.35;
-    T.controls.target.set(0, H * 0.45, 0); T.camera.position.set((-dx + dz * side) * dist * Math.cos(el), H * 0.45 + dist * Math.sin(el), (-dz - dx * side) * dist * Math.cos(el)); T.camera.fov = 42; T.camera.updateProjectionMatrix(); return; }
-  const az = (T.seaAz ?? 270) * D2R, back = Math.max(260, H * 1.9), side = 0.45;
-  const dx = Math.sin(az), dz = -Math.cos(az), px = -dz, pz = dx;
-  T.controls.target.set(dx * H * 0.35, H * 0.38, dz * H * 0.35);
-  T.camera.position.set(-dx * back + px * back * side, H * 0.85 + 60, -dz * back + pz * back * side);
-  T.camera.fov = 45; T.camera.updateProjectionMatrix();
+  // centre on the towers and pick, among 12 directions, the camera position least blocked by the city in front
+  const tw = T.design ? (T.design.towers || [T.design]) : [], cs = tw.map(t => { const p = t.plates[0]; return [p.reduce((a, q) => a + q[0], 0) / p.length, p.reduce((a, q) => a + q[1], 0) / p.length]; });
+  const c = cs.length ? [cs.reduce((a, q) => a + q[0], 0) / cs.length, cs.reduce((a, q) => a + q[1], 0) / cs.length] : T.ctr.slice(), spread = cs.length > 1 ? Math.max(...cs.map(q => Math.hypot(q[0] - c[0], q[1] - c[1]))) * 2 : 0;
+  const dense = T.ctx && T.ctx.profile === "dense", el = (dense ? 36 : 24) * D2R, dist = Math.max(dense ? 340 : 260, H * (dense ? 2.0 : 1.8) + spread * 1.4), tz = H * 0.45, S = T.S;
+  const hAt = (x, y) => { if (!S || !S.H) return 0; const j = Math.floor((x - S.x0) / S.res), i = Math.floor((y - S.y0) / S.res); return j < 0 || i < 0 || j >= S.nx || i >= (S.ny || S.H.length / S.nx) ? 0 : S.H[i * S.nx + j]; };
+  const base = ((T.seaAz ?? 270) + 180) % 360; let best = null;
+  for (let k = 0; k < 12; k++) { const a = (base + k * 30) % 360, ar = a * D2R, ex = c[0] + Math.sin(ar) * dist * Math.cos(el), ey = c[1] + Math.cos(ar) * dist * Math.cos(el), ez = tz + dist * Math.sin(el);
+    let blocked = 0; for (let t = 0.04; t < 0.96; t += 0.03) { const x = ex + (c[0] - ex) * t, y = ey + (c[1] - ey) * t, z = ez + (tz - ez) * t; if (hAt(x, y) > z) blocked++; }
+    const cost = blocked + 0.15 * Math.min(k, 12 - k); if (!best || cost < best.cost) best = { cost, ex, ey, ez }; }
+  T.controls.target.copy(W3(c[0], c[1], tz)); T.camera.position.copy(W3(best.ex, best.ey, best.ez)); T.camera.fov = dense ? 40 : 45; T.camera.updateProjectionMatrix(); T.dirty = true;
 }
 function setSeaAz(az) { if (T) T.seaAz = az; }
-function resetView() { if (!T) return; frameTower(T.design ? T.design.sp.n * T.design.sp.ftf : 90); }
+function resetView() { if (!T) return; frameTower(T.design ? Math.max(...(T.design.towers || [T.design]).map(t => t.sp.n * t.sp.ftf)) : 90); }
 function topView() { T.controls.target.set(0, 0, 0); T.camera.position.set(0, 1300, 1); }
 function jumpIn(o, plate, ftf) {
   const inward = 0.9, x = o.x - Math.sin(o.az * D2R) * inward, y = o.y - Math.cos(o.az * D2R) * inward;

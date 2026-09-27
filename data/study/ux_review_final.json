@@ -1,0 +1,2473 @@
+{
+ "summary": {
+  "designers": 50,
+  "ratings_final": {
+   "clarity": 3.6,
+   "ease": 3.22,
+   "visual": 3.1,
+   "trust": 3.78,
+   "mobile": 3.04
+  },
+  "overall": {
+   "previous_release": 5.82,
+   "first_draft": 5.5,
+   "final": 6.46
+  },
+  "F_beats_P": 30,
+  "F_beats_D": 42,
+  "real_upgrade": {
+   "somewhat": 31,
+   "yes, clearly": 19
+  },
+  "ab": {
+   "ab_names": {
+    "B": 50
+   },
+   "ab_phone": {
+    "B": 50
+   },
+   "ab_options": {
+    "B": 46,
+    "no preference": 4
+   }
+  },
+  "severity": {
+   "major": 64,
+   "minor": 80
+  }
+ },
+ "designers": [
+  {
+   "profile": "Priya N., Bengaluru - principal B2B product designer, 12 yrs in proptech/SaaS dashboards",
+   "clarity": 4,
+   "ease": 4,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03 verdict card",
+     "severity": "major",
+     "issue": "The verdict is a dense 4-line paragraph that mixes the headline, the canyon explanation, the per-tower split and GDV. Then comes a grey method line and three pills, so the key number (55% compromised) is easy to miss.",
+     "fix": "Keep one bold headline sentence. Move the per-tower split and the 'below floor 45' explanation into a 2-row mini table or bullets under it."
+    },
+    {
+     "screen": "F 04 rule checks",
+     "severity": "major",
+     "issue": "GR-SLEND-01 fails on both towers (red X X), but the verdict and KPIs never mention it, so a 'best trade-off' quietly carries a failed check.",
+     "fix": "Add a '1 advisory check failed' pill to the verdict that links to the Rule checks tab."
+    },
+    {
+     "screen": "F 03 KPI row",
+     "severity": "minor",
+     "issue": "Labels are inconsistent: 'COMPROMISED FLATS' next to 'PREMIUM UNITS', while the legend says 'strong view'.",
+     "fix": "Use one vocabulary everywhere: 'strong-view flats', 'compromised flats'."
+    }
+   ],
+   "liked": [
+    "Plain names like 'Square tower \u00b7 swells mid-height'",
+    "Honest red '55% of flats compromised' pill",
+    "Per-tower split in the verdict"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "'Token: chamfered \u00b7 taper \u00b7 gardens' meant nothing to a client; 'Square tower \u00d72' does."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "The floating pills in A covered the export chips. B's order puts verdict first, then 3D."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "The chart gives a quick picture of the trade-off, although it needs tuning."
+   },
+   "quote": "It finally reads like a decision tool rather than a debugger, but the verdict still talks too much."
+  },
+  {
+   "profile": "Marcus Hale, New York - senior data-visualisation designer, ex-newsroom graphics",
+   "clarity": 3,
+   "ease": 4,
+   "visual": 3,
+   "trust": 3,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 05 options chart",
+     "severity": "major",
+     "issue": "The x-axis runs from 0% to 56%, but every dot sits between about 48% and 56%, so 85% of the plot is empty and dots 4 and 6 overlap. The y-axis labels show only the 1003 and 1654 end values.",
+     "fix": "Fit the x domain to the data with padding, add 3-4 gridlines and ticks on both axes, and label the axes with units ($M, %)."
+    },
+    {
+     "screen": "F 05 options chart",
+     "severity": "minor",
+     "issue": "The caption says filled blue dots are the best trade-offs, but every dot is filled blue, so the encoding carries no information.",
+     "fix": "Draw dominated options as hollow grey dots, or remove that part of the caption when all 8 dots are on the front."
+    },
+    {
+     "screen": "F 03b 3D legend",
+     "severity": "minor",
+     "issue": "Strong view (dark purple) and good (light purple) are hard to tell apart on the tower, especially the light band on T2.",
+     "fix": "Use a more distinct lightness step, or a teal for 'good'."
+    }
+   ],
+   "liked": [
+    "Direct labels on the dots that match the table's # column",
+    "Legend counts on the 3D view (strong 49 / good 11 / compromised 72)"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Plain names make both the chart and the table readable."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "B has no overlap and a better order."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "B is better than a table alone, but the scatter is poorly scaled."
+   },
+   "quote": "Good instinct to plot it, but the axes are hiding the story you want to tell."
+  },
+  {
+   "profile": "Yuki Tanaka, Tokyo - 3D/spatial interface lead, AEC visualisation tools",
+   "clarity": 4,
+   "ease": 4,
+   "visual": 4,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 03b 3D",
+     "severity": "major",
+     "issue": "The two towers are small in the frame and a foreground skyscraper blocks the right third of the view, so the default camera does not frame the result.",
+     "fix": "After a run, auto-frame the camera on the result towers and fade or ghost the buildings between the camera and the towers."
+    },
+    {
+     "screen": "F 03b 3D legend",
+     "severity": "minor",
+     "issue": "'grey = podium \u00b7 white slabs = floors' is cryptic, and the podium is hard to see at this zoom.",
+     "fix": "Change it to 'Grey base = podium (not scored)' and show a small swatch."
+    },
+    {
+     "screen": "F 08 phone 3D",
+     "severity": "minor",
+     "issue": "On phone, the hint card, 'Reset view' and 'Top view' cover about a third of the viewport.",
+     "fix": "Collapse the hint after the first touch and use icon buttons."
+    }
+   ],
+   "liked": [
+    "The canyon story is clear in 3D: orange floors at the base, purple floors above",
+    "The legend now exists, with counts"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "The name describes the massing you can actually see."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "B puts the 3D before the numbers, which is right for a spatial tool."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Clicking a dot to preview the option in 3D is a strong loop."
+   },
+   "quote": "The 3D finally explains the verdict instead of just decorating it."
+  },
+  {
+   "profile": "Hannah Fischer, Berlin - accessibility specialist (WCAG auditor), public-sector services",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 5,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 04 rule checks",
+     "severity": "major",
+     "issue": "Pass and fail are shown only as small green \u2713 and red \u2717 glyphs, doubled per tower. The per-tower value is only available on hover, which keyboard and touch users cannot use.",
+     "fix": "Add text ('Pass'/'Advisory') and show the T1/T2 values inline or in an expandable row instead of a hover tooltip."
+    },
+    {
+     "screen": "F 03 pills",
+     "severity": "major",
+     "issue": "The green and gold pill text on tinted backgrounds looks low contrast, and the height-data pill is long.",
+     "fix": "Check that every pill has at least 4.5:1 contrast and use darker text."
+    },
+    {
+     "screen": "F 02 search cards",
+     "severity": "minor",
+     "issue": "The grey description text in the method cards is small and low contrast, and the selected state relies on a pale blue fill.",
+     "fix": "Add a checkmark or radio indicator and raise the text contrast."
+    },
+    {
+     "screen": "F 08 phone",
+     "severity": "minor",
+     "issue": "'Edit inputs \u2193' is a small default-blue link with a small touch target.",
+     "fix": "Make it a 44 px button."
+    }
+   ],
+   "liked": [
+    "Status is carried by text as well as colour in the KPIs (72 / 132, 55% of flats)",
+    "Numbered steps in the left rail"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Plain language is better for cognitive accessibility."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Floating pills that cover content fail reflow expectations."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "B adds a chart while keeping the table, which gives a text alternative."
+   },
+   "quote": "Better, but hover-only detail and colour-only ticks still lock people out."
+  },
+  {
+   "profile": "Arjun Mehta, Mumbai - mobile-first product designer, consumer real-estate apps",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 5,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 08 phone tabs",
+     "severity": "major",
+     "issue": "The five tabs wrap onto two rows ('Design detail', 'Method & data'), which looks broken.",
+     "fix": "Use a horizontally scrollable tab bar or a segmented control with overflow."
+    },
+    {
+     "screen": "F 09 phone legend",
+     "severity": "minor",
+     "issue": "The 3D legend overlaps the OpenStreetMap attribution.",
+     "fix": "Stack the attribution above or below the legend, or move it to the opposite corner."
+    },
+    {
+     "screen": "F 09 phone",
+     "severity": "major",
+     "issue": "After the exports, the full input form starts inline, so reaching settings means a very long scroll and there is no sticky Run button on phone.",
+     "fix": "Put inputs in a bottom sheet with a sticky Run CTA."
+    }
+   ],
+   "liked": [
+    "Verdict first, intro hidden",
+    "The floating pills are gone"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "B is shorter and fits phone cards."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "B is clearly better. A's pills covered the chips."
+   },
+   "ab_options": {
+    "choice": "no preference",
+    "reason": "The options screen was not shown on phone. The chart might be cramped at 390 px."
+   },
+   "quote": "The order is fixed; now the chrome needs to feel native."
+  },
+  {
+   "profile": "Sophie Laurent, London - design systems lead, fintech and govtech",
+   "clarity": 4,
+   "ease": 4,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03 / 06 KPI cards",
+     "severity": "minor",
+     "issue": "KPI cards use a monospace font for both names and values, so 'Square tower \u00d72' wraps awkwardly and looks like code.",
+     "fix": "Use a proportional font for text values and keep tabular figures for numbers."
+    },
+    {
+     "screen": "F 04a design header",
+     "severity": "minor",
+     "issue": "The hash 'c5c3c694b6e2' and rule IDs such as 'GR-CORE-RATIO-01' show internal tokens in the UI.",
+     "fix": "Hide IDs behind a details toggle and lead with a human rule name."
+    },
+    {
+     "screen": "F 03 buttons",
+     "severity": "minor",
+     "issue": "Export chips, the selected state of the site-boundary chips and the tab styles all use similar grey pill styles, so buttons, toggles and tags are hard to tell apart.",
+     "fix": "Define separate button, toggle and tag tokens."
+    }
+   ],
+   "liked": [
+    "Consistent card grid",
+    "Placeholder-rates labelling on every money figure"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "B keeps technical tokens out of the product copy."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "B removes an ad-hoc floating component."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "B is richer, though the chart needs the system's type ramp."
+   },
+   "quote": "Content improved faster than the component library did."
+  },
+  {
+   "profile": "Daniel Okafor, London - UX research lead, planning and property services",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 02 search method",
+     "severity": "major",
+     "issue": "The 'Best of both, tuned by architects' card has 9 lines of copy, and users are asked to choose between 4 methods before they know the difference matters.",
+     "fix": "Pre-select the recommended option, cut each card to one line and put the detail behind 'How it works'."
+    },
+    {
+     "screen": "F 04a design header",
+     "severity": "minor",
+     "issue": "The header says 'rotation 0\u00b0' and then 'towers splayed \u00b115\u00b0' in orange, which looks contradictory.",
+     "fix": "Explain the relationship, for example 'site rotation 0\u00b0, each tower splayed \u00b115\u00b0'."
+    },
+    {
+     "screen": "F 03 verdict",
+     "severity": "minor",
+     "issue": "'8 designs evaluated \u00b7 8 on the best-trade-off front' raises the question of why all of them are 'best'.",
+     "fix": "Say 'all 8 are reasonable trade-offs; #1 has the highest value'."
+    }
+   ],
+   "liked": [
+    "The verdict explains why flats are compromised",
+    "'Same setback on every side' shortcut"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Participants would understand B without training."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "B matches the order people read in: answer first."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "B makes the trade-off visible."
+   },
+   "quote": "The app now answers 'why' as well as 'what', and that is what builds trust."
+  },
+  {
+   "profile": "Mei Lin Chen, Singapore - information architect, enterprise planning software",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 01 left rail",
+     "severity": "major",
+     "issue": "The five input sections form a very long column, and the results never show which inputs produced them (FSI, height and number of towers are hidden below).",
+     "fix": "Add a compact 'Run settings' summary strip above the verdict that links back to each section."
+    },
+    {
+     "screen": "F 03b sticky Run",
+     "severity": "minor",
+     "issue": "The sticky 'Run search' button covers the method cards underneath it (text is visibly cut off).",
+     "fix": "Add bottom padding equal to the button height, or dock the button in a footer bar."
+    },
+    {
+     "screen": "F tabs",
+     "severity": "minor",
+     "issue": "'Site plan & views', 'Design detail' and 'Method & data' overlap in purpose.",
+     "fix": "Regroup the tabs as Result, Compare, Details and Method."
+    }
+   ],
+   "liked": [
+    "Folding setback list with a summary line",
+    "Per-tower data inside a single result"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "B is a clearer label hierarchy."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "B has a better sequence."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "B gives an overview before the detail."
+   },
+   "quote": "Structure is decent; the left rail is still a wall of fields."
+  },
+  {
+   "profile": "Elena Rossi, Milan - visual/brand designer, luxury real-estate marketing",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 3,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03 overall",
+     "severity": "major",
+     "issue": "The aesthetic is still a utilitarian admin panel: grey on grey, monospace numbers and many pills. It does not feel premium for a tool that sells views.",
+     "fix": "Add a refined type pairing, a warmer palette and a hero render moment for the winning tower."
+    },
+    {
+     "screen": "F 06 London 3D",
+     "severity": "minor",
+     "issue": "The single tower is a flat purple extrusion with horizontal stripes and reads as a diagram, not architecture.",
+     "fix": "Add subtle glazing shading and soft ambient occlusion, and keep the colour classes as an overlay toggle."
+    }
+   ],
+   "liked": [
+    "Better names",
+    "Currency localised (\u00a3, $)"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "B's names read like marketing copy, not code."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "B is cleaner."
+   },
+   "ab_options": {
+    "choice": "no preference",
+    "reason": "The chart is too plain to add much visually."
+   },
+   "quote": "Smarter, not yet beautiful."
+  },
+  {
+   "profile": "Rahul Iyer, Pune - service designer, developer-to-buyer journeys",
+   "clarity": 4,
+   "ease": 4,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 04 Economics",
+     "severity": "major",
+     "issue": "Land cost reads 'enter to include' and all rates are placeholders, so the '$1,654 M' headline figure is not actionable for a developer.",
+     "fix": "Prompt for key rates before the run, or show a GDV range and flag 'placeholder' next to the headline number itself."
+    },
+    {
+     "screen": "F 03 verdict",
+     "severity": "minor",
+     "issue": "There is no next step after the verdict, such as 'Try fewer, taller towers' when 55% of flats are compromised.",
+     "fix": "Suggest one or two follow-up runs when a warning pill appears."
+    }
+   ],
+   "liked": [
+    "Honest warnings",
+    "Board pack export",
+    "Multi-city support with local limits"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Clients understand B."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "B supports a presentation flow on site."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "B supports the conversation about the trade-off."
+   },
+   "quote": "It tells the truth about a bad site; now it should help me act on it."
+  },
+  {
+   "profile": "Priya R., principal B2B product designer, Bengaluru, 14 yrs in proptech and ERP tools",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03 verdict",
+     "severity": "major",
+     "issue": "The verdict is a four-line paragraph with the per-tower split (T1 27/37, T2 22/35) buried mid-sentence.",
+     "fix": "Keep one headline sentence, then a small two-row table for T1/T2 with strong, good and compromised counts."
+    },
+    {
+     "screen": "F 03 / 06 verdict meta line",
+     "severity": "major",
+     "issue": "The method line says 'Hybrid (library + generated\u2026)' and 'Token library (deterministic)', but the cards say 'Best of both' and 'Best from 540 known towers'. The names don't match.",
+     "fix": "Use the card titles word for word in the verdict meta line."
+    },
+    {
+     "screen": "F 04a header",
+     "severity": "minor",
+     "issue": "The hash 'c5c3c694b6e2' sits at the top right like a key identifier and means nothing to users.",
+     "fix": "Move it into Method & data, or behind a copy-ID icon."
+    }
+   ],
+   "liked": [
+    "Plain names like 'Square tower \u00b7 swells mid-height'",
+    "The red '55% of flats compromised' badge admits the weakness up front",
+    "Folding the setback list with 'Apply to all'"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "A buyer or developer can't parse 'Token: chamfered \u00b7 taper'. 'Square tower \u00d72' reads at a glance."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "The floating pills in A covered the export chips. B gives a clean reading order."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "The chart adds a trade-off overview the table alone never gave."
+   },
+   "quote": "It finally tells the truth about Midtown, but it still says it in a paragraph."
+  },
+  {
+   "profile": "Tom H., data-visualisation lead, London, ex-newsroom graphics, 11 yrs",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 3,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 05 options chart",
+     "severity": "major",
+     "issue": "The x-axis runs from 0% to 56%, but every dot sits between about 50% and 56%, so the left 85% of the plot is empty and dots 4 and 6 overlap. The note 'Up and to the left is better' points at empty space.",
+     "fix": "Fit the domain to the data with padding (e.g. 48\u201358%), add gridlines and tick labels, and nudge labels so they don't collide."
+    },
+    {
+     "screen": "F 05 options chart",
+     "severity": "major",
+     "issue": "The y-axis shows only the bare numbers 1654 and 1003 with no currency, and the numbered labels are about 9 px. The note says 'filled blue dots', but no hollow dots are visible, so nothing marks which options are off the front.",
+     "fix": "Add '$M' ticks at round values, raise labels to 12 px, and draw dominated options hollow and grey."
+    },
+    {
+     "screen": "F 03b 3D vs F 04 plan legend",
+     "severity": "major",
+     "issue": "The 3D legend says 'strong view / good / compromised', while the plan legend says 'Premium / Good / Neutral / Compromised' and adds 'Living' and 'Bedrooms' in similar blues. The same class has two names.",
+     "fix": "Pick one vocabulary for all screens (strong/good/neutral/compromised) and keep the room colours visually distinct from the view classes."
+    }
+   ],
+   "liked": [
+    "The 3D legend now gives live counts per class",
+    "The orange band on the lower floors reads instantly as 'canyon floors'"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Plain names, clearly better."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Showing the verdict then the 3D is the right hierarchy."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Having a chart beats having none, even in its current cramped state."
+   },
+   "quote": "Right chart, wrong axis: all eight options are crammed into the last sliver of the plot."
+  },
+  {
+   "profile": "Kenji M., 3D/spatial interface designer, Tokyo, digital-twin and BIM viewers, 9 yrs",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 4,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 03 3D",
+     "severity": "major",
+     "issue": "The default camera puts a large grey foreground tower on the right third, hiding context. The two result towers sit small in the middle.",
+     "fix": "Auto-frame the result towers on load and fade or ghost buildings between the camera and the result."
+    },
+    {
+     "screen": "F 03b / 06 3D legend",
+     "severity": "minor",
+     "issue": "'grey = podium \u00b7 white slabs = floors' describes things that are hard to see at this scale, and on the phone the legend overlaps the OSM attribution.",
+     "fix": "Drop that sub-line or show it on hover, and move the attribution under the canvas."
+    },
+    {
+     "screen": "F 03 3D",
+     "severity": "minor",
+     "issue": "Nothing in the 3D says which tower is T1 and which is T2, but the verdict and rule checks refer to them by those names.",
+     "fix": "Float small 'T1' and 'T2' labels over each tower top."
+    }
+   ],
+   "liked": [
+    "Multi-tower massing is legible, and the canyon band shows the story",
+    "The London river render with its single purple tower is striking and clear"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "The names are easy to say out loud when presenting the model."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "The 3D moves up the page, where it belongs."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "I'd like to see the chart linked to the 3D on hover, but B is the right direction."
+   },
+   "quote": "The 3D earns its place now, but please label T1 and T2 in the scene."
+  },
+  {
+   "profile": "Aisha K., accessibility specialist (WCAG auditor), Manchester UK, 12 yrs",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 5,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 04 rule checks",
+     "severity": "major",
+     "issue": "Per-tower status is shown as tiny paired ticks ('\u2713 \u2713', '\u2717 \u2717'). Each tower's values are available only on hover, which keyboard and touch users can't reach.",
+     "fix": "Show T1/T2 values inline or as expandable rows, and add text labels ('T1 pass, T2 pass') for screen readers."
+    },
+    {
+     "screen": "F 03b 3D legend / F 04 plan legend",
+     "severity": "major",
+     "issue": "Strong (dark purple) and good (lavender) are told apart by lightness alone, and the 'good' slabs are barely distinguishable from grey podium floors.",
+     "fix": "Raise the contrast between classes and add a pattern or outline, and check the palette against deuteranopia."
+    },
+    {
+     "screen": "F 08 phone",
+     "severity": "minor",
+     "issue": "'Edit inputs \u2193' is a small default-blue underlined link, off-brand and a small tap target.",
+     "fix": "Make it a 44 px secondary button in the app's teal."
+    }
+   ],
+   "liked": [
+    "Counts in the legend mean colour isn't the only carrier of meaning",
+    "Placeholder rates and data reliability are stated in text, not just colour"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Plain language is an accessibility win."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "The floating pills in A covered content and were a focus trap risk."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "The table is still there for non-visual users, so the chart adds without taking anything away."
+   },
+   "quote": "Better, but hover-only per-tower values shut out keyboard and touch users."
+  },
+  {
+   "profile": "Carlos V., mobile product designer, Barcelona, consumer and field apps, 8 yrs",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 5,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 08 phone tabs",
+     "severity": "major",
+     "issue": "The five tabs wrap onto two lines ('Design detail', 'Method & data' fall to row two), which breaks the tab metaphor.",
+     "fix": "Use a horizontally scrollable tab strip or a segmented control plus a 'More' menu."
+    },
+    {
+     "screen": "F 08 phone verdict",
+     "severity": "major",
+     "issue": "The verdict card takes roughly 360 px of a 844 px screen before any visual appears.",
+     "fix": "Collapse it to two lines with 'More'; the data badges can go behind a disclosure."
+    },
+    {
+     "screen": "F 09 phone",
+     "severity": "minor",
+     "issue": "Inputs start right after the exports with no clear break, so the page becomes one endless scroll.",
+     "fix": "Add a section header or a sticky bottom bar with 'Edit inputs / Run'."
+    }
+   ],
+   "liked": [
+    "Floating pills removed",
+    "The verdict \u2192 3D \u2192 numbers \u2192 exports order is right"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Short names fit phone KPI tiles."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "B is clearly better. A covered the export chips."
+   },
+   "ab_options": {
+    "choice": "no preference",
+    "reason": "On a phone that tiny chart would be unreadable, and I didn't see a phone version."
+   },
+   "quote": "Order fixed, density not: the phone still reads like a squeezed desktop."
+  },
+  {
+   "profile": "Megan L., design-systems lead, Seattle US, 13 yrs across SaaS platforms",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03 KPIs vs 3D legend",
+     "severity": "major",
+     "issue": "The KPI tile says 'PREMIUM UNITS 49/132', the legend says 'strong view 49', and the verdict mixes 'flats' and 'units'.",
+     "fix": "Standardise terms in one glossary (strong view, flats) and use them in tokens and components."
+    },
+    {
+     "screen": "F 03 export chips",
+     "severity": "minor",
+     "issue": "Export actions, Save/Load scenario and tabs all share the same pill style, so actions and navigation look the same.",
+     "fix": "Make exports a button group or menu and keep pills for status only."
+    },
+    {
+     "screen": "F 03 KPI tiles",
+     "severity": "minor",
+     "issue": "Values in the monospace font wrap awkwardly ('Square tower \u00d72', '259 m' split onto a new line).",
+     "fix": "Use tabular-number sans for values and shorten the subtitle."
+    }
+   ],
+   "liked": [
+    "Consistent card system and numbered steps in the sidebar",
+    "Red status colour now used meaningfully for compromised counts"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Clearer, though it creates a new vocabulary to keep consistent."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "No overlay components fighting the layout."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Good addition, but the chart needs a proper component with axes."
+   },
+   "quote": "Three names for the same metric is a system problem, not a copy problem."
+  },
+  {
+   "profile": "Ravi S., UX researcher, Pune/Mumbai, real-estate developer tools, 10 yrs",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 04 rule checks",
+     "severity": "major",
+     "issue": "GR-SLEND-01 shows a red \u2717 \u2717 ('advisory, does not reject') on the design ranked best. Users will read that as a failure.",
+     "fix": "Show advisory items in amber with an 'Advisory' tag, kept separate from hard failures."
+    },
+    {
+     "screen": "F 02 search method cards",
+     "severity": "minor",
+     "issue": "The 'Best of both' card needs about 9 lines to explain itself, and 'near-ties go to the form architects rate higher' is opaque.",
+     "fix": "Trim it to one line plus a 'How it works' link."
+    },
+    {
+     "screen": "F 04a design header",
+     "severity": "minor",
+     "issue": "The subtitle repeats 'square floor plan, swells in the middle (like the Gherkin)' twice.",
+     "fix": "Dedupe the library seed description."
+    }
+   ],
+   "liked": [
+    "The canyon explanation ('Floors below 45 mostly look into nearby buildings') builds trust",
+    "Per-city currency ($M, \u00a3M)",
+    "Timing hints on the method cards"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Developers in testing always ask what 'token' means. B removes that question."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Reading order matches the questions users ask."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Users want to see why #1 beat #2, and the chart helps."
+   },
+   "quote": "Explaining why the low floors lose their view is what makes this trustworthy."
+  },
+  {
+   "profile": "Sofie B., information architect, Copenhagen, complex analytical products, 15 yrs",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03 layout",
+     "severity": "major",
+     "issue": "The KPIs, the export row and the five tabs all sit above the 3D, so the page has three competing levels of hierarchy before any content.",
+     "fix": "Move exports into a single 'Export' menu next to Present and make the KPI row collapsible."
+    },
+    {
+     "screen": "F 03b sticky Run button",
+     "severity": "minor",
+     "issue": "The sticky Run search button overlaps the method cards and fields in the sidebar ('Invent new' is cut off).",
+     "fix": "Reserve bottom padding under the sidebar content, or dock the button in a footer bar with a shadow."
+    },
+    {
+     "screen": "F 01 empty state",
+     "severity": "minor",
+     "issue": "Before a run, the tabs Options and Design detail are live but empty.",
+     "fix": "Disable them with a tooltip until results exist."
+    }
+   ],
+   "liked": [
+    "Collapsing the 10\u201312 sided setback list is a real win",
+    "The numbered steps 1\u20135 give a clear mental model"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "The labels describe the form, not the algorithm."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Intro hidden and verdict first: correct IA."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Overview first, then detail."
+   },
+   "quote": "The sidebar is tamed; the results header is now the crowded part."
+  },
+  {
+   "profile": "Arjun D., visual/brand designer, Delhi, luxury real-estate marketing, 9 yrs",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 3,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "All F screens",
+     "severity": "major",
+     "issue": "The UI is flat grey and teal with monospace numbers everywhere, which feels like an engineering tool rather than something to show a client. The 'Present' button promises a polish the page doesn't have.",
+     "fix": "Introduce a display type scale, a sans font for figures, and more whitespace in the KPI tiles."
+    },
+    {
+     "screen": "F 03 3D",
+     "severity": "minor",
+     "issue": "The purple and orange floor bands clash with the pale blue water, and the city mass is visually noisy.",
+     "fix": "Use a softer context palette (lighter, lower-contrast buildings) so the result tower pops."
+    }
+   ],
+   "liked": [
+    "The London river scene is a genuinely nice image",
+    "Good use of red only for problems"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Sellable names."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Cleaner, with nothing floating over content."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "More visual, though the chart itself is crude."
+   },
+   "quote": "The content is honest now; the craft still looks like a prototype."
+  },
+  {
+   "profile": "Lena W., service designer, Berlin, planning-authority and developer workflows, 11 yrs",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 03 / 06 badges",
+     "severity": "major",
+     "issue": "'Placeholder rates' is a small grey pill, while GDV figures ($1,654 M, \u00a3334 M) are shown large, which invites misuse in board packs.",
+     "fix": "Add 'indicative' next to every money figure and watermark exports while rates are placeholders."
+    },
+    {
+     "screen": "F 04 rule checks",
+     "severity": "minor",
+     "issue": "GR-SEP-01 (tower gap) shows a single tick while the other rows show two, and nothing explains why.",
+     "fix": "Label site-level checks 'Site' in the tick column."
+    },
+    {
+     "screen": "F 06 London",
+     "severity": "minor",
+     "issue": "The KPI 'MAIN VIEW ARC (SEA OR SKYLINE)' is shown for a river view.",
+     "fix": "Name the label after the city's actual view target (river, sea, skyline)."
+    }
+   ],
+   "liked": [
+    "Multi-city support with local currency and limits",
+    "A time estimate on each search method sets expectations",
+    "Honest per-tower breakdown in Why this result"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Plain names can go straight into a planning discussion."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "'Edit inputs' is a clearer path back than pills."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Stakeholders understand a trade-off picture faster than a table."
+   },
+   "quote": "A real step up. Now make the placeholder money impossible to misquote."
+  },
+  {
+   "profile": "Priya R., principal B2B product designer, Bengaluru, 14 yrs in proptech/SaaS dashboards",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "03 two-tower result, verdict card",
+     "severity": "major",
+     "issue": "The verdict is a five-line paragraph that mixes the headline, the per-tower split and the canyon explanation, so the one decision-relevant number (55% compromised) only shows up as a pill at the bottom.",
+     "fix": "Keep one bold headline sentence, then a 3-row mini table (T1/T2: strong/good/compromised), and put the 'floors below 45 look into buildings' line as a separate caveat line with an icon."
+    },
+    {
+     "screen": "03 KPI row",
+     "severity": "minor",
+     "issue": "'Premium units 49/132' and 'Compromised flats 72/132' use different nouns (units vs flats) and different words (premium vs strong) for the same classes.",
+     "fix": "Use 'flats' everywhere and rename Premium to 'Strong view' to match the verdict and the 3D legend."
+    },
+    {
+     "screen": "07 setbacks / 03b sticky Run",
+     "severity": "major",
+     "issue": "The sticky Run search bar covers the method cards ('Invent new' / 'Best of both' are cut off beneath it) and the field under it.",
+     "fix": "Add bottom padding equal to the bar height to the sidebar scroll container, or dock the bar to the bottom of the sidebar with a shadow edge."
+    }
+   ],
+   "liked": [
+    "Method cards with time estimates and 'same result every run' vs 'varies' are a real improvement over the cryptic dropdown",
+    "Red '55% of flats compromised' pill is honest",
+    "Plain design names"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "'Square tower \u00d72' is readable by a developer; 'Chamfered \u00d72 (token)' was internal jargon."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Floating pills covered the export chips; B's order puts the verdict and the 3D first."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "The chart shows the trade-off at a glance, even though its scaling is poor."
+   },
+   "quote": "It finally reads like a product, but the verdict card is doing the work of three components."
+  },
+  {
+   "profile": "Daniel K., senior data-visualisation designer, New York, ex-newsroom graphics",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 3,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "05 options chart",
+     "severity": "major",
+     "issue": "The x-axis runs 0-56% but every dot sits between about 50 and 56%, so 90% of the plot is empty and the dots and labels (6, 56%) collide at the right edge.",
+     "fix": "Fit the domain to the data with padding (e.g. 48-58%), label the ticks, and offset the dot labels with a collision pass."
+    },
+    {
+     "screen": "05 options chart",
+     "severity": "major",
+     "issue": "The caption says the filled blue dots are best trade-offs, but every dot is the same filled blue, so the encoding carries no information; dot 1 differs only by a ring.",
+     "fix": "Show dominated options hollow or grey, and label the selected one in the chart ('1 \u00b7 chosen')."
+    },
+    {
+     "screen": "05 options chart",
+     "severity": "minor",
+     "issue": "The y-axis has only its two extreme ticks (1003, 1654) and a rotated title, and the tiny plot sits in a large empty panel.",
+     "fix": "Add 3-4 gridlines, give the plot a wider aspect ratio, and move the axis title horizontally above the axis."
+    }
+   ],
+   "liked": [
+    "Putting value against compromise is exactly the right trade-off to plot",
+    "Numbered dots link to the table rows",
+    "The 3D legend now shows counts"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Plain language wins."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Better reading order."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "A chart beats no chart, but this one needs rescaling before it tells the story."
+   },
+   "quote": "Right chart, wrong axis: the whole story is squeezed into the last six percent."
+  },
+  {
+   "profile": "Mei L., 3D/spatial interface lead, Singapore, digital-twin tools for developers",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 4,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 7,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "03b 3D legend",
+     "severity": "major",
+     "issue": "The purple 'strong' and lilac 'good' shades are close in value, and on the lit tower faces in 03b they barely separate; 'grey = podium \u00b7 white slabs = floors' is also confusing.",
+     "fix": "Use a more distinct good colour (e.g. teal) and drop the slab note, or show it as a small swatch."
+    },
+    {
+     "screen": "03 3D default camera",
+     "severity": "minor",
+     "issue": "The default camera puts the neighbouring supertall in the foreground, so the canyon story is visible but the view directions are not.",
+     "fix": "Frame the camera from the main view arc (308-22\u00b0) and draw that arc as a wedge on the ground."
+    },
+    {
+     "screen": "08/09 phone 3D",
+     "severity": "minor",
+     "issue": "On the phone the legend sits on top of the OSM attribution and the hint toast covers the tower top.",
+     "fix": "Stack the legend above the attribution and auto-dismiss the hint after the first interaction."
+    }
+   ],
+   "liked": [
+    "The canyon split between orange lower floors and purple upper floors is instantly legible",
+    "The legend has live counts",
+    "The London river render is clean"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Names match what you see in 3D."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "3D right after the verdict is the right priority."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Yes, though it should link to the 3D view."
+   },
+   "quote": "The 3D now explains the verdict instead of decorating it."
+  },
+  {
+   "profile": "Tom H., accessibility specialist (WCAG auditor), London, public-sector services",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 5,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "04 rule checks",
+     "severity": "major",
+     "issue": "The per-tower pass/fail is shown only as tiny \u2713/\u2717 glyphs coloured green and red; the red '\u2717 \u2717' on GR-SLEND is advisory yet looks like a hard fail.",
+     "fix": "Use text status chips (Pass / Advisory / Fail) with an icon and a distinct amber for advisory, and give each tick an aria-label naming its tower."
+    },
+    {
+     "screen": "05 options chart",
+     "severity": "major",
+     "issue": "The chart relies on hover and small numeric labels, with no table summary tied to it for screen readers.",
+     "fix": "Add a figcaption summary and make each dot a focusable link to its row."
+    },
+    {
+     "screen": "08 phone",
+     "severity": "minor",
+     "issue": "'Edit inputs \u2193' is a default blue underlined link, visually out of system, with a small tap target.",
+     "fix": "Make it a 44 px secondary button in the design-system style."
+    },
+    {
+     "screen": "all, pills",
+     "severity": "minor",
+     "issue": "The light green and amber pill text on pale fills looks below 4.5:1.",
+     "fix": "Darken the pill text tokens."
+    }
+   ],
+   "liked": [
+    "Plain-language names help cognitive accessibility",
+    "Hints that can be closed",
+    "Numbers are written in text, not only in colour"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Plain words."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Floating pills obscured content and failed reflow."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Only if the table stays as the accessible equivalent, which it does."
+   },
+   "quote": "Better, but colour is still carrying the pass/fail message."
+  },
+  {
+   "profile": "Aisha M., mobile product designer, Mumbai, consumer real-estate apps",
+   "clarity": 4,
+   "ease": 4,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 4,
+   "overall_P": 5,
+   "overall_D": 5,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "08 phone tabs",
+     "severity": "major",
+     "issue": "The five tabs wrap onto two rows at 390 px, so 'Design detail' and 'Method & data' look like a second nav.",
+     "fix": "Use a horizontally scrollable tab strip with a fade edge, or cut to four tabs by folding Method into a menu."
+    },
+    {
+     "screen": "09 phone",
+     "severity": "minor",
+     "issue": "The inputs start straight after the export chips with no divider, so it is unclear where results end.",
+     "fix": "Add an 'Inputs' section header or a collapsed inputs drawer."
+    },
+    {
+     "screen": "08 phone verdict",
+     "severity": "minor",
+     "issue": "The verdict card is still around 350 px tall before any visual.",
+     "fix": "Truncate it after two lines with 'more'."
+    }
+   ],
+   "liked": [
+    "The floating pills are gone",
+    "The order is verdict, 3D, numbers",
+    "The intro text is hidden on the phone"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Short names fit phone KPI cards."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Clearly better: nothing overlaps and the order is right."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Chart helps, though small on phone."
+   },
+   "quote": "The phone went from a desktop squeezed down to something I'd actually hand to a client."
+  },
+  {
+   "profile": "Lukas B., design-systems lead, Berlin, enterprise component libraries",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 3,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "04 floor plan legend vs 03b 3D legend",
+     "severity": "major",
+     "issue": "The same classes are named 'Premium / Good / Neutral / Compromised' in the floor plan and 'strong view / good / compromised' in 3D.",
+     "fix": "Use one class token set with one set of labels across the KPIs, the legend, the plan and the table."
+    },
+    {
+     "screen": "global",
+     "severity": "minor",
+     "issue": "Monospace KPI values sit next to sans labels, and three pill styles (outlined green, outlined red, grey filled) have no clear semantics.",
+     "fix": "Define status pill variants (info, warn, risk, neutral) and use tabular sans figures."
+    },
+    {
+     "screen": "04a design header",
+     "severity": "minor",
+     "issue": "The subtitle repeats '(like the Gherkin)' twice and exposes a raw hash (c5c3c694b6e2).",
+     "fix": "Deduplicate the precedent text and hide the hash behind a copy-ID icon."
+    }
+   ],
+   "liked": [
+    "The method cards are a good component",
+    "The sticky primary action",
+    "Placeholder-rate badges are consistent"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Clearer."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "No overlays."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Adds a missing view."
+   },
+   "quote": "The pieces are right; the vocabulary isn't one system yet."
+  },
+  {
+   "profile": "Sarah O., UX research director, Boston, B2B mixed-methods",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "02 search method cards",
+     "severity": "major",
+     "issue": "'Best of both, tuned by architects' is the longest card at 11 lines; users will not read it, and 'two rounds of architects' critiques' is an unverifiable claim.",
+     "fix": "Cut it to two lines plus a 'How this works' link into Method & data, and mark it as Recommended."
+    },
+    {
+     "screen": "03 verdict",
+     "severity": "minor",
+     "issue": "A 55% compromised result is labelled 'Best trade-off' without saying whether that is acceptable for the market.",
+     "fix": "Add a benchmark or threshold line (e.g. 'typical for Midtown canyon sites')."
+    },
+    {
+     "screen": "06 London",
+     "severity": "minor",
+     "issue": "The run line says 'Token library (deterministic)' while the card says 'Best from 540 known towers', so the same method has two names.",
+     "fix": "Echo the card label in the run line."
+    }
+   ],
+   "liked": [
+    "The verdict states its limitation (lower floors in the canyon) up front",
+    "The per-tower breakdown",
+    "Honest 'Rates are placeholders' pills"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Tests with non-architects would clearly favour it."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Matches the likely task flow of checking the result first."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Supports comparison."
+   },
+   "quote": "It now tells users the bad news in plain words, which is what builds trust."
+  },
+  {
+   "profile": "Rahul S., information architect, Pune, enterprise workflow tools",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "01/03 desktop layout",
+     "severity": "major",
+     "issue": "After a run the left column is still a long form of about 5 steps, and the results area has 5 tabs plus an export row, so there are two competing hierarchies.",
+     "fix": "Collapse completed input steps to one-line summaries after a run, with an Edit link on each."
+    },
+    {
+     "screen": "03 export row",
+     "severity": "minor",
+     "issue": "Export & share mixes output (Board pack, CSV, CAD) with state management (Save, Load, Copy link).",
+     "fix": "Split it into an 'Export' menu and a 'Scenario' menu."
+    },
+    {
+     "screen": "04 Design detail",
+     "severity": "minor",
+     "issue": "Rule checks, 'Why this result', Economics and Height uncertainty are stacked with no navigation.",
+     "fix": "Add an in-page anchor list or sub-tabs."
+    }
+   ],
+   "liked": [
+    "The folded setback list ('12 sides \u00b7 setbacks 0.0 m \u00b7 edit each side')",
+    "Numbered steps",
+    "The 'Why this result' section"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Clearer."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Results-first is right."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Overview before detail."
+   },
+   "quote": "Good content, but the page still behaves like a form rather than a report."
+  },
+  {
+   "profile": "Chloe D., visual/brand designer, Paris, architecture studio identities",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 3,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "global",
+     "severity": "major",
+     "issue": "The UI is flat grey on grey with system-font monospace numbers; for a tool selling skyline views, it looks like an admin panel.",
+     "fix": "Bring in a refined type pairing, a warmer neutral palette and larger hero numbers in the verdict."
+    },
+    {
+     "screen": "05 options chart",
+     "severity": "minor",
+     "issue": "The chart is small, cramped and unstyled compared with the table.",
+     "fix": "Give it the full width, make the dots larger, and match the class colours."
+    },
+    {
+     "screen": "08 phone",
+     "severity": "minor",
+     "issue": "The default blue 'Edit inputs \u2193' link breaks the teal brand.",
+     "fix": "Style it with the brand teal."
+    }
+   ],
+   "liked": [
+    "The 3D renders are attractive, especially London",
+    "The purple/orange class palette on the towers"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Readable."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Cleaner."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "More visual, if underdesigned."
+   },
+   "quote": "The renders are presentable to a client; the chrome around them isn't yet."
+  },
+  {
+   "profile": "Kenji T., service designer, Tokyo, developer-to-buyer sales journeys",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 4,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "03 result",
+     "severity": "major",
+     "issue": "There is no next step after 'Best trade-off' (compare two, send to the architect, mark as chosen); the export chips are generic.",
+     "fix": "Add a primary 'Use this option \u2192 board pack' action and a 'Compare with #2' action."
+    },
+    {
+     "screen": "06 London",
+     "severity": "minor",
+     "issue": "The currency changes (\u00a3, $) but the rates stay placeholders, and nothing tells the user how to calibrate them.",
+     "fix": "Link the 'Placeholder rates' pill to the Economics inputs."
+    },
+    {
+     "screen": "01 loaded state",
+     "severity": "minor",
+     "issue": "The pre-run verdict card shows reliability pills before there is any result.",
+     "fix": "Show a short 3-step getting-started instead."
+    }
+   ],
+   "liked": [
+    "City support with local currency",
+    "The per-tower breakdown supports multi-tower sites",
+    "Times are shown in the method cards"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Client-ready language."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Better for on-site conversations."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Supports the decision conversation."
+   },
+   "quote": "It answers 'what's best'; now it needs to help with 'what do I do next'."
+  },
+  {
+   "profile": "Priya Raman, principal B2B product designer, Bengaluru, 14 yrs in proptech/SaaS dashboards",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 03 verdict",
+     "severity": "major",
+     "issue": "Verdict card is a 4-line paragraph plus method line plus 3 badges; the one number that matters (55% compromised) is buried in a red pill at the end.",
+     "fix": "Lead with a 3-item headline row (value, strong-view share, compromised share), then the explanatory sentence."
+    },
+    {
+     "screen": "F 04 rule checks",
+     "severity": "major",
+     "issue": "GR-SLEND-01 fails on both towers (red x x) but the verdict and header say nothing about it.",
+     "fix": "Surface failed/advisory checks as a badge in the verdict ('1 advisory: slenderness 1:10.8')."
+    },
+    {
+     "screen": "F 02 search method",
+     "severity": "minor",
+     "issue": "Card is called 'Best of both, tuned by architects' but result says 'Hybrid (library + generated...)'.",
+     "fix": "Use the same label in the card and the result metadata."
+    }
+   ],
+   "liked": [
+    "Per-tower breakdown in verdict (T1 27/37, T2 22/35)",
+    "Honest red compromised badge",
+    "Plain names like 'Square tower x2'"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "'Square tower \u00b7 swells mid-height' is readable by a client; 'Token: chamfered' was engine-speak and '[object Object]' leaked in D."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Floating pills in D covered export buttons; B's order verdict\u21923D\u2192numbers is correct."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Chart adds a trade-off view, though it needs scaling work."
+   },
+   "quote": "Finally reads like a decision, not a debug log - but it still hides its own failed check."
+  },
+  {
+   "profile": "Tom Hendricks, data-visualisation lead, New York, ex-newsroom graphics, 11 yrs",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 3,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 05 options chart",
+     "severity": "major",
+     "issue": "X axis runs 0-56% but every dot sits between ~50-56%, so 90% of the plot is empty and dots 4/6 and 3/5 overlap; y ticks only '1654' and '1003' with no units or grid.",
+     "fix": "Fit the x domain to the data (e.g. 48-57%), add 3-4 gridlines, format ticks as '$1.0B/$1.65B', and nudge labels to avoid collisions."
+    },
+    {
+     "screen": "F 05 options chart",
+     "severity": "minor",
+     "issue": "'Filled blue dots are best trade-offs' but all dots are filled, so the encoding carries no information here.",
+     "fix": "Hollow the dominated options or state 'all 8 are on the front'."
+    },
+    {
+     "screen": "F 03b 3D legend",
+     "severity": "minor",
+     "issue": "Legend sits at the bottom of the 3D view, below the fold at first load (F 03).",
+     "fix": "Pin the legend at top-left under the hint, or inside the verdict card."
+    }
+   ],
+   "liked": [
+    "Legend counts match verdict counts (49/11/72)",
+    "Orange lower floors vs purple upper floors in 3D tell the canyon story at a glance"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Plain names label chart rows usefully."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "3D before KPIs gives the context first."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Right idea, weak execution - still better than a table alone."
+   },
+   "quote": "The chart exists; now make it use its own canvas."
+  },
+  {
+   "profile": "Katrin Vogel, 3D/spatial interface designer, Berlin, AEC visualisation tools, 9 yrs",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 4,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 03 3D",
+     "severity": "major",
+     "issue": "Hint says 'Click any floor of the tower' with two towers on screen, and nothing labels T1 vs T2 in the scene while the verdict speaks of T1/T2.",
+     "fix": "Add floating T1/T2 labels on tower crowns and pluralise the hint."
+    },
+    {
+     "screen": "F 01 3D loaded",
+     "severity": "major",
+     "issue": "Default camera on Midtown frames a big blank neighbouring slab; plot is not visible or highlighted before a run.",
+     "fix": "Frame the site outline on load and draw the plot boundary in accent colour."
+    },
+    {
+     "screen": "F 03b legend",
+     "severity": "minor",
+     "issue": "'white slabs = floors' is not visible in the render; legend overlaps OSM credit on phone.",
+     "fix": "Drop unobservable keys; move attribution to the opposite corner."
+    }
+   ],
+   "liked": [
+    "Class colour coding on floors",
+    "Real OSM context in three cities",
+    "River view reads clearly in London"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Shape names map to what I see in the model."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "3D earlier on phone is correct for a spatial product."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Clicking a dot to show in 3D is a good bridge."
+   },
+   "quote": "The scene now tells the story; label the towers and it will say who is who."
+  },
+  {
+   "profile": "Sam Okafor, accessibility specialist (WCAG auditor), London, 12 yrs public-sector services",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 5,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03/05 badges and hints",
+     "severity": "major",
+     "issue": "Grey-on-grey method line, pale green badge text and chart note text look below 4.5:1 contrast.",
+     "fix": "Darken secondary text to at least #595959 on the off-white background."
+    },
+    {
+     "screen": "F 04 rule checks",
+     "severity": "major",
+     "issue": "Pass/fail relies on tiny green tick vs red x; per-tower values only on hover, not keyboard/touch accessible.",
+     "fix": "Add text 'Pass/Advisory' and show per-tower values inline or in an expandable row."
+    },
+    {
+     "screen": "F 03b 3D legend",
+     "severity": "minor",
+     "issue": "Purple 'strong' vs lilac 'good' are hard to separate for low vision.",
+     "fix": "Increase lightness contrast or add a pattern/outline to the good class."
+    }
+   ],
+   "liked": [
+    "Setbacks list folded with a single 'same on every side' input",
+    "Plain-language names help cognitive load"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Plain language is an accessibility win."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Floating pills obscured content and hurt focus order."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Chart is fine as long as the table stays - it does."
+   },
+   "quote": "Plainer words, but the colours and hover-only details still exclude people."
+  },
+  {
+   "profile": "Aditi Menon, mobile UX lead, Mumbai, consumer real-estate apps, 8 yrs",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 5,
+   "overall_D": 4,
+   "overall_F": 6,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 08 phone top",
+     "severity": "major",
+     "issue": "'Edit inputs \u2193' is a raw blue underlined browser link, off-style and tiny as a tap target.",
+     "fix": "Make it a 44px secondary button matching the chip style."
+    },
+    {
+     "screen": "F 08 phone tabs",
+     "severity": "major",
+     "issue": "Five tabs wrap onto two lines; 'Design detail' row looks like content, not tabs.",
+     "fix": "Horizontal scroll tab bar or segmented control with 3 tabs plus 'More'."
+    },
+    {
+     "screen": "F 09 phone",
+     "severity": "minor",
+     "issue": "Legend overlaps the OSM attribution and the 3D view is cut short.",
+     "fix": "Put the legend below the canvas on phone."
+    }
+   ],
+   "liked": [
+    "No floating pills",
+    "Verdict first, then 3D"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Shorter KPI 'Diamond tower' fits a phone card."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Clear order and nothing covering the exports."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Mildly; the chart will be cramped on phone though."
+   },
+   "quote": "The phone flow finally makes sense; the controls still feel unfinished."
+  },
+  {
+   "profile": "Lars Eriksen, design-systems architect, Copenhagen, 15 yrs",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 3,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03 KPIs",
+     "severity": "major",
+     "issue": "Terminology drifts: 'Compromised flats' next to 'Premium units'; 'units' in design header, 'flats' in verdict; 'strong view' vs 'Premium' in two legends.",
+     "fix": "One glossary: flats; strong/good/compromised everywhere, including the floor plan legend."
+    },
+    {
+     "screen": "F 03 KPIs",
+     "severity": "minor",
+     "issue": "KPI values in monospace wrap ('Square tower / \u00d72', '259 / m') and card heights differ.",
+     "fix": "Use proportional font for text values, truncate subtitles, equalise card heights."
+    },
+    {
+     "screen": "F 04a header",
+     "severity": "minor",
+     "issue": "Hash id 'c5c3c694b6e2' shown as a headline element.",
+     "fix": "Move to a copyable 'ID' in Method & data."
+    }
+   ],
+   "liked": [
+    "Consistent chip style for export buttons",
+    "Numbered step cards on the left"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Consistent with plain language elsewhere."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Removes an overlay component that fought the layout."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Adds a component, needs styling tokens."
+   },
+   "quote": "Good bones, but the vocabulary isn't one system yet."
+  },
+  {
+   "profile": "Hana Kobayashi, senior UX researcher, Tokyo, enterprise tools for architects, 10 yrs",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 02 search method",
+     "severity": "major",
+     "issue": "Four cards with 60-word descriptions; users must read all to choose, and 'invented towers' may worry developers about reliability.",
+     "fix": "Two-line descriptions plus 'Recommended' tag on one card; details in a tooltip."
+    },
+    {
+     "screen": "F 04a header",
+     "severity": "minor",
+     "issue": "'Square tower \u00b7 swells mid-height (like the Gherkin)' plus 'towers splayed \u00b115\u00b0' while rotation shows 0\u00b0 - reads contradictory.",
+     "fix": "Clarify splay vs base rotation in one short phrase."
+    },
+    {
+     "screen": "F 06 London",
+     "severity": "minor",
+     "issue": "No comparison to the site alternative; users can't tell if 32/37 is good for the City.",
+     "fix": "Show a benchmark line (e.g. 'best of 8; worst 24/37')."
+    }
+   ],
+   "liked": [
+    "Verdict explains the canyon effect in plain words",
+    "Timing and design count shown"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Participants would not understand 'token'."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Matches the question users ask first: what did I get?"
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Visual trade-off supports explaining to stakeholders."
+   },
+   "quote": "It now answers 'why this one', which is what testers kept asking."
+  },
+  {
+   "profile": "Rahul Deshpande, information architect, Pune, planning and GIS portals, 13 yrs",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03b / 07 left panel",
+     "severity": "major",
+     "issue": "Five input steps in one long column; sticky Run button overlaps step-5 cards ('Best of both' card cut).",
+     "fix": "Collapse completed steps to summaries and reserve bottom padding for the sticky button."
+    },
+    {
+     "screen": "F 04 Economics",
+     "severity": "minor",
+     "issue": "Economics inputs (land cost etc.) live under Design detail, separate from placeholder-rates inputs on the left.",
+     "fix": "Group all rates in one place and link the 'Placeholder rates' badge to it."
+    },
+    {
+     "screen": "F 01 empty state",
+     "severity": "minor",
+     "issue": "Before running, KPIs and export buttons (Board pack, CSV) are active with nothing to export.",
+     "fix": "Disable exports until a result exists."
+    }
+   ],
+   "liked": [
+    "Folding setback list with apply-to-all",
+    "Tabs remain stable across cities"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Clearer labels in navigation and tables."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Inputs moved below results is correct hierarchy."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Overview before detail."
+   },
+   "quote": "The results side is structured; the input side is still a long scroll."
+  },
+  {
+   "profile": "Chloe Martin, visual/brand designer, Paris, luxury real-estate marketing, 7 yrs",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 3,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03 overall",
+     "severity": "major",
+     "issue": "Looks like a utility prototype: system font, monospace KPIs, flat grey 3D, many pills; not presentable to a buyer or board.",
+     "fix": "Adopt a display typeface, one accent palette, and soften the 3D with ambient occlusion/shadows."
+    },
+    {
+     "screen": "F 03 verdict",
+     "severity": "minor",
+     "issue": "Three badge colours (green, grey, red) in one row compete with the headline.",
+     "fix": "Single neutral badge style, colour only for the warning."
+    }
+   ],
+   "liked": [
+    "Purple/orange floor bands are distinctive",
+    "Clean white card surfaces"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Marketable names."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Cleaner, no overlapping chrome."
+   },
+   "ab_options": {
+    "choice": "no preference",
+    "reason": "The chart as rendered is too sparse to add visual value."
+   },
+   "quote": "Clearer, not yet beautiful."
+  },
+  {
+   "profile": "David Chen, service designer, Singapore, developer feasibility workflows, 16 yrs",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 03 verdict",
+     "severity": "major",
+     "issue": "Placeholder rates drive the headline $1,654 M with only a small grey pill as warning; could be quoted as real in a board pack.",
+     "fix": "Show '(placeholder)' next to every currency figure and watermark Board pack exports."
+    },
+    {
+     "screen": "F 03 result",
+     "severity": "major",
+     "issue": "55% compromised with no suggested next step (fewer podium floors, taller, different site split).",
+     "fix": "Add 'Try next' suggestions under the verdict."
+    },
+    {
+     "screen": "F 04 Building-height uncertainty",
+     "severity": "minor",
+     "issue": "Stress-test is buried at the bottom of Design detail.",
+     "fix": "Link it from the height-reliability badge."
+    }
+   ],
+   "liked": [
+    "Multi-city with local currency",
+    "Honest statement of what is not done",
+    "Verdict per tower"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Stakeholders can repeat it in a meeting."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Supports site-visit review on phone."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Helps a committee see trade-offs."
+   },
+   "quote": "It earns the upgrade by being honest; now help me act on the bad news."
+  },
+  {
+   "profile": "Priya, 14y, B2B product design lead, Bengaluru, proptech SaaS",
+   "clarity": 4,
+   "ease": 4,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 03 verdict",
+     "severity": "major",
+     "issue": "Verdict is a four-line paragraph mixing headline, canyon explanation and per-tower split; the key number (72/132 compromised) gets lost.",
+     "fix": "Keep one headline sentence and move the per-tower split and the floor-45 note into two short bullet rows under it."
+    },
+    {
+     "screen": "F 03 KPI row",
+     "severity": "minor",
+     "issue": "Mixed nouns: 'Compromised flats' vs 'Premium units'; 'Square tower \u00d72' wraps awkwardly in the Top option card.",
+     "fix": "Use 'flats' everywhere and render the \u00d72 as a small badge next to the name."
+    },
+    {
+     "screen": "F 04 rule checks",
+     "severity": "major",
+     "issue": "The '\u2713 \u2713' pairs have no column header; you only learn they mean T1/T2 from grey footnote at the bottom.",
+     "fix": "Add a 'T1 T2' column header above the ticks."
+    }
+   ],
+   "liked": [
+    "Plain design names",
+    "Red '55% of flats compromised' badge is honest",
+    "Search method cards with run times"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "'Square tower \u00b7 swells mid-height' is readable to a developer; 'Token: chamfered' was engine jargon."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Floating pills covered the export chips in D; F order verdict to 3D to numbers is right."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Chart gives the trade-off at a glance, though it needs rescaling."
+   },
+   "quote": "Finally reads like a feasibility memo, not a debug log, but the verdict still needs an editor."
+  },
+  {
+   "profile": "Marcus, 11y, data-visualisation designer, New York, ex-newsroom graphics",
+   "clarity": 3,
+   "ease": 4,
+   "visual": 3,
+   "trust": 3,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 05 options chart",
+     "severity": "major",
+     "issue": "X axis runs 0% to 56% but every dot sits between ~50 and 56%, so 90% of the plot is empty and labels 6/7 collide or clip at the edge; only two y ticks (1003, 1654).",
+     "fix": "Fit the x domain to the data with padding, add 3-4 gridlined ticks per axis, and keep labels inside the plot."
+    },
+    {
+     "screen": "F 05 options chart",
+     "severity": "minor",
+     "issue": "'Up and to the left is better' but no dot is on the left; the Pareto front is not drawn.",
+     "fix": "Connect front members with a step line and shade the dominated region."
+    },
+    {
+     "screen": "F 03b 3D legend",
+     "severity": "minor",
+     "issue": "Strong (dark purple) and good (light purple) are hard to separate on the lit tower.",
+     "fix": "Use a more distinct hue for 'good' or add value contrast checked at render lighting."
+    }
+   ],
+   "liked": [
+    "Numbered dots tied to table rows",
+    "Legend with counts in 3D"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Plain names are scannable in the table."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "No overlays on content."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Right idea, weak execution; still better than table only."
+   },
+   "quote": "A chart where all the data huddles in one corner is a chart asking to be rescaled."
+  },
+  {
+   "profile": "Jonas, 9y, 3D/spatial interface designer, Berlin, AEC viewers",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 4,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 03b 3D legend",
+     "severity": "minor",
+     "issue": "'grey = podium \u00b7 white slabs = floors' is confusing: context buildings are also grey/white.",
+     "fix": "Tint the podium a distinct neutral and drop the 'white slabs' clause."
+    },
+    {
+     "screen": "F 03 3D",
+     "severity": "major",
+     "issue": "No indication which tower is T1 vs T2 though the verdict and rule checks refer to them.",
+     "fix": "Float T1/T2 labels above each tower in 3D and on the floor plan."
+    },
+    {
+     "screen": "F 04 floor plan",
+     "severity": "minor",
+     "issue": "Unit labels inside the plates are clipped/overlaid by the core ('U d').",
+     "fix": "Place labels outside the core or show on hover."
+    }
+   ],
+   "liked": [
+    "Compromised floors in orange read instantly against the canyon",
+    "Legend counts match verdict"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Describes the form you see."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "3D earlier on phone is the right hook."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Visual link from dot to 3D."
+   },
+   "quote": "The orange base of each tower says more than the whole KPI row."
+  },
+  {
+   "profile": "Aisha, 12y, accessibility specialist, London, public-sector audits",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 5,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 04 rule checks",
+     "severity": "major",
+     "issue": "Pass/fail relies on tiny green tick vs red cross; GR-SLEND shows red \u2717\u2717 yet text says advisory.",
+     "fix": "Add text status (Pass/Fail/Advisory) and an amber advisory state."
+    },
+    {
+     "screen": "F 02 search method cards",
+     "severity": "minor",
+     "issue": "Card body grey text on grey is low contrast; selected state only a thin blue tint.",
+     "fix": "Raise text contrast to 4.5:1 and add a check icon/radio to the selected card."
+    },
+    {
+     "screen": "F 08 phone",
+     "severity": "minor",
+     "issue": "'Edit inputs \u2193' is a default blue underlined link unlike any other control.",
+     "fix": "Style as a secondary button consistent with the chip system."
+    }
+   ],
+   "liked": [
+    "Verdict states limitations in words",
+    "Placeholder rates labelled everywhere"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Plain language benefits everyone."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Floating pills obscured content and focus order."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Only with the table retained as the accessible equivalent, which it is."
+   },
+   "quote": "A red cross that means 'advisory' is a bug in the language, not the engine."
+  },
+  {
+   "profile": "Kenji, 8y, mobile product designer, Tokyo, consumer real-estate apps",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 5,
+   "overall_D": 5,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 08 phone tabs",
+     "severity": "major",
+     "issue": "Five tabs wrap to two rows at 390px, second row looks like content.",
+     "fix": "Use a horizontally scrolling tab strip or a segmented control with 3 tabs + More."
+    },
+    {
+     "screen": "F 09 phone legend",
+     "severity": "minor",
+     "issue": "3D legend wraps and overlaps the OpenStreetMap attribution.",
+     "fix": "Move the legend below the canvas on phone."
+    },
+    {
+     "screen": "F 09 phone",
+     "severity": "minor",
+     "issue": "Export chips wrap into three ragged rows.",
+     "fix": "Collapse to a single 'Export & share' button with a sheet."
+    }
+   ],
+   "liked": [
+    "Verdict first, intro hidden",
+    "3D before numbers"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Short plain names fit phone cards."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "No floating pills colliding with chips."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "A chart is faster on small screens than a wide table."
+   },
+   "quote": "The phone order is fixed; now fix the tabs."
+  },
+  {
+   "profile": "Sofia, 15y, design systems lead, Amsterdam, enterprise component libraries",
+   "clarity": 4,
+   "ease": 4,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03 KPI cards",
+     "severity": "minor",
+     "issue": "Monospace values next to sans labels and wrapping subtitles ('259\\nm') look unfinished; card heights vary.",
+     "fix": "Use tabular-figure sans, keep units with values (nbsp), equalise card heights."
+    },
+    {
+     "screen": "F 03b sticky Run",
+     "severity": "minor",
+     "issue": "Sticky Run search bar cuts through the method cards mid-text.",
+     "fix": "Add a fade/shadow and bottom padding so content scrolls cleanly beneath it."
+    },
+    {
+     "screen": "F 03 badges",
+     "severity": "minor",
+     "issue": "Badge colours (green height, grey rates, red compromised) have no documented semantics.",
+     "fix": "Define info/neutral/warning/critical tokens and apply consistently."
+    }
+   ],
+   "liked": [
+    "Consistent chip style for exports",
+    "Numbered step panels"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Consistency with table naming."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Removes a one-off floating component."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Chart reinforces the table."
+   },
+   "quote": "The pieces are right; the tokens underneath still aren't."
+  },
+  {
+   "profile": "Daniel, 10y, UX researcher, Chicago, AEC and developer workflows",
+   "clarity": 4,
+   "ease": 4,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 02 search method",
+     "severity": "major",
+     "issue": "'Best of both, tuned by architects' card text is long and vague ('near-ties go to the form architects rate higher'); users won't know when to choose it.",
+     "fix": "Lead each card with 'Choose this when...' in one line; move mechanics to a tooltip."
+    },
+    {
+     "screen": "F 03 verdict",
+     "severity": "minor",
+     "issue": "Result says 8 designs evaluated; users may expect more given '540 known towers'.",
+     "fix": "Explain '8 finalists from 540 screened'."
+    }
+   ],
+   "liked": [
+    "Canyon explanation matches what 3D shows",
+    "Rejected/limitations stated honestly"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Test users understand plain names."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Clear hierarchy."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Trade-off is visible."
+   },
+   "quote": "It now explains itself, which is where trust starts."
+  },
+  {
+   "profile": "Ananya, 7y, information architect, Mumbai, government portals",
+   "clarity": 3,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 01/03 left panel",
+     "severity": "major",
+     "issue": "Five input steps stacked in a long rail; results panel duplicates KPIs across tabs (Design detail repeats GDV, compromised).",
+     "fix": "Collapse completed steps to summaries and remove repeated KPIs from Design detail."
+    },
+    {
+     "screen": "F 07 setbacks",
+     "severity": "minor",
+     "issue": "'Same setback on every side' input sits above the folded list with an empty e.g. placeholder; current value only in summary text.",
+     "fix": "Prefill the field with the current value and show per-side override count."
+    }
+   ],
+   "liked": [
+    "Folded setback list for 10-12 sided plots",
+    "Currency and limits localised per city"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Clearer labels."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Better order."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Chart helps compare."
+   },
+   "quote": "Better labels, same long hallway of inputs."
+  },
+  {
+   "profile": "Oliver, 16y, visual/brand designer, Manchester, architecture studios",
+   "clarity": 4,
+   "ease": 3,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 5,
+   "overall_F": 6,
+   "real_upgrade": "somewhat",
+   "top_issues": [
+    {
+     "screen": "F 03 overall",
+     "severity": "minor",
+     "issue": "Grey-on-grey palette with little typographic hierarchy; nothing feels presentation-grade for a client pitch.",
+     "fix": "Stronger display type for verdict, white result surface, one accent colour."
+    },
+    {
+     "screen": "F 05 chart",
+     "severity": "minor",
+     "issue": "Chart is small and sparse, looks like a debug plot.",
+     "fix": "Give it full width, proper axes and styled labels."
+    }
+   ],
+   "liked": [
+    "3D city render with coloured floors is striking",
+    "London river result"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Human names."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Cleaner."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Visual beats table."
+   },
+   "quote": "Clean engineering, not yet a brand."
+  },
+  {
+   "profile": "Meera, 13y, service designer, Singapore, developer sales journeys",
+   "clarity": 4,
+   "ease": 4,
+   "visual": 3,
+   "trust": 4,
+   "mobile": 3,
+   "overall_P": 6,
+   "overall_D": 6,
+   "overall_F": 7,
+   "real_upgrade": "yes, clearly",
+   "top_issues": [
+    {
+     "screen": "F 03 verdict",
+     "severity": "major",
+     "issue": "Result stops at the diagnosis (55% compromised); no suggested next step such as fewer/taller towers or raising podium.",
+     "fix": "Add 'Try next' actions under the verdict that pre-fill inputs."
+    },
+    {
+     "screen": "F 04 economics",
+     "severity": "minor",
+     "issue": "Land cost 'enter to include' empty field sits below the fold, so margin isn't in the headline.",
+     "fix": "Prompt for land cost in the verdict when missing."
+    }
+   ],
+   "liked": [
+    "Per-tower split in verdict",
+    "Placeholder rates flagged"
+   ],
+   "ab_names": {
+    "choice": "B",
+    "reason": "Sales teams can say it aloud."
+   },
+   "ab_phone": {
+    "choice": "B",
+    "reason": "Story order fits a site visit."
+   },
+   "ab_options": {
+    "choice": "B",
+    "reason": "Easier to discuss with clients."
+   },
+   "quote": "It tells you the problem clearly; now tell me what to try next."
+  }
+ ]
+}

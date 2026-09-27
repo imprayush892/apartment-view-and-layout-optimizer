@@ -72,15 +72,15 @@ details.adv[open] summary{margin-bottom:8px}
 .progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s}
 main.work{display:flex;flex-direction:column;gap:12px;min-width:0}
 .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}
-.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 2px rgba(15,30,28,.05);padding:8px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .kpi span{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
-.kpi b{font-family:var(--mono);font-size:17px;font-weight:500;overflow-wrap:anywhere}
+.kpi b{font-family:var(--display);font-variant-numeric:tabular-nums;font-size:19px;font-weight:700;font-stretch:90%;overflow-wrap:anywhere;line-height:1.2}
 .kpi em{font-style:normal;font-size:12px;color:var(--ink-2)}
 nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
 nav.tabs button{background:none;border:none;border-bottom:3px solid transparent;border-radius:0;padding:8px 12px;color:var(--ink-2);white-space:nowrap}
 nav.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
 .panel{display:flex;flex-direction:column;gap:12px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 2px rgba(15,30,28,.05);padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .card h3{font-size:15px;font-stretch:88%}
 .two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:12px}
 @media (max-width:1150px){.two{grid-template-columns:minmax(0,1fr)}}
@@ -104,7 +104,7 @@ tbody tr.on{background:var(--accent-soft)}
 .bar{display:flex;height:9px;border-radius:3px;overflow:hidden;min-width:90px;background:var(--surface-2)}
 .bar i{display:block;height:100%}
 .checks{display:grid;grid-template-columns:auto auto 1fr;gap:4px 10px;font-size:12.5px;align-items:baseline}
-.checks .ok{color:var(--ok);font-weight:700}.checks .no{color:var(--bad);font-weight:700}
+.checks .ok{color:var(--ok);font-weight:700}.checks .no{color:var(--bad);font-weight:700}.checks .adv{color:var(--warn);font-weight:800}.checks .tw{white-space:nowrap;font-size:12px;color:var(--ink-3)}.checks em{font-style:normal;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.checks .advw{color:var(--warn)}.checks .failw{color:var(--bad)}
 .scroll{max-height:380px;overflow:auto}
 .explain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
 .muted{color:var(--ink-3)}
@@ -129,10 +129,17 @@ tbody tr.on{background:var(--accent-soft)}
 #leaf{height:260px;border-radius:6px;border:1px solid var(--line)}
 .dotlist{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink-2)}
 /* round-2 additions */
-.verdict{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.verdict{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;box-shadow:0 2px 8px rgba(15,30,28,.06);padding:14px 18px;display:flex;flex-direction:column;gap:8px}
 .verdict p{margin:0;font-size:14.5px;max-width:95ch}
+.vhead .eyebrow{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.vhead h2{font-size:21px;font-stretch:88%;line-height:1.2;margin:2px 0 0}.vhead .vsub{color:var(--ink-2);font-size:13.5px;margin:2px 0 0}
+.vstats{display:flex;flex-wrap:wrap;gap:8px}
+.vstat{display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:baseline;min-width:118px;padding:7px 11px;border-radius:8px;background:var(--surface-2);border-left:4px solid var(--line)}
+.vstat b{font-size:22px;font-variant-numeric:tabular-nums;line-height:1.1}.vstat span{font-size:12.5px;color:var(--ink-2)}.vstat i{grid-column:1/-1;font-style:normal;font-size:11.5px;color:var(--ink-3)}
+.vstat.premium{border-left-color:var(--premium)}.vstat.good{border-left-color:var(--good)}.vstat.neutral{border-left-color:var(--neutral)}.vstat.compromised{border-left-color:var(--compromised)}.vstat.val{border-left-color:var(--accent)}
+table.vtowers{border-collapse:collapse;font-size:12.5px;width:auto!important;min-width:0}table.vtowers th,table.vtowers td{padding:2px 12px 2px 0;text-align:left;font-variant-numeric:tabular-nums}table.vtowers th{color:var(--ink-3);font-weight:600}
 .badge{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2)}
-.badge.high{border-color:var(--ok);color:var(--ok)}.badge.medium{border-color:var(--warn);color:var(--warn)}.badge.low{border-color:var(--bad);color:var(--bad)}
+.badge.high{border-color:var(--ok);color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,var(--surface))}.badge.medium{border-color:var(--warn);color:color-mix(in srgb,var(--warn) 80%,var(--ink));background:color-mix(in srgb,var(--warn) 9%,var(--surface))}.badge.low{border-color:var(--bad);color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var(--surface))}
 .exportbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .exportbar .lab{font-size:12px;color:var(--ink-3);margin-right:2px}
 .pill.bf{background:var(--accent-soft);color:var(--ink);font-weight:500}
@@ -158,11 +165,13 @@ table.sens td.neg{color:var(--bad);font-weight:600}
   main.work{order:-1}
   .stage{height:62vh;min-height:340px}
   header.top p{display:none}
+  .verdict{padding:12px 13px}.vhead h2{font-size:19px}.vstat{min-width:0;flex:1 1 40%;padding:6px 9px}.vstat b{font-size:19px}.verdict p{font-size:13.5px}.verdict .row .badge{font-size:11px}.verdict p.hint{display:none}
   main.work{display:flex;flex-direction:column}
   #verdict{order:1} main.work nav.tabs{order:2} main.work .panel{order:3} #kpis{order:4} .exportbar{order:5}
   .jumplink{display:inline-block;font-size:12.5px;font-weight:600;margin:4px 0}
   .hud{max-width:calc(100% - 120px)}
-  nav.tabs{flex-wrap:wrap;overflow:visible}
+  nav.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  nav.tabs button{flex:none}
   nav.tabs button{padding:7px 9px}
   .glossary{grid-template-columns:1fr}
 }
@@ -391,7 +400,7 @@ body.present .stage{height:78vh}
   <section class="panel" id="p-opts" role="tabpanel" hidden>
     <div class="card">
       <div class="row" style="justify-content:space-between"><h3>Ranked options</h3><button type="button" id="btnCopy" class="chip">Copy results JSON</button></div>
-      <p class="hint">“Best” options are best trade-offs: no other option beats them on every measure (sales value minus construction cost, fewer compromised flats, more premium flats, living-room views, efficiency, simpler structure). Lower numbers are further from that front. Click a column heading to sort, or a row to show it in 3D.</p>
+      <p class="hint">“Best” options are best trade-offs: no other option beats them on every measure (sales value minus construction cost, fewer compromised flats, more strong-view flats, living-room views, efficiency, simpler structure). Lower numbers are further from that front. Click a column heading to sort, or a row to show it in 3D.</p>
       <div id="optChart"></div>
       <div class="tablewrap scroll scrollcue"><table id="optTbl"></table></div>
     </div>
@@ -403,7 +412,7 @@ body.present .stage{height:78vh}
     <div class="two">
       <div class="card"><div class="row" style="justify-content:space-between"><h3>Floor plan</h3><label class="f" style="flex-direction:row;align-items:center;gap:6px">Level <select id="lvlPick" style="width:auto"></select></label></div>
         <svg class="map" id="plan" viewBox="0 0 100 100" role="img" aria-label="Floor plan"></svg>
-        <div class="legend"><span><i style="background:var(--premium)"></i>Premium</span><span><i style="background:var(--good)"></i>Good</span><span><i style="background:var(--neutral)"></i>Neutral</span><span><i style="background:var(--compromised)"></i>Compromised</span><span><i style="background:var(--living)"></i>Living</span><span><i style="background:var(--bed)"></i>Bedrooms</span><span><i style="background:var(--service)"></i>Kitchen / service</span></div></div>
+        <div class="legend"><span><i style="background:var(--premium)"></i>Strong view</span><span><i style="background:var(--good)"></i>Good view</span><span><i style="background:var(--neutral)"></i>Ordinary</span><span><i style="background:var(--compromised)"></i>Compromised</span><span><i style="background:var(--living)"></i>Living</span><span><i style="background:var(--bed)"></i>Bedrooms</span><span><i style="background:var(--service)"></i>Kitchen / service</span></div></div>
       <div class="card"><h3>Rule checks</h3><div class="checks" id="checks"></div><h3>Why this result</h3><ul class="explain" id="explain"></ul></div>
     </div>
     <div class="two">
@@ -437,7 +446,7 @@ body.present .stage{height:78vh}
       </ol>
       <h3>Glossary</h3>
       <dl class="glossary">
-        <dt>Premium flat</dt><dd>The living room has a strong sea view (at least 45% of the reference sea view and view score ≥ 0.6) and at least half the bedrooms see the sea.</dd>
+        <dt>Strong-view flat (premium)</dt><dd>The living room has a strong sea view (at least 45% of the reference sea view and view score ≥ 0.6) and at least half the bedrooms see the sea.</dd>
         <dt>Good / ordinary</dt><dd>Good: view score ≥ 0.4 but not premium. Ordinary (neutral): below that, usually lower floors or inland faces.</dd>
         <dt>Compromised flat</dt><dd>The living room looks at a nearby wall (closer than 100 m), up at a steep skyline (over 10°), into another home, or has a poor view score (&lt; 0.25). The goal is zero.</dd>
         <dt>View score (0–1)</dt><dd>Combines how much sea is visible, how far away the nearest building is, open sky, parks and landmarks, minus a privacy penalty. A tower alone in an empty field scores about 0.35.</dd>
