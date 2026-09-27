@@ -164,5 +164,47 @@ privacy. The preferred design had more premium flats in 55.5 % of 337 decisive p
   the two best plain generated designs compete with the tuned ones. The verdict says when the near-tie
   rule changed the order.
 
-## 7. Round 3: hybrid v2 vs the round-1 winner
-Appended when round 3 completes.
+## 7. Round 3: hybrid v2 vs the round-1 winner (456 architects, blind)
+Labels were randomised: hybrid v2 was A 250 times, B 231 times, balanced by a 32-bit hash per comparison.
+
+| | Round-1 winner | Hybrid v2 | Equal |
+|---|---|---|---|
+| Preferred | **206** | 129 | 121 |
+| Overall rating | **6.06** | 5.88 | |
+| Privacy / overlooking | **6.16** | 5.89 | |
+| Massing / silhouette | **6.04** | 5.82 | |
+| Constructability | 7.34 | 7.38 | |
+
+Hybrid v2 lost. On the engine's own metrics it had been better than the round-1 winner: premium share
+0.532 vs 0.511, compromised 17.8 % vs 19.6 %, value +10 %. The breakdown shows why:
+
+| Hybrid v2 showed… | Sites | Winner–hybrid–equal |
+|---|---|---|
+| exactly the round-1 winner (control) | 68 | 0–2–66 |
+| the design this architect **rejected** in round 1 (engine preferred it) | 180 | 120–50–10 |
+| the round-1 winner rotated ±12° | 138 | 56–42–40 |
+| a **newly generated** design | 70 | 30–**35**–5 |
+
+- **Control.** The identical pairs were rated equal 66 times out of 68, so the panels are consistent.
+- **Engine vs taste.** Where the engine picked the design the architect had already rejected, it lost
+  again, 120 to 50. The engine's view and value metrics predict which of two designs an architect
+  prefers only **53 %** of the time: premium share 52.9 %, value 53.6 %, over 401 round-1 pairs. The
+  cross-fitted **appeal model predicts it 70 %** of the time (79 % when confident), and 61 % on the
+  closer round-3 pairs.
+- **Rotation.** The ±12° rotation step made designs worse in the architects' eyes.
+- **New designs.** Newly generated designs beat even the hindsight-chosen winner.
+
+## 8. Hybrid v3
+- **Appeal rule widened (`TOK.appealPick`).** Among feasible options within 15 % of the engine's top
+  option on sales value, within 30 points on premium share and at most 10 % of flats more compromised,
+  the one with the highest predicted appeal goes first. Offline on round-1 pairs, this raises agreement
+  with the architect's own pick from about 50 % to 63 % at a cost of 1.7 % in value, with premium share
+  unchanged (tolerance sweep: 5 % → 57.5 %, 10 % → 61.6 %, 15 % → 63.4 %, 25 % → 64.5 %).
+- **Rotation step dropped.**
+- **Retrained:** weights and appeal model on all 2,736 critiqued designs from three rounds
+  (`hybrid_weights_v3.json`; appeal cross-validated R² 0.13).
+- **App:** "Best of both" uses the v3 rule. When the rule changes the order, the design detail says so
+  and gives the 70 % / 53 % evidence.
+
+## 9. Round 4: hybrid v3 vs the round-1 winner
+Appended when round 4 completes.
