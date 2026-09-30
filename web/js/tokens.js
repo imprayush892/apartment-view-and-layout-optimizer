@@ -205,7 +205,7 @@ function sampleCat(r, probs) { const e = Object.entries(probs), t = e.reduce((a,
 function sampleGenome(r, dist) {
   const g = {}; for (const k of Object.keys(CATS)) g[k] = sampleCat(r, dist.cat[k]);
   for (const [k, [m, s]] of Object.entries(dist.num)) g[k] = m + s * gauss(r);
-  g.size = Math.max(18, Math.min(42, g.size)); g.aspect = Math.max(1, Math.min(2, g.aspect)); g.rate = Math.max(0.2, Math.min(4, g.rate)); g.top = Math.max(0.55, Math.min(1.15, g.top)); g.amp = Math.max(0.5, Math.min(6, g.amp)); g.step = Math.max(1, Math.min(4, g.step));
+  g.size = Math.max(16, Math.min(42, g.size)); g.aspect = Math.max(1, Math.min(2, g.aspect)); g.rate = Math.max(0.2, Math.min(4, g.rate)); g.top = Math.max(0.55, Math.min(1.15, g.top)); g.amp = Math.max(0.5, Math.min(6, g.amp)); g.step = Math.max(1, Math.min(4, g.step));
   return g;
 }
 function genomeToTyp(g) {
@@ -230,12 +230,23 @@ function refit(dist, elite, alpha = 0.7) {
 function generate(model, field, env, C, opts = {}) {
   const r = rng(opts.seed || 1), viewAz = viewAzOf(field), ctxH = opts.ctxH || 0, dense = !!opts.dense, pos = opts.position || centroid(env);
   let dist = initDist(opts.prior); if (opts.numPrior) Object.assign(dist.num, opts.numPrior); const seen = new Map();
-  const evalG = g => { const typ = genomeToTyp(g), rotd = mod(viewAz + g.rot, 360) % 90; const sp = toSpec(typ, pos, +rotd.toFixed(1), viewAz, C, opts.ftf, opts.podium, opts.upf, env);
-    if (sp.n <= sp.podium || !VT.fitsAt(sp, env) || (opts.check && !opts.check(sp))) return { g, typ, sp, s: -1 }; return { g, typ, sp, s: modelScore(model, sp, field, viewAz, ctxH, dense, opts.W, opts.S, opts.V) + (opts.appeal ? (opts.W && opts.W.appeal || 0.3) * appealScore(opts.appeal, sp, viewAz, opts.towers || 1) : 0) }; };
+  // adapt the plate-size prior to the plot: sample around 85 % of the envelope's narrowest width (a 28 m prior fits
+  // nothing on a 30 m plot), and shrink any plate that still does not fit in 6 % steps down to 16 m, as the hand-set mode does
+  const wEnv = VT.minWidth(env), sMax = Math.max(16, 1.1 * wEnv), [sm, ss] = dist.num.size || [28, 5];
+  dist.num.size = [Math.min(sm, Math.max(18, 0.85 * wEnv)), Math.min(ss, Math.max(2, 0.12 * wEnv))];
+  const fit = sp => { if (sp.n > sp.podium && VT.fitsAt(sp, env)) return sp; for (let k = 0.94, i = 0; i < 20; i++, k *= 0.94) { const q = VT.resolveFloors(VT.scaleSpec({ ...sp, n: 0 }, k), C); if (Math.min(q.width, q.depth) < 16) break; if (q.n > q.podium && VT.fitsAt(q, env)) return q; } return null; };
+  const build = g => { const typ = genomeToTyp(g), rotd = mod(viewAz + g.rot, 360) % 90; const sp0 = toSpec(typ, pos, +rotd.toFixed(1), viewAz, C, opts.ftf, opts.podium, opts.upf, env); return { typ, sp: fit(sp0) || sp0 }; };
+  const okSp = sp => sp.n > sp.podium && VT.fitsAt(sp, env) && (!opts.check || opts.check(sp));
+  // repair ladder: on small plates the core stops fitting once the top tapers or is cut away, so simplify step by step before rejecting
+  const LADDER = [{}, { taper: "none", crown: "none" }, { taper: "none", crown: "none", cut: "none", terrace: "none" }, { taper: "none", crown: "none", cut: "none", terrace: "none", shift: "none" }, { taper: "none", crown: "none", cut: "none", terrace: "none", shift: "none", twist: "none" }, { base: "chamfered", aspect: 1, taper: "none", crown: "none", cut: "none", terrace: "none", shift: "none" }, { base: "square", aspect: 1, taper: "none", crown: "none", cut: "none", terrace: "none", shift: "none", twist: "none" }];
+  const evalG = g => { g.size = Math.min(g.size, sMax); let typ, sp;
+    for (const fix of LADDER) { const gg = { ...g, ...fix }; ({ typ, sp } = build(gg)); if (okSp(sp)) { if (Object.keys(fix).length) Object.assign(g, fix); break; } sp = null; }
+    if (!sp) { const b = build(g); return { g, typ: b.typ, sp: b.sp, s: -1, ok: false }; }
+    return { g, typ, sp, ok: true, s: modelScore(model, sp, field, viewAz, ctxH, dense, opts.W, opts.S, opts.V) + (opts.appeal ? (opts.W && opts.W.appeal || 0.3) * appealScore(opts.appeal, sp, viewAz, opts.towers || 1) : 0) }; };
   for (let it = 0; it < (opts.iters || 6); it++) {
     const pop = []; for (let k = 0; k < (opts.pop || 80); k++) pop.push(evalG(sampleGenome(r, dist)));
-    pop.forEach(c => { if (c.s > 0) seen.set(c.typ.id + "@" + c.sp.rotation, c); });
-    const elite = pop.filter(c => c.s > 0).sort((a, b) => b.s - a.s).slice(0, Math.max(4, Math.round((opts.pop || 80) * 0.15)));
+    pop.forEach(c => { if (c.ok) seen.set(c.typ.id + "@" + c.sp.rotation + "@" + c.sp.width, c); });
+    const elite = pop.filter(c => c.ok).sort((a, b) => b.s - a.s).slice(0, Math.max(4, Math.round((opts.pop || 80) * 0.15)));
     if (elite.length >= 4) dist = refit(dist, elite);
   }
   return [...seen.values()].sort((a, b) => b.s - a.s).slice(0, opts.top || 4);

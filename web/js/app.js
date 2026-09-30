@@ -261,7 +261,9 @@ async function tokenSpecs(C, mode) {
   setInfo("runInfo", "Hybrid: screening the library and generating candidates…"); await new Promise(r => setTimeout(r, 0));
   const seeds = (await lib(2)).map(sp => ({ ...sp, tokNote: sp.tokNote.replace("from the library", "library seed") })).concat(gen(opts, 2, "generated seed"));
   const hopts = HYB ? { ...opts, W: HYB.W, prior: HYB.prior, numPrior: HYB.numPrior, appeal: APPEAL, towers: N, seed: opts.seed + 99 } : opts; C.towerSplay = (HYB && HYB.towerSplay) || 0;
-  const seen = new Set(), all = seeds.concat(gen(hopts, Math.max(2, K - seeds.length), "tuned by architects")).filter(sp => { const k = VT.specId ? VT.specId(sp) : JSON.stringify(sp.p) + sp.rotation; if (seen.has(k)) return false; seen.add(k); return true; });
+  const seen = new Set(), uniq = sp => { const k = VT.specId(sp); if (seen.has(k)) return false; seen.add(k); return true; };
+  const all = seeds.concat(gen(hopts, Math.max(2, K - seeds.length), "tuned by architects")).filter(uniq);
+  if (all.length < K) all.push(...(await lib(K + 4)).map(sp => ({ ...sp, tokNote: sp.tokNote.replace("from the library", "library") })).filter(uniq).slice(0, K - all.length)); // tight plots: top up from the library
   return perUpf(all);
 }
 /* UX A/B variants (?ux=B): search method as cards, neutral 3D massing (class on click), plain-language token notes */
@@ -318,7 +320,7 @@ async function runSearch() {
   const mode = $("searchMode").value; let specs;
   if (mode === "hand") specs = buildSpecs(C);
   else { setInfo("runInfo", mode === "library" ? "Screening the 540-typology library…" : "Sampling token designs with the learned model…"); await new Promise(r => setTimeout(r, 30)); specs = await tokenSpecs(C, mode); }
-  if (!specs.length) return setInfo("runInfo", mode === "hand" ? "Tick at least one typology." : "No token design fits this envelope and passes the hard rules. Try a larger plot, fewer towers or smaller setbacks.", true);
+  if (!specs.length) { st.results = null; st.rejected = []; st.sel = null; V3D.clearDesign(); renderOptions(); renderDesign(); renderKPIs(); renderLegend3d(); return setInfo("runInfo", mode === "hand" ? "Tick at least one typology." : "No token design fits this envelope and passes the hard rules. Try a larger plot, fewer towers or smaller setbacks.", true); }
   st.running = true; const token = ++st.runToken; setRunButton(true); hideCone(); V3D.clearDesign(); setTab("t-3d"); st.pending = [];
   const t0 = performance.now(), results = [], rejected = [], arc = st.field && st.field.arc; let done = 0, lastGhost = 0, failure = null, testing = "", bestLine = "";
   $("hudSearch").hidden = false; $("hudHint").hidden = true;
