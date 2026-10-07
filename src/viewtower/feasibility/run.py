@@ -1,10 +1,14 @@
-"""Project driver: base reading plus sensitivity readings -> DXF, HTML viewer, JSON and a report."""
+"""Project driver: base reading plus sensitivity readings -> DXF, HTML viewer, JSON and a report.
+
+Each reading's search results are cached in the output folder (keyed by a hash of its config), so an
+interrupted run resumes where it stopped and a change of config reruns only what it affects."""
 from __future__ import annotations
 
 import json
+import pickle
 from pathlib import Path
 
-from viewtower.config import deep_merge
+from viewtower.config import deep_merge, stable_hash
 from viewtower.feasibility import config as fconfig
 from viewtower.feasibility.export import basis_json, scheme_json, site_json
 from viewtower.feasibility.export_dxf import write_scheme_dxf
@@ -51,7 +55,13 @@ def run_project(cfg_path: str | Path, out_dir: str | Path, readings: list[str] |
         cfg = fconfig.load(cfg_path, deep_merge(ov, QUICK) if quick else ov)
         site = FeasibilitySite.build(cfg)
         progress(f"== reading '{name}': {label}")
-        res = search(cfg, progress=progress, workers=workers)
+        cache = out / f".cache_{name}_{stable_hash(cfg)}.pkl"
+        if cache.exists():
+            res = pickle.loads(cache.read_bytes())
+            progress(f"{name}: reusing {cache.name}")
+        else:
+            res = search(cfg, progress=progress, workers=workers)
+            cache.write_bytes(pickle.dumps(res))
         vjson = {"label": label, "site": site_json(site, cfg), "schemes": {}, "scatter": []}
         summary[name] = {"label": label, "site": site.summary(), "best": {}}
         for sc, schemes in res.items():
