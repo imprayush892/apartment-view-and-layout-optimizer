@@ -362,14 +362,16 @@ def evaluate_set(args):
     net = site.net.area
     b = cfg["building"]
     out = []
-    for cap in range(max_floors(b), int(b["min_floors"]) + 3, -1):
+    top = max_floors(b)
+    for cap in range(top, int(b["min_floors"]) + 3, -1):
         towers = _make_towers(a, bgrp)
         optimise_floors(towers, cfg, net, cap)
         if fsi_of(towers, cfg, net) < float(cfg["fsi"]["target"]) - 0.6:
             break
         floors = [t.floors for t in towers]
         lay = None
-        for oa, ob in ((a, bgrp), (a[::-1], bgrp), (a, bgrp[::-1]), (a[::-1], bgrp[::-1])):
+        orders = ((a, bgrp), (a[::-1], bgrp), (a, bgrp[::-1]), (a[::-1], bgrp[::-1]))
+        for oa, ob in orders[: (4 if cap > top - int(cfg["search"]["reorder_caps"]) else 1)]:
             towers = _make_towers(oa, ob)
             for t, f in zip(towers, _floors_in_order(a, bgrp, oa, ob, floors)):
                 t.floors = f
@@ -385,7 +387,7 @@ def evaluate_set(args):
         out.append(Scheme(scenario, "target", towers, lay, m, pen, round(sum(pen.values()), 3)))
         # compliant: take floors off until each phase parks itself
         ct = [Tower(t.name, t.plate, t.floors, t.podium, t.segment, t.x, t.y) for t in towers]
-        clay = Layout(ct, lay.y_split, list(lay.podiums), lay.gap_band)
+        clay = Layout(ct, lay.y_split, list(lay.raw_podiums), lay.gap_band, raw_podiums=list(lay.raw_podiums))
         _reduce_for_parking(site, clay, cfg, net)
         if clay.parking:
             cm = metrics(ct, clay, cfg, site)
@@ -398,9 +400,7 @@ def evaluate_set(args):
 def _reduce_for_parking(site: FeasibilitySite, lay: Layout, cfg: dict, net: float) -> None:
     b = cfg["building"]
     fmin = int(b["min_floors"])
-    podiums0 = list(lay.podiums)
     for _ in range(200):
-        lay.podiums = list(podiums0)
         visitors_and_parking(site, lay, cfg)
         pk = lay.parking
         short = [g for g in (0, 1) if pk["demand"][g] > pk["supply"][g]]

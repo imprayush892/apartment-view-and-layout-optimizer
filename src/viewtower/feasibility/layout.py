@@ -72,6 +72,7 @@ class Layout:
     y_split: float
     podiums: list[Polygon]
     gap_band: Polygon
+    raw_podiums: list[Polygon] = field(default_factory=list)  # before visitor strips are cut out
     visitor_strips: list[Polygon] = field(default_factory=list)
     visitor_bays: int = 0
     parking: dict = field(default_factory=dict)
@@ -313,7 +314,7 @@ def _podiums(site: FeasibilitySite, towers: list[Tower], cfg: dict, gap: float) 
         split = env.bounds[1] - gap
         podiums = [env, Polygon()]
         band = Polygon()
-    return Layout(towers, split, podiums, band)
+    return Layout(towers, split, podiums, band, raw_podiums=list(podiums))
 
 
 # ------------------------------------------------------------------ visitors and parking
@@ -338,7 +339,7 @@ def visitors_and_parking(site: FeasibilitySite, lay: Layout, cfg: dict) -> None:
             bays += n
     # 2) strips cut from the podium edge, longest straight runs first, clear of towers
     towers_fp = unary_union([t.footprint().buffer(1.0, join_style="mitre") for t in lay.towers])
-    podiums = list(lay.podiums)
+    podiums = list(lay.raw_podiums or lay.podiums)
     if bays < v_need:
         cands = []
         for g, pod in enumerate(podiums):
