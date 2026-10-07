@@ -340,12 +340,13 @@ function compute() {
   const n = Object.values(mix).reduce((a, b) => a + b, 0);
   const shares = Object.fromEntries(UNIT_IDS.map(u => [u, n ? mix[u] / n : 0]));
   const dev = 50 * B.units.reduce((s, u) => s + Math.abs(shares[u.id] - u.share), 0);
+  const devmax = 100 * Math.max(...B.units.map(u => Math.abs(shares[u.id] - u.share)));
   const cpt = Object.entries(mix).reduce((s, [u, k]) => s + k * carpet[u], 0);
   const pk = S.metrics.parking;
   const demand = phase.map(p => Math.ceil(B.parking.ratio * p.flats - 1e-9));
   const visNeed = Math.ceil(B.parking.visitor_ratio * (demand[0] + demand[1]) - 1e-9);
   const hs = S.towers.map(t => t.height);
-  return { fsi: fsi / net, fsi_m2: fsi, flats: n, mix, shares, dev, carpet: cpt, sbu: cpt * load, facing,
+  return { fsi: fsi / net, fsi_m2: fsi, flats: n, mix, shares, dev, devmax, carpet: cpt, sbu: cpt * load, facing,
     phase, demand, supply: pk.supply, visNeed, visBays: pk.visitor_bays, maxH: Math.max(...hs), minH: Math.min(...hs), net };
 }
 
@@ -425,6 +426,7 @@ function renderKPIs(M) {
       M.supply[0] >= M.demand[0] && M.supply[1] >= M.demand[1]],
     ["Doors facing N or E", (ne * 100).toFixed(0) + "%", `S ${(M.facing.S / M.flats * 100).toFixed(0)}% · W ${(w * 100).toFixed(0)}%`, w <= B.facing.max_west_share + 1e-9],
     ["Unit-mix deviation", M.dev.toFixed(1) + " pp", "half the sum of share gaps", M.dev <= 3],
+    ["Largest unit-type gap", M.devmax.toFixed(1) + " pp", "worst single type against its share", M.devmax <= 1.5],
   ];
   $("kpis").innerHTML = k.map(([l, v, s, ok]) => `<div class="kpi"><div class="l">${l}</div><div class="v"><span class="status">${statusIcon(ok, !ok && l.startsWith("Unit"))}${v}</span></div><div class="s">${s}</div></div>`).join("");
 }
@@ -548,7 +550,7 @@ function renderTowers(M) {
   ck.push([spOK, false, spOK ? `Spacing: ${S.metrics.spacing ? `nearest across podiums ${S.metrics.spacing.cross ?? "–"} m, on one podium ${S.metrics.spacing.same ?? "–"} m` : "ok"}` : "Spacing rule broken (see plan)"]);
   const w = M.facing.W / M.flats;
   ck.push([w <= B.facing.max_west_share + 1e-9, false, `West-facing doors ${(w * 100).toFixed(0)}% (max ${B.facing.max_west_share * 100}%)`]);
-  ck.push([M.dev <= 3, M.dev <= 6, `Unit mix within ${M.dev.toFixed(1)} percentage points of the target`]);
+  ck.push([M.devmax <= 1.5, M.devmax <= 3, `Every unit type within ${M.devmax.toFixed(1)} percentage points of its share`]);
   $("checks").innerHTML = ck.map(([ok, warn, s]) => `<li>${statusIcon(ok, warn)}<span>${s}</span></li>`).join("");
 }
 
@@ -667,7 +669,8 @@ function renderArea(M) {
 }
 function renderScatter() {
   const v = variant(), pts = v.scatter || [], svg = $("scatter"), W = svg.clientWidth || 900, H = 320, l = 56, r = 16, t = 12, b = 40;
-  $("legendScatter").innerHTML = `<span><i class="sw" style="background:var(--u1);border-radius:50%"></i>${SCEN_LABEL.segregated}</span><span><i class="sw" style="background:var(--u2);border-radius:50%"></i>${SCEN_LABEL.mixed}</span><span><i class="sw" style="border:2px solid var(--ink-2);border-radius:50%;background:transparent"></i>All rules met</span><span><i class="sw" style="background:var(--ink-2);border-radius:50%"></i>At FSI target</span>`;
+  const scA = pts.some(p => p.scenario === "targeted") ? "targeted" : "segregated";
+  $("legendScatter").innerHTML = `<span><i class="sw" style="background:var(--u1);border-radius:50%"></i>${SCEN_LABEL[scA]}</span><span><i class="sw" style="background:var(--u2);border-radius:50%"></i>${SCEN_LABEL.mixed}</span><span><i class="sw" style="border:2px solid var(--ink-2);border-radius:50%;background:transparent"></i>All rules met</span><span><i class="sw" style="background:var(--ink-2);border-radius:50%"></i>At FSI target</span>`;
   if (!pts.length) { svg.innerHTML = ""; return; }
   const xs = pts.map(p => p.fsi), ys = pts.map(p => p.margin);
   const x0 = Math.min(...xs) - 0.05, x1 = Math.max(...xs) + 0.05, y0 = Math.min(...ys, 0) - 10, y1 = Math.max(...ys, 0) + 10;
@@ -681,7 +684,7 @@ function renderScatter() {
   h += `<text x="${(l + W - r) / 2}" y="${H - 4}" font-size="12" fill="var(--ink-2)" text-anchor="middle">FSI on the net plot</text><text x="14" y="${(t + H - b) / 2}" font-size="12" fill="var(--ink-2)" text-anchor="middle" transform="rotate(-90 14 ${(t + H - b) / 2})">cars over (+) or short (−)</text>`;
   const order = [...pts].sort((a, bq) => (a.link ? 1 : 0) - (bq.link ? 1 : 0));
   for (const p of order) {
-    const c = p.scenario === "segregated" ? "var(--u1)" : "var(--u2)", R = p.link ? 6 : 4.5;
+    const c = p.scenario === "mixed" ? "var(--u2)" : "var(--u1)", R = p.link ? 6 : 4.5;
     const fill = p.mode === "target" ? c : "transparent";
     h += `<circle cx="${X(p.fsi)}" cy="${Y(p.margin)}" r="${R}" fill="${fill}" stroke="${p.mode === "target" ? "var(--surface)" : c}" stroke-width="${p.mode === "target" ? 2 : 2.2}" ${p.link ? `style="cursor:pointer" data-link="${p.link}"` : ""}
       data-tip="<b>${SCEN_LABEL[p.scenario]} · ${MODE_LABEL[p.mode]}</b><br>FSI ${p.fsi.toFixed(3)} · ${p.flats} flats · ${p.towers} towers<br>cars ${p.margin >= 0 ? "+" : ""}${p.margin} · mix ±${p.mix_dev.toFixed(1)} pp · N+E ${(p.ne * 100).toFixed(0)}%<br>tallest ${p.max_h.toFixed(1)} m${p.link ? "<br><i>click to open</i>" : ""}"/>`;

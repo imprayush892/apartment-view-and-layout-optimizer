@@ -92,6 +92,12 @@ def mix_dev_pp(counts: dict[str, int], cfg: dict) -> float:
     return 50.0 * sum(abs(counts[t["id"]] / n - t["share"]) for t in cfg["units"]["types"])
 
 
+def type_dev_pp(counts: dict[str, int], cfg: dict) -> float:
+    """Largest gap between a unit type's share of the flats and its target share, in points."""
+    n = sum(counts.values()) or 1
+    return max(100.0 * abs(counts.get(t["id"], 0) / n - t["share"]) for t in cfg["units"]["types"])
+
+
 def fsi_of(towers: list[Tower], cfg: dict, net: float) -> float:
     b = cfg["building"]
     lob = float(cfg["fsi"]["gf_lobby_m2_per_core"])

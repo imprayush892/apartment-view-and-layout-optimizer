@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from viewtower.feasibility.search import unit_table
+from viewtower.feasibility.search import type_dev_pp, unit_table
 
 SCEN = {"segregated": "A · segregated towers (middle / upper-middle / luxury)", "mixed": "B · mixed towers",
         "targeted": "A · targeted towers (one price band each)"}
@@ -29,7 +29,7 @@ def _sb(t, cfg):
 
 def write_report(path: str | Path, cfg: dict, summary: dict) -> Path:
     L = [f"# {cfg.get('project', 'Feasibility')}: massing and unit-mix options", ""]
-    base = summary.get("base", {})
+    base = summary.get("base") or next(iter(summary.values()), {})
     st = base.get("site", {})
     L += ["## Site", "",
           f"- Gross plot {st.get('gross_m2', 0):,.0f} m²; road widening {st.get('widening_m2', 0):,.0f} m² "
@@ -51,7 +51,7 @@ def write_report(path: str | Path, cfg: dict, summary: dict) -> Path:
                 pk = m["parking"]
                 L += [f"### {SCEN.get(sc, sc)}, {MODE.get(mode, mode)}", "",
                       f"FSI **{m['fsi']:.3f}** ({m['fsi_m2']:,.0f} m²) · {m['flats']} flats · SBU {m['sbu_ft2'] / 1e5:.2f} lakh ft² · "
-                      f"tallest {m['max_height']:.1f} m · mix within {m['mix_dev_pp']:.1f} pp · doors N {m['facing']['N']}, E {m['facing']['E']}, "
+                      f"tallest {m['max_height']:.1f} m · every unit type within {type_dev_pp(m['mix_counts'], cfg):.1f} pp of its share · doors N {m['facing']['N']}, E {m['facing']['E']}, "
                       f"S {m['facing']['S']}, W {m['facing']['W']} · cars {pk['total_supply']}/{pk['total_demand']} "
                       f"(P1 {pk['supply'][0]}/{pk['demand'][0]}, P2 {pk['supply'][1]}/{pk['demand'][1]}) · visitor bays {pk['visitor_bays']}/{pk['visitor_need']}", ""]
                 n = m["flats"] or 1

@@ -31,7 +31,7 @@ from concurrent.futures import ProcessPoolExecutor
 from viewtower.feasibility.layout import Layout, Tower, place_chain, visitors_and_parking
 from viewtower.feasibility.plates import VARIANTS, Plate
 from viewtower.feasibility.search import (PlateBook, Scheme, compositions, fsi_of, metrics, mix_of,
-                                          parking_levers, penalties)
+                                          parking_levers, penalties, type_dev_pp)
 from viewtower.feasibility.site import FeasibilitySite, max_floors, refuge_floors
 
 SEG_ORDER = ("middle", "upper_middle", "luxury")
@@ -503,12 +503,6 @@ def _repair(site: FeasibilitySite, cfg: dict, net: float, towers: list[Tower], n
         if lay is not None:
             return ts, lay
     return None
-
-
-def type_dev_pp(counts: dict[str, int], cfg: dict) -> float:
-    """Largest gap between a unit type's share of the flats and its target share, in points."""
-    n = sum(counts.values()) or 1
-    return max(100.0 * abs(counts.get(t["id"], 0) / n - t["share"]) for t in cfg["units"]["types"])
 
 
 def _segment(p: Plate, cfg: dict, scenario: str) -> str:
