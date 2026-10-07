@@ -6,7 +6,7 @@ import pytest
 from shapely.ops import unary_union
 
 from viewtower.feasibility import config as fconfig
-from viewtower.feasibility.layout import Tower, facing_overlap, place, visitors_and_parking
+from viewtower.feasibility.layout import Tower, facing_overlap, place, place_chain, visitors_and_parking
 from viewtower.feasibility.plates import VARIANTS, assign_slots, build_plate, unit_builtup_m2
 from viewtower.feasibility.search import PlateBook, fsi_of, mix_dev_pp, mix_of, optimise_floors, search
 from viewtower.feasibility.site import FeasibilitySite, max_floors, refuge_floors, setback_for_height
@@ -114,6 +114,47 @@ def test_placement_respects_setbacks_spacing_and_podiums(cfg, site):
     pk = lay.parking
     assert pk["demand"] == [math.ceil(1.9 * n - 1e-9) for n in pk["flats"]]
     assert all(s > 0 for s in pk["supply"])
+
+
+def test_chain_keeps_the_order_and_sides_and_reports_the_failing_tower(cfg, site):
+    book = PlateBook(cfg)
+    fx, b = cfg["fixed"], cfg["building"]
+    p = book.get("X5b", ("U2",) * 5, 21.0, 11.5)
+    towers = [Tower(f"T{i + 1}", p, 18, podium=g) for i, g in enumerate(fx["podiums"])]
+    lay = place_chain(site, towers, cfg, fx["sides"])
+    assert lay is not None
+    assert [t.y for t in towers] == sorted((t.y for t in towers), reverse=True)  # front road to rear
+    assert towers[0].x > towers[1].x and towers[2].x > towers[3].x  # E, W, E, W
+    for i in range(4):
+        assert site.tower_envelope(towers[i].height(b)).buffer(1e-6).contains(towers[i].footprint())
+        for j in range(i + 1, 4):
+            if towers[i].podium != towers[j].podium:
+                d = towers[i].footprint().distance(towers[j].footprint())
+                assert d >= setback_for_height(towers[i].height(b), cfg["setbacks"]) - 1e-6
+    big = book.get("X6", ("U4",) * 6, 23.0, 15.0)
+    failed: list = []
+    assert place_chain(site, [Tower(f"T{i + 1}", big, 22, podium=g) for i, g in enumerate(fx["podiums"])],
+                       cfg, fx["sides"], failed) is None
+    assert failed == [3]
+
+
+def test_fixed_arrangement_meets_the_mix_and_fsi_bands(cfg):
+    from viewtower.feasibility.fixed import solve_fixed, type_dev_pp
+    small = fconfig.load(EXAMPLE, {"fsi": {"target": 3.0, "cap": 3.1},
+                                   "fixed": {"scenarios": ["targeted"], "variants": ["X5b"], "arm_depth_m": [21.0],
+                                             "end_width_m": [11.5], "assignment": ["value"], "min_floors": 10,
+                                             "mix_tol_pp": 2.0, "fsi_band": 0.2, "options": 1, "solve_s": 5}})
+    schemes = solve_fixed(small, progress=lambda m: None, workers=1)["targeted"]
+    target = [s for s in schemes if s.mode == "target"]
+    assert target
+    m = target[0].metrics
+    assert 2.8 - 1e-9 <= m["fsi"] <= 3.1 + 1e-9
+    assert type_dev_pp(m["mix_counts"], small) <= 2.0 + 1e-9
+    order = [t["id"] for t in sorted(small["units"]["types"], key=lambda t: t["carpet_ft2"])]
+    for t in target[0].towers:
+        units = sorted({f.unit for f in t.plate.flats}, key=order.index)
+        assert len(units) == 1 or (len(units) == 2 and order.index(units[1]) == order.index(units[0]) + 1)
+        assert t.height(small["building"]) <= small["building"]["max_height_m"] + 1e-9
 
 
 def test_floor_optimiser_hits_the_target_without_breaking_the_cap(cfg, site):

@@ -319,14 +319,18 @@ def _podiums(site: FeasibilitySite, towers: list[Tower], cfg: dict, gap: float) 
 
 
 # ------------------------------------------------------------------ chain placement (fixed tower count)
-def place_chain(site: FeasibilitySite, towers: list[Tower], cfg: dict, hints: list[str] | None = None) -> Layout | None:
+def place_chain(site: FeasibilitySite, towers: list[Tower], cfg: dict, hints: list[str] | None = None,
+                failed: list | None = None) -> Layout | None:
     """Place towers as one front-to-rear chain in the given order (a fixed arrangement).
 
     Each tower takes the frontmost position its rules allow; ``hints`` ('E' or 'W' per tower) picks
     the side, so the chain zig-zags as drawn. ``tower.podium`` sets the spacing rule (block setback
     across podiums, ``same_podium_gap_m`` and the facing-overlap limit on one podium). The chain is
     then spread over the leftover length and the podiums are split by distance, leaving a driveway
-    and visitor-bay band between them wherever they meet."""
+    and visitor-bay band between them wherever they meet.
+
+    Towers are placed in order, each against the ones before it only, so when the chain fails at a
+    tower the towers up to it fail whatever follows; ``failed`` (a list) receives that index."""
     b = cfg["building"]
     sb = cfg["setbacks"]
     res = float(cfg["search"]["raster_m"])
@@ -342,6 +346,8 @@ def place_chain(site: FeasibilitySite, towers: list[Tower], cfg: dict, hints: li
             region = region.difference(unary_union(forbid))
         ok = grid.feasible(grid.mask(region), plate_boxes(t.plate))
         if not ok.any():
+            if failed is not None:
+                failed.append(len(placed))
             return None
         ii, jj = np.nonzero(ok)
         xs = grid.x0 + jj * res
@@ -354,6 +360,8 @@ def place_chain(site: FeasibilitySite, towers: list[Tower], cfg: dict, hints: li
                 chosen = (x, y)
                 break
         if chosen is None:
+            if failed is not None:
+                failed.append(len(placed))
             return None
         t.x, t.y = chosen
         placed.append(t)

@@ -49,12 +49,14 @@ orientation and car parking drive the scheme rather than the view:
 ```bash
 viewtower feasibility configs/feasibility_example.yaml --out out/feasibility          # full search + sensitivity readings
 viewtower feasibility configs/feasibility_example.yaml --out out/feasibility --quick  # small search, first look
+viewtower feasibility configs/feasibility_example.yaml --out out/fixed --fixed        # keep the arrangement in fixed:
 ```
 
 It models the site rings (road widening, OSR, EIA green belt, fire driveway, podium), cruciform plates
 whose doors are placed so no flat faces west, a unit mix held to target shares, two podiums as two
 phases, refuge floors and parking per phase. Two scenarios are searched: towers segregated by market
-segment, and towers that each mix unit types. The outputs are DXF drawings (ezdxf), a self-contained
+segment, and towers that each mix unit types. With `--fixed` the tower arrangement in the config is kept
+and only plates and floors are chosen (CP-SAT, unit mix held within a tolerance). The outputs are DXF drawings (ezdxf), a self-contained
 HTML viewer with draggable towers and live floor editing, JSON and a markdown report. Method and rules:
 [16_feasibility](docs/spec/16_feasibility.md). Defaults: [`configs/feasibility_default.yaml`](configs/feasibility_default.yaml).
 Keep real project configs and outputs under `private/`.
@@ -139,7 +141,8 @@ src/viewtower/
   evaluation/       classify.py (view classes + reasons), economics.py (rates, GDV, risk)
   optimize/         search.py (enumerate/filter/evaluate), pareto.py
   feasibility/      site.py (rings, setbacks), plates.py (cruciform plates, doors), layout.py (placement, podiums,
-                    parking), search.py (mix allocation, scenarios), export*.py + viewer.html (DXF, HTML), run.py
+                    parking), search.py (mix allocation, scenarios), fixed.py (fixed arrangement, CP-SAT),
+                    export*.py + viewer.html (DXF, HTML), run.py
   pipeline.py, report.py, synthetic.py, cli.py
 tests/              geometry, DXF, typology exactness, ray-engine analytic cases, classes, determinism
 ```

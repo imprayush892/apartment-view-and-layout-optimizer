@@ -85,6 +85,40 @@ Schemes are ranked by a sum of named penalties (FSI gap, mix deviation, facing, 
 height spread, phase imbalance, extra towers, plate efficiency, parking), all reported with the scheme.
 Sensitivity readings (`readings:`) rerun the search with config overrides.
 
+## Fixed arrangement (`--fixed`)
+
+When the client has fixed the tower arrangement, `viewtower feasibility <config> --fixed` keeps it and
+chooses only each tower's plate and floors. The `fixed:` section gives the towers from the front road
+to the rear, the side each takes (`sides`, E or W) and its podium (`podiums`). The towers are placed as
+one chain in that order (each takes the frontmost position its rules allow on its side), spread over the
+leftover length, and the podiums are split by distance with a driveway and visitor-bay band where they
+meet.
+
+Two scenarios:
+
+* **mixed**: every tower carries at least `search.min_types_mixed` unit types;
+* **targeted**: every tower serves one price band: one unit type, or two types adjacent in size.
+
+Candidate plates come from `fixed.variants`, `arm_depth_m`, `end_width_m` and `assignment`. For each
+plate the tallest arrangement of four copies that fits is measured, then per position the tallest the
+plate rises with the smallest plate elsewhere (an optimistic bound). A CP-SAT model picks one plate and
+a floor count per tower:
+
+* hard: every unit type within `mix_tol_pp` points of its share; FSI between target − `fsi_band` and
+  the cap; floors between `min_floors` and the height ceiling, and no taller than the position allows;
+* soft: closeness to the FSI target, mix deviation, south doors, height spread and phase balance
+  (`fixed.weights`).
+
+The chosen set is placed. If it does not fit, the towers up to the one that could not be placed are cut
+from the model at those floors and taller (the chain places each tower against the ones before it only,
+so that prefix fails whatever follows), a version with a few floors off that still meets the bands is
+kept as a fallback, and the model is solved again. Options differ in the unit set of at least one tower.
+
+Each option also gets a **compliant** scheme: the model is solved again with each podium's flats capped
+by the cars its basement, ground and stilt 1 hold (and the visitor bays the setbacks hold), keeping the
+mix tolerance; the same plates and positions with fewer floors when the mix allows, otherwise any
+plates, placed anew.
+
 ## Outputs
 
 * one DXF per leading scheme (metres, true north up): plot, widening, net plot, OSR, EIA belt, driveway,

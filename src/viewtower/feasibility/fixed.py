@@ -3,15 +3,18 @@ so the unit mix is met within a tolerance, then verify the placement on site.
 
 The arrangement is given in the config (``fixed:``): the number of towers, their order from the
 front road to the rear, the side each takes ('E' or 'W') and the podium (phase) of each. For every
-candidate plate the tallest copy of the arrangement that fits is measured once; a CP-SAT model then
-chooses one plate and a floor count per tower to
+candidate plate the tallest copy of the arrangement that fits is measured once (four copies of the
+plate), then, per position, how tall the plate rises with the smallest plate in the other positions
+(an optimistic bound). A CP-SAT model then chooses one plate and a floor count per tower to
 
 * hold every unit type within ``mix_tol_pp`` percentage points of its target share (hard),
 * reach the FSI target without passing the cap, within the height ceiling (hard band, then closeness),
 * prefer fewer south-facing doors, even heights and balanced phases (soft).
 
-The chosen set is placed with :func:`place_chain`; a set that does not fit is cut from the model
-(with any taller variant of it) and the model is solved again.
+The chosen set is placed with :func:`place_chain`. A set that does not fit is first repaired by
+taking a few floors off (still within the mix and FSI bands); failing that, the towers up to the one
+that could not be placed are cut from the model (with any taller variant of them) and the model is
+solved again, so the optimistic bounds are only ever an upper limit.
 
 Two scenarios:
 
@@ -22,12 +25,11 @@ Two scenarios:
 from __future__ import annotations
 
 import itertools
-import math
 from concurrent.futures import ProcessPoolExecutor
 
 from viewtower.feasibility.layout import Layout, Tower, place_chain, visitors_and_parking
 from viewtower.feasibility.plates import VARIANTS, Plate
-from viewtower.feasibility.search import (PlateBook, Scheme, _reduce_for_parking, compositions, metrics,
+from viewtower.feasibility.search import (PlateBook, Scheme, compositions, fsi_of, metrics, mix_of,
                                           parking_levers, penalties)
 from viewtower.feasibility.site import FeasibilitySite, max_floors, refuge_floors
 
@@ -55,18 +57,24 @@ def candidate_plates(cfg: dict, book: PlateBook, scenario: str) -> list[Plate]:
     return out
 
 
-def best_geometries(plates: list[Plate], fit: dict[str, int], keep: int) -> list[Plate]:
+def best_geometries(plates: list[Plate], fit: dict, keep: int) -> list[Plate]:
     """Plates with the same units differ only in geometry for the mix model: keep the ``keep`` that
-    rise highest in the arrangement (then the smallest footprint) for each variant and unit set."""
+    rise highest in the arrangement (then the smallest footprint) for each variant and unit set.
+
+    ``fit`` maps a plate key to its floors, or to a list of floors per position."""
+    def rise(p):
+        v = fit.get(p.key, 0)
+        return sum(v) if isinstance(v, (list, tuple)) else v
+
     groups: dict = {}
     for p in plates:
-        if fit.get(p.key, 0) <= 0:
+        if rise(p) <= 0:
             continue
         k = (p.variant, tuple(sorted(f.unit for f in p.flats)), p.refuge_flat().unit)
         groups.setdefault(k, []).append(p)
     out = []
     for k in sorted(groups):
-        g = sorted(groups[k], key=lambda p: (-fit[p.key], p.width * p.depth, p.key))
+        g = sorted(groups[k], key=lambda p: (-rise(p), p.width * p.depth, p.key))
         out += g[:keep]
     return out
 
@@ -90,42 +98,104 @@ def _fit_one(plate: Plate) -> int:
     return 0
 
 
-def fit_floors(cfg: dict, plates: list[Plate], workers: int | None = None) -> dict[str, int]:
+def _fit_slot(job: tuple) -> int:
+    """Tallest floor count above ``lo`` at which ``plate`` holds position ``slot`` while ``ref``
+    takes every other position at the same height (``lo`` if none)."""
+    plate, slot, ref, lo = job
+    cfg, site = _W["cfg"], _W["site"]
+    fx = cfg["fixed"]
+    for f in range(max_floors(cfg["building"]), max(lo, int(fx["min_floors"]) - 1), -1):
+        towers = [Tower(f"T{i + 1}", plate if i == slot else ref, f, podium=g) for i, g in enumerate(fx["podiums"])]
+        if place_chain(site, towers, cfg, fx["sides"]) is not None:
+            return f
+    return lo
+
+
+def _pool_map(cfg: dict, fn, jobs: list, workers: int | None) -> list:
     if workers == 1:
         _init(cfg)
-        return {p.key: _fit_one(p) for p in plates}
+        return [fn(j) for j in jobs]
     with ProcessPoolExecutor(max_workers=workers, initializer=_init, initargs=(cfg,)) as ex:
-        return dict(zip((p.key for p in plates), ex.map(_fit_one, plates, chunksize=8)))
+        return list(ex.map(fn, jobs, chunksize=4))
 
 
-def select(cfg: dict, plates: list[Plate], fit: dict[str, int], net: float, nogoods: list, exclude: list,
-           time_s: float = 20.0):
+def fit_floors(cfg: dict, plates: list[Plate], workers: int | None = None) -> dict[str, int]:
+    """Tallest floors of the arrangement built from four copies of each plate."""
+    return dict(zip((p.key for p in plates), _pool_map(cfg, _fit_one, plates, workers)))
+
+
+def fit_positions(cfg: dict, plates: list[Plate], fit: dict[str, int], workers: int | None = None) -> dict[str, list[int]]:
+    """Per position, the tallest floors of each plate with the smallest fitting plate elsewhere.
+
+    Never below the four-copy fit; positions where the four-copy fit already reaches the height
+    ceiling are not probed again."""
+    fx, fmax = cfg["fixed"], max_floors(cfg["building"])
+    ok = [p for p in plates if fit.get(p.key, 0) >= int(fx["min_floors"])]
+    if not ok:
+        return {p.key: [fit.get(p.key, 0)] * len(fx["podiums"]) for p in plates}
+    ref = min(ok, key=lambda p: (p.width * p.depth, -fit[p.key], p.key))
+    jobs, idx = [], []
+    for p in plates:
+        if fit.get(p.key, 0) >= fmax:
+            continue
+        for t in range(len(fx["podiums"])):
+            jobs.append((p, t, ref, fit.get(p.key, 0)))
+            idx.append((p.key, t))
+    out = {p.key: [fit.get(p.key, 0)] * len(fx["podiums"]) for p in plates}
+    for (key, t), f in zip(idx, _pool_map(cfg, _fit_slot, jobs, workers)):
+        out[key][t] = max(out[key][t], f)
+    return out
+
+
+def unit_set(p: Plate) -> tuple:
+    return tuple(sorted(f.unit for f in p.flats))
+
+
+def select(cfg: dict, plates: list[Plate], fit: dict, net: float, nogoods: list, exclude: list,
+           time_s: float = 20.0, info: dict | None = None, combo: list[Plate] | None = None,
+           flat_caps: list[int] | None = None, fmin: int | None = None):
     """CP-SAT choice of (plate, floors) per tower; None if infeasible.
 
+    ``fit`` maps a plate key to its tallest floors, or to a list of them per position. ``exclude``
+    lists the per-tower unit sets (:func:`unit_set`) already reported, in any tower order. ``fmin``
+    overrides ``fixed.min_floors``. ``combo`` fixes the plates;
+    ``flat_caps`` caps the flats on each podium (the parking it holds) and drops the lower FSI
+    band, so the model then reaches as close to the target as the parking allows.
+
     One plate index per tower; plate properties are looked up with element constraints, so the
-    model stays small whatever the number of candidate plates."""
+    model stays small whatever the number of candidate plates. ``info`` (a dict) receives the solver
+    status."""
     from ortools.sat.python import cp_model
 
     fx, b = cfg["fixed"], cfg["building"]
     T = len(fx["podiums"])
-    fmin, fmax = int(fx["min_floors"]), max_floors(b)
+    fmin, fmax = int(fx["min_floors"] if fmin is None else fmin), max_floors(b)
     types = cfg["units"]["types"]
     units = [t["id"] for t in types]
     share = {t["id"]: t["share"] for t in types}
     carpet = {t["id"]: t["carpet_ft2"] for t in types}
-    P = [p for p in plates if fit.get(p.key, 0) >= fmin]
+    slot_fit = {p.key: (list(v) if isinstance(v, (list, tuple)) else [v] * T)
+                for p in plates for v in [fit.get(p.key, 0)]}
+    P = [p for p in plates if max(slot_fit[p.key]) >= fmin]
     if not P:
         return None
     pos = {p.key: i for i, p in enumerate(P)}
+    if combo is not None and not all(p.key in pos for p in combo):
+        return None
+    sigs = sorted({unit_set(p) for p in P})
+    sid = {g: i for i, g in enumerate(sigs)}
     n = len(P)
     R = [len(refuge_floors(f, b)) for f in range(fmin, fmax + 1)]
     arr = {
-        "fit": [min(fit[p.key], fmax) for p in P],
         "area": [int(round(10 * p.area_m2)) for p in P],
         "rarea": [int(round(10 * p.refuge_flat().area_m2)) for p in P],
         "south": [sum(1 for fl in p.flats if fl.door_dir == "S") for p in P],
         "carpet": [int(sum(carpet[fl.unit] for fl in p.flats) / 10) for p in P],
+        "nfl": [len(p.flats) for p in P],
+        "sig": [sid[unit_set(p)] for p in P],
     }
+    for t in range(T):
+        arr[f"fit{t}"] = [min(slot_fit[p.key][t], fmax) for p in P]
     for u in units:
         arr["c" + u] = [p.counts().get(u, 0) for p in P]
         arr["r" + u] = [1 if p.refuge_flat().unit == u else 0 for p in P]
@@ -145,12 +215,14 @@ def select(cfg: dict, plates: list[Plate], fit: dict[str, int], net: float, nogo
         return v
 
     cnt = {u: [] for u in units}
-    area_t, south_t, carpet_t = [], [], []
+    area_t, south_t, carpet_t, flats_t = [], [], [], []
     for t in range(T):
+        if combo is not None:
+            m.Add(k[t] == pos[combo[t].key])
         idx = m.NewIntVar(0, fmax - fmin, f"i{t}")
         m.Add(idx == f[t] - fmin)
         m.AddElement(idx, R, r[t])
-        m.Add(f[t] <= look("fit", t, 0, fmax))
+        m.Add(f[t] <= look(f"fit{t}", t, 0, fmax))
         for u in units:
             per = look("c" + u, t, 0, 6)
             isr = look("r" + u, t, 0, 1)
@@ -159,6 +231,7 @@ def select(cfg: dict, plates: list[Plate], fit: dict[str, int], net: float, nogo
         ra = look("rarea", t, 0, max(arr["rarea"]))
         area_t.append(times(f[t], a, fmax * max(arr["area"]), f"A{t}") - times(r[t], ra, max(R) * max(arr["rarea"]), f"RA{t}"))
         south_t.append(times(f[t], look("south", t, 0, 6), 6 * fmax, f"S{t}"))
+        flats_t.append(times(f[t], look("nfl", t, 0, 6), 6 * fmax, f"F{t}") - r[t])
         carpet_t.append(times(f[t], look("carpet", t, 0, max(arr["carpet"])), fmax * max(arr["carpet"]), f"C{t}"))
     N_u = {u: sum(cnt[u]) for u in units}
     N = sum(N_u.values())
@@ -175,7 +248,11 @@ def select(cfg: dict, plates: list[Plate], fit: dict[str, int], net: float, nogo
     area = sum(area_t) + int(round(10 * (T * lob + club)))
     tgt, cap = float(cfg["fsi"]["target"]), float(cfg["fsi"]["cap"])
     m.Add(area <= int(cap * net * 10))
-    m.Add(area >= int((tgt - float(fx["fsi_band"])) * net * 10))
+    if flat_caps is None:
+        m.Add(area >= int((tgt - float(fx["fsi_band"])) * net * 10))
+    else:
+        for g, c in enumerate(flat_caps):
+            m.Add(sum(x for t, x in enumerate(flats_t) if fx["podiums"][t] == g) <= c)
     gap = m.NewIntVar(0, 10 ** 7, "gap")
     m.AddAbsEquality(gap, area - int(tgt * net * 10))
     hi_f, lo_f = m.NewIntVar(fmin, fmax, "hi"), m.NewIntVar(fmin, fmax, "lo")
@@ -184,11 +261,11 @@ def select(cfg: dict, plates: list[Plate], fit: dict[str, int], net: float, nogo
     ph = [sum(c for t, c in enumerate(carpet_t) if fx["podiums"][t] == g) for g in (0, 1)]
     imb = m.NewIntVar(0, 10 ** 7, "imb")
     m.AddAbsEquality(imb, ph[0] - ph[1])
-    for combo, floors in nogoods:  # this plate set does not fit at these floors or taller
-        if not all(p.key in pos for p in combo):
+    for ng, ng_floors in nogoods:  # these front towers do not fit at these floors or taller
+        if not all(p.key in pos for p in ng):
             continue
         lits = []
-        for t, (p, fl) in enumerate(zip(combo, floors)):
+        for t, (p, fl) in enumerate(zip(ng, ng_floors)):
             same, taller = m.NewBoolVar(""), m.NewBoolVar("")
             m.Add(k[t] == pos[p.key]).OnlyEnforceIf(same)
             m.Add(k[t] != pos[p.key]).OnlyEnforceIf(same.Not())
@@ -196,9 +273,10 @@ def select(cfg: dict, plates: list[Plate], fit: dict[str, int], net: float, nogo
             m.Add(f[t] < fl).OnlyEnforceIf(taller.Not())
             lits += [same, taller]
         m.AddBoolOr([l.Not() for l in lits])
-    ex = [tuple(pos[p.key] for p in combo) for combo in exclude if all(p.key in pos for p in combo)]
+    ex = sorted({q for e in exclude if all(g in sid for g in e)
+                 for q in itertools.permutations(sid[g] for g in e)})
     if ex:
-        m.AddForbiddenAssignments(k, ex)
+        m.AddForbiddenAssignments([look("sig", t, 0, len(sigs) - 1) for t in range(T)], ex)
     w = fx["weights"]
     # units: gap 0.1 m2 (0.01 FSI ~ 1,700), dev per mille x flats (1 pp ~ 10 N), south doors, floors, carpet/10
     m.Minimize(int(w["fsi"]) * gap + int(w["mix"]) * sum(dev) + int(w["south"]) * sum(south_t)
@@ -207,6 +285,8 @@ def select(cfg: dict, plates: list[Plate], fit: dict[str, int], net: float, nogo
     solver.parameters.max_time_in_seconds = time_s
     solver.parameters.num_search_workers = 4
     st = solver.Solve(m)
+    if info is not None:
+        info["status"] = solver.StatusName(st)
     if st not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         return None
     return [P[solver.Value(v)] for v in k], [solver.Value(v) for v in f]
@@ -220,48 +300,147 @@ def solve_fixed(cfg: dict, progress=print, workers: int | None = None) -> dict[s
     out = {}
     for scenario in fx["scenarios"]:
         plates = candidate_plates(cfg, book, scenario)
-        fit = fit_floors(cfg, plates, workers)
-        ok = sum(1 for v in fit.values() if v >= int(fx["min_floors"]))
+        fit4 = fit_floors(cfg, plates, workers)
+        fit = fit_positions(cfg, plates, fit4, workers)
+        ok = sum(1 for v in fit.values() if max(v) >= int(fx["min_floors"]))
         plates = best_geometries(plates, fit, int(fx["geometries_per_mix"]))
-        progress(f"{scenario}: {ok} candidate plates fit the arrangement; tallest {max(fit.values()) if fit else 0} "
-                 f"floors; {len(plates)} kept for selection")
-        schemes, nogoods, exclude = [], [], []
-        for _ in range(int(fx["max_solves"])):
-            pick = select(cfg, plates, fit, net, nogoods, exclude, time_s=float(fx["solve_s"]))
-            if pick is None:
-                progress(f"{scenario}: no further set meets the mix and FSI bands")
-                break
-            combo, floors = pick
-            towers = [Tower(f"T{i + 1}", p, fl, podium=g, segment=_segment(p, cfg, scenario))
-                      for i, (p, fl, g) in enumerate(zip(combo, floors, fx["podiums"]))]
-            lay = place_chain(site, towers, cfg, fx["sides"])
-            if lay is None:
-                nogoods.append((combo, floors))
-                progress(f"{scenario}: set {[p.variant for p in combo]} at {floors} floors does not fit; cut")
-                continue
+        progress(f"{scenario}: {ok} of {len(fit)} candidate plates fit the arrangement; tallest "
+                 f"{max((max(v) for v in fit.values()), default=0)} floors; {len(plates)} kept for selection")
+        schemes, nogoods, exclude, pool = [], [], [], []
+
+        def report(towers, lay):
             visitors_and_parking(site, lay, cfg)
             m = metrics(towers, lay, cfg, site)
             m["levers"] = parking_levers(m, cfg, site)
             pen = penalties(m, cfg, "target")
-            s = Scheme(scenario, "target", towers, lay, m, pen, round(sum(pen.values()), 3),
-                       sid=f"{scenario[:3]}-fix-{len(schemes) + 1}")
-            schemes.append(s)
-            ct = [Tower(t.name, t.plate, t.floors, t.podium, t.segment, t.x, t.y) for t in towers]
-            clay = Layout(ct, None, list(lay.raw_podiums), lay.gap_band, raw_podiums=list(lay.raw_podiums),
-                          basements=list(lay.basements))
-            _reduce_for_parking(site, clay, cfg, net)
-            if clay.parking:
+            schemes.append(Scheme(scenario, "target", towers, lay, m, pen, round(sum(pen.values()), 3),
+                                  sid=f"{scenario[:3]}-fix-{len(schemes) + 1}"))
+            progress(f"{scenario}: option {sum(1 for x in schemes if x.mode == 'target')} FSI {m['fsi']:.3f}, "
+                     f"{m['flats']} flats, every type within {type_dev_pp(m['mix_counts'], cfg):.2f} pp")
+            comp = _compliant(site, cfg, net, plates, fit, towers, lay, nogoods, scenario)
+            if comp is not None:
+                ct, clay = comp
                 cm = metrics(ct, clay, cfg, site)
                 cp = penalties(cm, cfg, "compliant")
                 schemes.append(Scheme(scenario, "compliant", ct, clay, cm, cp, round(sum(cp.values()), 3),
                                       sid=f"{scenario[:3]}-fix-{len(schemes)}c"))
-            exclude.append(combo)
-            progress(f"{scenario}: option {sum(1 for x in schemes if x.mode == 'target')} FSI {m['fsi']:.3f}, "
-                     f"{m['flats']} flats, mix within {m['mix_dev_pp']:.1f} pp")
-            if sum(1 for x in schemes if x.mode == "target") >= int(fx["options"]):
+                progress(f"{scenario}: parking-compliant variant FSI {cm['fsi']:.3f}, {cm['flats']} flats, "
+                         f"every type within {type_dev_pp(cm['mix_counts'], cfg):.2f} pp")
+            exclude.append(tuple(unit_set(t.plate) for t in towers))
+
+        def enough():
+            return sum(1 for x in schemes if x.mode == "target") >= int(fx["options"])
+
+        for _ in range(int(fx["max_solves"])):
+            info: dict = {}
+            pick = select(cfg, plates, fit, net, nogoods, exclude, time_s=float(fx["solve_s"]), info=info)
+            if pick is None:
+                why = ("no further set meets the mix and FSI bands" if info.get("status") == "INFEASIBLE"
+                       else f"no set found within {fx['solve_s']} s")
+                progress(f"{scenario}: {why}")
                 break
+            combo, floors = pick
+            towers = [Tower(f"T{i + 1}", p, fl, podium=g, segment=_segment(p, cfg, scenario))
+                      for i, (p, fl, g) in enumerate(zip(combo, floors, fx["podiums"]))]
+            failed: list = []
+            lay = place_chain(site, towers, cfg, fx["sides"], failed)
+            if lay is None:
+                n = failed[0] + 1 if failed else len(combo)
+                nogoods.append((combo[:n], floors[:n]))
+                fixed_up = _repair(site, cfg, net, towers, n)
+                if fixed_up is not None:  # a fallback; the solver may still find a closer set
+                    pool.append(fixed_up)
+                progress(f"{scenario}: towers 1-{n} {[p.variant for p in combo[:n]]} at {floors[:n]} floors "
+                         f"do not fit; cut" + (f" ({[t.floors for t in fixed_up[0]]} floors do)" if fixed_up else ""))
+                continue
+            report(towers, lay)
+            if enough():
+                break
+        tgt = float(cfg["fsi"]["target"])
+        for towers, lay in sorted(pool, key=lambda c: abs(fsi_of(c[0], cfg, net) - tgt)):
+            if enough():
+                break
+            if tuple(unit_set(t.plate) for t in towers) not in exclude:
+                report(towers, lay)
         out[scenario] = schemes
     return out
+
+
+def _compliant(site: FeasibilitySite, cfg: dict, net: float, plates: list[Plate], fit: dict, towers: list[Tower],
+               lay: Layout, nogoods: list, scenario: str):
+    """The scheme closest to the FSI target whose residents park within each phase's basement, GF and
+    stilt 1 (and whose visitors fit the setback bays), keeping the unit mix in tolerance: the same
+    plates and positions with fewer floors when the mix allows, otherwise any plates, placed anew.
+    Returns (towers, layout) or None."""
+    fx, ratio = cfg["fixed"], float(cfg["parking"]["ratio"])
+    caps = [int(s_ / ratio + 1e-9) for s_ in lay.parking["supply"]]
+    for _ in range(6):
+        pick, same = None, True
+        for same in (True, False):
+            pick = select(cfg, plates, fit, net, nogoods, [], time_s=float(fx["solve_s"]),
+                          combo=[t.plate for t in towers] if same else None, flat_caps=caps,
+                          fmin=int(cfg["building"]["min_floors"]))
+            if pick is not None:
+                break
+        if pick is None:
+            return None
+        combo, floors = pick
+        if same:
+            ct = [Tower(t.name, t.plate, f, t.podium, t.segment, t.x, t.y) for t, f in zip(towers, floors)]
+            cl = Layout(ct, None, list(lay.raw_podiums), lay.gap_band, raw_podiums=list(lay.raw_podiums),
+                        basements=list(lay.basements))
+        else:
+            ct = [Tower(f"T{i + 1}", p, f, podium=g, segment=_segment(p, cfg, scenario))
+                  for i, (p, f, g) in enumerate(zip(combo, floors, fx["podiums"]))]
+            cl = place_chain(site, ct, cfg, fx["sides"])
+            if cl is None:
+                return None
+        visitors_and_parking(site, cl, cfg)
+        pk = cl.parking
+        short = [d - s_ for d, s_ in zip(pk["demand"], pk["supply"])]
+        if max(short) <= 0 and pk["visitor_bays"] >= pk["visitor_need"]:
+            return ct, cl
+        flats = pk["flats"]
+        new = [min(c, int(s_ / ratio + 1e-9)) for c, s_ in zip(caps, pk["supply"])]
+        if pk["visitor_bays"] < pk["visitor_need"]:
+            new = [min(c, int(n * pk["visitor_bays"] / pk["visitor_need"])) for c, n in zip(new, flats)]
+        caps = [c - 1 if c == old and x > 0 else c for c, old, x in zip(new, caps, short)]
+    return None
+
+
+def _repair(site: FeasibilitySite, cfg: dict, net: float, towers: list[Tower], n_fail: int, tries: int = 24):
+    """Take up to three floors off each tower, at least one off the towers up to the one that could
+    not be placed, keeping every unit type within the tolerance and the FSI in its band; the
+    variants closest to the FSI target are placed first. Returns (towers, layout) or None."""
+    fx = cfg["fixed"]
+    fmin, tol = int(fx["min_floors"]), float(fx["mix_tol_pp"])
+    tgt, cap, band = float(cfg["fsi"]["target"]), float(cfg["fsi"]["cap"]), float(fx["fsi_band"])
+    floors = [t.floors for t in towers]
+    cands = []
+    for d in itertools.product(range(4), repeat=len(towers)):
+        if not any(d[:n_fail]):
+            continue
+        fl = [f - x for f, x in zip(floors, d)]
+        if min(fl) < fmin:
+            continue
+        ts = [Tower(t.name, t.plate, f, t.podium, t.segment) for t, f in zip(towers, fl)]
+        if type_dev_pp(mix_of(ts, cfg), cfg) > tol + 1e-9:
+            continue
+        fsi = fsi_of(ts, cfg, net)
+        if tgt - band - 1e-9 <= fsi <= cap + 1e-9:
+            cands.append((abs(fsi - tgt), sum(d), max(fl) - min(fl), fl, ts))
+    cands.sort(key=lambda c: c[:3])
+    for *_, ts in cands[:tries]:
+        lay = place_chain(site, ts, cfg, fx["sides"])
+        if lay is not None:
+            return ts, lay
+    return None
+
+
+def type_dev_pp(counts: dict[str, int], cfg: dict) -> float:
+    """Largest gap between a unit type's share of the flats and its target share, in points."""
+    n = sum(counts.values()) or 1
+    return max(100.0 * abs(counts.get(t["id"], 0) / n - t["share"]) for t in cfg["units"]["types"])
 
 
 def _segment(p: Plate, cfg: dict, scenario: str) -> str:

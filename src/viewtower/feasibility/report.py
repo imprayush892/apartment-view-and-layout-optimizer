@@ -54,6 +54,10 @@ def write_report(path: str | Path, cfg: dict, summary: dict) -> Path:
                       f"tallest {m['max_height']:.1f} m · mix within {m['mix_dev_pp']:.1f} pp · doors N {m['facing']['N']}, E {m['facing']['E']}, "
                       f"S {m['facing']['S']}, W {m['facing']['W']} · cars {pk['total_supply']}/{pk['total_demand']} "
                       f"(P1 {pk['supply'][0]}/{pk['demand'][0]}, P2 {pk['supply'][1]}/{pk['demand'][1]}) · visitor bays {pk['visitor_bays']}/{pk['visitor_need']}", ""]
+                n = m["flats"] or 1
+                L += ["Mix: " + " · ".join(f"{t['label']} ({t['id']}) {m['mix_counts'].get(t['id'], 0)} = "
+                                          f"{m['mix_counts'].get(t['id'], 0) / n * 100:.1f}% (target {t['share'] * 100:.0f}%)"
+                                          for t in cfg["units"]["types"]), ""]
                 if name == next(iter(summary)):
                     L += _scheme_rows(s, cfg) + [""]
                     lv = m.get("levers")
