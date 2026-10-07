@@ -75,7 +75,7 @@ def scheme_json(s: Scheme, cfg: dict, label: str = "") -> dict:
         "penalties": s.penalties, "metrics": s.metrics, "sensitivity": s.sensitivity,
         "towers": [tower_json(t, cfg) for t in s.towers],
         "plates": {t.plate.key: plate_json(t.plate) for t in s.towers},
-        "layout": {"y_split": round(lay.y_split, 2), "podiums": [rings(p) for p in lay.podiums],
+        "layout": {"y_split": round(lay.y_split, 2) if lay.y_split is not None else None, "podiums": [rings(p) for p in lay.podiums],
                    "gap_band": rings(lay.gap_band), "visitor_strips": [r for v in lay.visitor_strips for r in rings(v)],
                    "visitor_bays": lay.visitor_bays},
     }

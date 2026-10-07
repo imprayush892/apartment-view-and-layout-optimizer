@@ -73,6 +73,7 @@ class Layout:
     podiums: list[Polygon]
     gap_band: Polygon
     raw_podiums: list[Polygon] = field(default_factory=list)  # before visitor strips are cut out
+    basements: list[Polygon] = field(default_factory=list)    # per phase; empty: split the basement at y_split
     visitor_strips: list[Polygon] = field(default_factory=list)
     visitor_bays: int = 0
     parking: dict = field(default_factory=dict)
@@ -317,6 +318,148 @@ def _podiums(site: FeasibilitySite, towers: list[Tower], cfg: dict, gap: float) 
     return Layout(towers, split, podiums, band, raw_podiums=list(podiums))
 
 
+# ------------------------------------------------------------------ chain placement (fixed tower count)
+def place_chain(site: FeasibilitySite, towers: list[Tower], cfg: dict, hints: list[str] | None = None) -> Layout | None:
+    """Place towers as one front-to-rear chain in the given order (a fixed arrangement).
+
+    Each tower takes the frontmost position its rules allow; ``hints`` ('E' or 'W' per tower) picks
+    the side, so the chain zig-zags as drawn. ``tower.podium`` sets the spacing rule (block setback
+    across podiums, ``same_podium_gap_m`` and the facing-overlap limit on one podium). The chain is
+    then spread over the leftover length and the podiums are split by distance, leaving a driveway
+    and visitor-bay band between them wherever they meet."""
+    b = cfg["building"]
+    sb = cfg["setbacks"]
+    res = float(cfg["search"]["raster_m"])
+    gap = float(cfg["access"]["driveway_m"]) + float(cfg["access"]["visitor_bay_d_m"])
+    hints = hints or ["E" if i % 2 == 0 else "W" for i in range(len(towers))]
+    grid = _Grid(site.podium_env.bounds, res)
+    placed: list[Tower] = []
+    for t, hint in zip(towers, hints):
+        h = t.height(b)
+        region = site.tower_envelope(h)
+        forbid = [p.footprint().buffer(_gap(t, p, cfg) - 1e-6, join_style="mitre") for p in placed]
+        if forbid:
+            region = region.difference(unary_union(forbid))
+        ok = grid.feasible(grid.mask(region), plate_boxes(t.plate))
+        if not ok.any():
+            return None
+        ii, jj = np.nonzero(ok)
+        xs = grid.x0 + jj * res
+        idx = np.lexsort((-xs if hint == "E" else xs, -ii))
+        chosen = None
+        for k in idx[:4000]:
+            x, y = grid.x0 + jj[k] * res, grid.y0 + ii[k] * res
+            fp = affinity.translate(t.plate.footprint, x, y)
+            if all(not _overlap_breach(fp, p, t, cfg) for p in placed if p.podium == t.podium):
+                chosen = (x, y)
+                break
+        if chosen is None:
+            return None
+        t.x, t.y = chosen
+        placed.append(t)
+    _spread_chain(site, towers, cfg)
+    lay = _podiums_free(site, towers, cfg, gap)
+    return lay
+
+
+def _gap(t: Tower, p: Tower, cfg: dict) -> float:
+    b, sb = cfg["building"], cfg["setbacks"]
+    if p.podium == t.podium:
+        return float(sb["same_podium_gap_m"])
+    return setback_for_height(max(t.height(b), p.height(b)), sb)
+
+
+def _overlap_breach(fp: Polygon, p: Tower, t: Tower, cfg: dict) -> bool:
+    b, sb = cfg["building"], cfg["setbacks"]
+    s = setback_for_height(max(t.height(b), p.height(b)), sb)
+    return fp.distance(p.footprint()) < s and facing_overlap(fp, p.footprint(), s) > float(sb["facing_overlap_max_m"]) + 1e-6
+
+
+def _valid(site: FeasibilitySite, t: Tower, others: list[Tower], cfg: dict) -> bool:
+    fp = t.footprint()
+    if not site.tower_envelope(t.height(cfg["building"])).buffer(1e-6).contains(fp):
+        return False
+    for p in others:
+        if fp.distance(p.footprint()) < _gap(t, p, cfg) - 1e-6:
+            return False
+        if p.podium == t.podium and _overlap_breach(fp, p, t, cfg):
+            return False
+    return True
+
+
+def _spread_chain(site: FeasibilitySite, towers: list[Tower], cfg: dict) -> None:
+    """Share the leftover length at the rear of the site between the gaps of the chain."""
+    n = len(towers)
+    if n < 2:
+        return
+    last = towers[-1]
+    room = 0.0
+    for step in (8.0, 4.0, 2.0, 1.0, 0.5):  # how far the rear tower can still move back
+        while True:
+            last.y -= step
+            if _valid(site, last, towers[:-1], cfg):
+                room += step
+            else:
+                last.y += step
+                break
+    last.y += room
+    for frac in (1.0, 0.75, 0.5, 0.25):
+        shifts = [room * frac * k / (n - 1) for k in range(n)]
+        for t, d in zip(towers, shifts):
+            t.y -= d
+        if all(_valid(site, t, [o for o in towers if o is not t], cfg) for t in towers):
+            return
+        for t, d in zip(towers, shifts):
+            t.y += d
+
+
+def _cells_union(mask: np.ndarray, grid: "_Grid"):
+    boxes = []
+    r = grid.r
+    for i in range(mask.shape[0]):
+        row = mask[i]
+        if not row.any():
+            continue
+        j = 0
+        while j < len(row):
+            if row[j]:
+                k = j
+                while k < len(row) and row[k]:
+                    k += 1
+                boxes.append(box(grid.x0 + j * r, grid.y0 + i * r, grid.x0 + k * r, grid.y0 + (i + 1) * r))
+                j = k
+            else:
+                j += 1
+    return unary_union(boxes) if boxes else Polygon()
+
+
+def _podiums_free(site: FeasibilitySite, towers: list[Tower], cfg: dict, gap: float) -> Layout:
+    """Podium of each phase = the podium envelope closer to its own towers, less a band of width
+    ``gap`` (driveway + visitor bays) wherever the two meet; the basement splits on the same line."""
+    import shapely
+    grid = _Grid(site.podium_env.bounds, 0.5)
+    env = site.podium_env
+    fa = unary_union([t.footprint() for t in towers if t.podium == 0])
+    fb = unary_union([t.footprint() for t in towers if t.podium == 1])
+    pts = shapely.points(grid.cx, grid.cy)
+    if fb.is_empty:
+        podiums, band = [env, Polygon()], Polygon()
+        basements = [site.basement_env, Polygon()]
+    else:
+        da, db = shapely.distance(pts, fa), shapely.distance(pts, fb)
+        inside = shapely.contains_xy(env.buffer(0.5), grid.cx, grid.cy)
+        ua = _cells_union(inside & (db - da >= gap), grid).buffer(0.01)
+        ub = _cells_union(inside & (da - db >= gap), grid).buffer(0.01)
+        pa = env.intersection(ua).union(fa.intersection(env))
+        pb = env.intersection(ub).difference(pa).union(fb.intersection(env))
+        band = env.difference(pa).difference(pb)
+        band = unary_union([g for g in getattr(band, "geoms", [band]) if g.area > 5.0]) if not band.is_empty else band
+        podiums = [pa, pb]
+        near_a = _cells_union(shapely.contains_xy(site.basement_env.buffer(0.5), grid.cx, grid.cy) & (da <= db), grid)
+        basements = [site.basement_env.intersection(near_a), site.basement_env.difference(near_a)]
+    return Layout(towers, None, podiums, band, raw_podiums=list(podiums), basements=basements)
+
+
 # ------------------------------------------------------------------ visitors and parking
 def visitors_and_parking(site: FeasibilitySite, lay: Layout, cfg: dict) -> None:
     pk = cfg["parking"]
@@ -331,9 +474,12 @@ def visitors_and_parking(site: FeasibilitySite, lay: Layout, cfg: dict) -> None:
     # 1) the bay strip alongside the driveway between the podiums
     if not lay.gap_band.is_empty:
         drive = float(acc["driveway_m"])
-        lo = lay.y_split - (drive + bd) / 2 + drive  # driveway in the lower part of the band, bays above it
-        strip = site.podium_env.intersection(box(-1e4, lo, 1e4, lo + bd))
-        n = _bays_in(strip, bw, clear)
+        if lay.y_split is not None:
+            lo = lay.y_split - (drive + bd) / 2 + drive  # driveway in the lower part of the band, bays above it
+            strip = site.podium_env.intersection(box(-1e4, lo, 1e4, lo + bd))
+        else:  # bays along the phase-1 side of the band
+            strip = lay.gap_band.intersection((lay.raw_podiums or lay.podiums)[0].buffer(bd, join_style="mitre"))
+        n = _bays_in(strip, bw, clear, bd)
         if n:
             strips.append(strip)
             bays += n
@@ -357,7 +503,7 @@ def visitors_and_parking(site: FeasibilitySite, lay: Layout, cfg: dict) -> None:
                     s = max(getattr(s, "geoms", [s]), key=lambda q: q.area) if not s.is_empty else s
                     if s.is_empty:
                         continue
-                    n = _bays_in(s, bw, clear)
+                    n = _bays_in(s, bw, clear, bd)
                     if n:
                         cands.append((n, g, s))
         cands.sort(key=lambda c: (-c[0], c[1]))
@@ -374,8 +520,11 @@ def visitors_and_parking(site: FeasibilitySite, lay: Layout, cfg: dict) -> None:
     lay.visitor_bays = bays
 
     # 3) cars: basement + GF + stilt 1 per phase
-    split = lay.y_split
-    halves = [box(-1e4, split, 1e4, 1e4), box(-1e4, -1e4, 1e4, split)]
+    if lay.basements:
+        bases = list(lay.basements)
+    else:
+        bases = [site.basement_env.intersection(box(-1e4, lay.y_split, 1e4, 1e4)),
+                 site.basement_env.intersection(box(-1e4, -1e4, 1e4, lay.y_split))]
     club = float(cfg["fsi"]["clubhouse_m2"])
     out = {"demand": demand, "flats": flats, "visitor_need": v_need, "visitor_bays": bays}
     for key in ("basement", "gf", "s1", "supply"):
@@ -383,7 +532,7 @@ def visitors_and_parking(site: FeasibilitySite, lay: Layout, cfg: dict) -> None:
     for g in (0, 1):
         tw = [t for t in lay.towers if t.podium == g]
         hubs = sum(t.plate.hub.area + t.plate.lobby.difference(t.plate.hub).area for t in tw)
-        base = site.basement_env.intersection(halves[g]).area
+        base = bases[g].area
         b_use = base - hubs - float(pk["basement_services_m2"]) / 2 - float(pk["basement_services_per_tower_m2"]) * len(tw) \
             - (float(pk["ramp_basement_m2"]) if tw else 0)
         pod = podiums[g].area
@@ -401,12 +550,16 @@ def visitors_and_parking(site: FeasibilitySite, lay: Layout, cfg: dict) -> None:
     lay.parking = out
 
 
-def _bays_in(strip, bw: float, clear: float) -> int:
+def _bays_in(strip, bw: float, clear: float, depth: float | None = None) -> int:
+    """Perpendicular bays along a strip: its length (area / depth, or its long side) less end clearances."""
     if strip.is_empty:
         return 0
-    mrr = strip.minimum_rotated_rectangle
-    xs = list(mrr.exterior.coords)
-    L = max(math.dist(xs[0], xs[1]), math.dist(xs[1], xs[2]))
+    if depth:
+        L = strip.area / depth
+    else:
+        mrr = strip.minimum_rotated_rectangle
+        xs = list(mrr.exterior.coords)
+        L = max(math.dist(xs[0], xs[1]), math.dist(xs[1], xs[2]))
     return max(0, int((L - 2 * clear) // bw))
 
 

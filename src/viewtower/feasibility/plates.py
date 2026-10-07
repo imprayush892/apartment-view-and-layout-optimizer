@@ -129,9 +129,16 @@ def unit_builtup_m2(cfg: dict) -> dict[str, float]:
     return {t["id"]: t["carpet_ft2"] / FT2_PER_M2 * f for t in cfg["units"]["types"]}
 
 
-def assign_slots(variant: str, composition: tuple[str, ...], carpet: dict[str, float]) -> dict[str, str]:
-    """Largest units to the best slots (door facing first, then outlook)."""
-    slots = [s for s in SLOT_ORDER if s in VARIANTS[variant]]
+# 'compact': the two largest units take the end flats and each arm pairs units of similar size,
+# which keeps the plate narrow (wing lengths match) at some cost in door facing
+COMPACT_ORDER = ("S_end", "N_end", "W_S", "W_N", "E_S", "E_N")
+
+
+def assign_slots(variant: str, composition: tuple[str, ...], carpet: dict[str, float],
+                 strategy: str = "value") -> dict[str, str]:
+    """'value': largest units to the best slots (door facing first, then outlook); 'compact': see above."""
+    order = COMPACT_ORDER if strategy == "compact" else SLOT_ORDER
+    slots = [s for s in order if s in VARIANTS[variant]]
     units = sorted(composition, key=lambda u: (-carpet[u], u))
     return dict(zip(slots, units))
 

@@ -82,6 +82,21 @@ parking:
   ramp_gf_m2: 400           # per podium: ramp down to the basement and up to stilt 1
   ramp_s1_m2: 150
 
+fixed:                      # a fixed tower arrangement (viewtower feasibility --fixed): towers front to rear
+  podiums: [0, 0, 1, 1]     # phase (podium) of each tower
+  sides: [E, W, E, W]       # side of the site each tower takes, so the chain zig-zags
+  scenarios: [mixed, targeted]
+  variants: [X6, X5, X5b]
+  arm_depth_m: [21.0, 23.0]
+  end_width_m: [13.0, 14.0, 15.0]
+  assignment: [value, compact]
+  min_floors: 15
+  mix_tol_pp: 1.0           # every unit type within this many percentage points of its share (hard)
+  fsi_band: 0.10            # FSI no further than this below the target, never above the cap (hard)
+  max_solves: 40
+  options: 3                # options reported per scenario
+  weights: {fsi: 1, mix: 1, south: 20, height_spread: 1000, phase: 1}
+
 readings:                   # sensitivity runs: name -> (label, config override); base is always run
   eia_additional: {label: "EIA belt added to the setback", override: {eia: {mode: additional}, search: {prefilter_keep: 250, groupings_per_set: 1, fsi_floor_gap: 1.6}}}
   osr_setback: {label: "Full height setback from the OSR", override: {setbacks: {osr_gap: setback}, search: {prefilter_keep: 250, groupings_per_set: 1, fsi_floor_gap: 1.6}}}

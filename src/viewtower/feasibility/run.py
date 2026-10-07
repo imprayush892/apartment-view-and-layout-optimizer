@@ -41,14 +41,23 @@ def scatter_point(s, link: str | None) -> dict:
 
 
 def run_project(cfg_path: str | Path, out_dir: str | Path, readings: list[str] | None = None, quick: bool = False,
-                workers: int | None = None, progress=print) -> dict:
+                workers: int | None = None, progress=print, fixed: bool = False) -> dict:
+    """Search the plot (or, with ``fixed``, the arrangement in ``fixed:``) and write every output."""
+    from viewtower.feasibility.fixed import solve_fixed
+
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     base = fconfig.load(cfg_path, QUICK if quick else None)
-    defs = [("base", "Base reading", {})]
+    if fixed:
+        n = len(base["fixed"]["podiums"])
+        defs = [("fixed", f"Fixed arrangement: {n} towers on 2 podiums", {})]
+        readings = [] if readings is None else readings
+    else:
+        defs = [("base", "Base reading", {})]
     for k, v in (base.get("readings") or {}).items():
         if readings is None or k in readings:
             defs.append((k, v["label"], v["override"]))
+    slug = base.get("slug", "scheme") + ("_fixed" if fixed else "")
     top_n = int(base["search"]["top_n"])
     variants, summary, files = {}, {}, []
     for name, label, ov in defs:
@@ -60,7 +69,7 @@ def run_project(cfg_path: str | Path, out_dir: str | Path, readings: list[str] |
             res = pickle.loads(cache.read_bytes())
             progress(f"{name}: reusing {cache.name}")
         else:
-            res = search(cfg, progress=progress, workers=workers)
+            res = (solve_fixed if fixed else search)(cfg, progress=progress, workers=workers)
             cache.write_bytes(pickle.dumps(res))
         vjson = {"label": label, "site": site_json(site, cfg), "schemes": {}, "scatter": []}
         summary[name] = {"label": label, "site": site.summary(), "best": {}}
@@ -74,19 +83,19 @@ def run_project(cfg_path: str | Path, out_dir: str | Path, readings: list[str] |
                     links[s.sid] = f"{sc}|{mode}|{i}"
                 if top:
                     summary[name]["best"].setdefault(sc, {})[mode] = top
-                    if name == "base":
+                    if name == defs[0][0]:
                         for i, s in enumerate(top[:2]):
-                            fn = out / f"{cfg.get('slug', 'scheme')}_{sc}_{mode}_{i + 1}.dxf"
+                            fn = out / f"{slug}_{sc}_{mode}_{i + 1}.dxf"
                             write_scheme_dxf(fn, s, site, cfg, f"{cfg.get('project', '')} · {sc} · {mode} · option {i + 1}: {label_for(s)}")
                             files.append(fn)
             vjson["scatter"] += [scatter_point(s, links.get(s.sid)) for s in schemes]
         variants[name] = vjson
     data = {"title": f"{base.get('project', 'Feasibility')} · massing and unit-mix options",
             "subtitle": _subtitle(base), "basis": basis_json(base), "variants": variants, "notes": notes(base)}
-    files.append(write_viewer(out / f"{base.get('slug', 'scheme')}_viewer.html", data))
-    (out / f"{base.get('slug', 'scheme')}_results.json").write_text(json.dumps(data, indent=1, default=str), encoding="utf-8")
-    files.append(out / f"{base.get('slug', 'scheme')}_results.json")
-    files.append(write_report(out / f"{base.get('slug', 'scheme')}_report.md", base, summary))
+    files.append(write_viewer(out / f"{slug}_viewer.html", data))
+    (out / f"{slug}_results.json").write_text(json.dumps(data, indent=1, default=str), encoding="utf-8")
+    files.append(out / f"{slug}_results.json")
+    files.append(write_report(out / f"{slug}_report.md", base, summary))
     return {"files": [str(f) for f in files], "summary": summary}
 
 

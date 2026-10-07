@@ -209,7 +209,7 @@ const css = (name) => getComputedStyle(document.documentElement).getPropertyValu
 const UNIT_IDS = B.units.map(u => u.id);
 const UNIT_VAR = Object.fromEntries(UNIT_IDS.map((u, i) => [u, `--u${i + 1}`]));
 const SEG_LABEL = { middle: "Middle", upper_middle: "Upper-middle", luxury: "Luxury", mixed: "Mixed" };
-const SCEN_LABEL = { segregated: "A · Segregated towers", mixed: "B · Mixed towers" };
+const SCEN_LABEL = { segregated: "A · Segregated towers", targeted: "A · Targeted towers (price bands)", mixed: "B · Mixed towers" };
 const MODE_LABEL = { target: "At FSI " + B.fsi.target, compliant: "All rules met" };
 const state = { variant: Object.keys(DATA.variants)[0], scenario: null, mode: "target", idx: 0, colorBy: "unit", cut: 99,
   layers: { widening: true, green: true, osr: true, drive: true, podium: true, visitor: true, basement: false, setback: true, flats: true, doors: true, labels: true } };

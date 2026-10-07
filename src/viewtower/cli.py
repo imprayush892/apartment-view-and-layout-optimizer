@@ -64,13 +64,14 @@ def main(argv=None) -> int:
     f.add_argument("--out", default="out/feasibility")
     f.add_argument("--readings", nargs="*", default=None, help="sensitivity readings to run (default: all in the config)")
     f.add_argument("--quick", action="store_true", help="small search, for a first look")
+    f.add_argument("--fixed", action="store_true", help="solve the fixed tower arrangement in the config's fixed: section")
     f.add_argument("--workers", type=int, default=None)
     args = ap.parse_args(argv)
 
     if args.cmd == "feasibility":
         from viewtower.feasibility.run import run_project
         res = run_project(args.config, args.out, readings=args.readings, quick=args.quick, workers=args.workers,
-                          progress=lambda m: print(m, file=sys.stderr, flush=True))
+                          progress=lambda m: print(m, file=sys.stderr, flush=True), fixed=args.fixed)
         for fn in res["files"]:
             print(fn)
         return 0

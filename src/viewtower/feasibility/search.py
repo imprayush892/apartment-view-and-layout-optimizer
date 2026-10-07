@@ -67,10 +67,10 @@ class PlateBook:
         self.carpet = {t["id"]: t["carpet_ft2"] for t in cfg["units"]["types"]}
         self._c: dict = {}
 
-    def get(self, variant: str, comp: tuple[str, ...], cr: float, wend: float) -> Plate:
-        key = (variant, comp, cr, wend)
+    def get(self, variant: str, comp: tuple[str, ...], cr: float, wend: float, strategy: str = "value") -> Plate:
+        key = (variant, comp, cr, wend, strategy)
         if key not in self._c:
-            asg = assign_slots(variant, comp, self.carpet)
+            asg = assign_slots(variant, comp, self.carpet, strategy)
             self._c[key] = build_plate(variant, asg, self.area, self.cfg["plates"], cr, wend)
         return self._c[key]
 

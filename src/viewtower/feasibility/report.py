@@ -5,7 +5,8 @@ from pathlib import Path
 
 from viewtower.feasibility.search import unit_table
 
-SCEN = {"segregated": "A · segregated towers (middle / upper-middle / luxury)", "mixed": "B · mixed towers"}
+SCEN = {"segregated": "A · segregated towers (middle / upper-middle / luxury)", "mixed": "B · mixed towers",
+        "targeted": "A · targeted towers (one price band each)"}
 MODE = {"target": "floors set for the FSI target", "compliant": "every rule met, parking included"}
 
 
@@ -53,7 +54,7 @@ def write_report(path: str | Path, cfg: dict, summary: dict) -> Path:
                       f"tallest {m['max_height']:.1f} m · mix within {m['mix_dev_pp']:.1f} pp · doors N {m['facing']['N']}, E {m['facing']['E']}, "
                       f"S {m['facing']['S']}, W {m['facing']['W']} · cars {pk['total_supply']}/{pk['total_demand']} "
                       f"(P1 {pk['supply'][0]}/{pk['demand'][0]}, P2 {pk['supply'][1]}/{pk['demand'][1]}) · visitor bays {pk['visitor_bays']}/{pk['visitor_need']}", ""]
-                if name == "base":
+                if name == next(iter(summary)):
                     L += _scheme_rows(s, cfg) + [""]
                     lv = m.get("levers")
                     if mode == "target" and lv and lv["shortfall_cars"] > 0:
