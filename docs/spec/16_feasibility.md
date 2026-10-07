@@ -125,6 +125,37 @@ towers moves the podium split and so each phase's parking, so every placed set i
 floors at its own positions, sets that do not park are cut, and a short podium's cap is lowered by its
 shortfall every second miss.
 
+## Room layouts (`--rooms`)
+
+With `--rooms`, every flat of the leading schemes (`rooms.schemes` per scenario, in each of
+`rooms.modes`) is laid out room by room (`rooms.py`). The flat is mapped to a canonical frame (main
+facade first, exterior side facade at the left) and its rooms are axis-aligned rectangles on a 0.3 m
+grid that tile it exactly, around the lobby notch and the ventilation shaft. The room programme comes
+from the unit label (1, 2, 2.5, 3, 3 Plus, 3 Large, 3.5, 4 BHK) or `units.types[].program`, with target
+areas scaled to the flat. CP-SAT holds, as hard rules (after NBC 2016 Part 3):
+
+* light and air: living, bedrooms and study on an exterior wall long enough for a window of a tenth
+  of the room's area (1.5 m high), no point more than 7.5 m from it, or lit the same way through the
+  balcony (an open verandah under 2.4 m deep, as NBC allows); the kitchen has a window or opens to an
+  exterior utility;
+* shafts: every toilet has a ventilator on the facade or on the shaft that twin wing flats share
+  across their party wall, open to sky and reached from the lobby (`rooms.shaft_w_m` x
+  `rooms.shaft_d_m`, 2.4 x 3.4 m by default: NBC asks about 8 m2 with a 2.4 m side above 30 m, with
+  mechanical exhaust besides);
+* access: the foyer takes the main door; foyer, living, dining and passage form one circulation;
+  bedrooms, kitchen, study, pooja and the common toilet open off it, attached toilets and dress off
+  their bedroom, the utility off the kitchen, the balcony off the living;
+* sizes: net of walls, bedrooms 9.5 / 7.5 m2, kitchen 5 m2, bath + WC 2.8 m2; room proportions at most
+  1 : 2.2.
+
+Soft: each room's target area, a second exposure for living and master bedroom, kitchen windows,
+bedrooms off the passage, and the Vastu placements (kitchen south-east, master bedroom south-west,
+pooja north-east, no toilet north-east). Each flat is tried with the work budgets in `rooms.solve_s`
+until every check passes; a recurring flat is solved once and a mirror twin starts from its sibling.
+Results are cached in the output folder. The viewer and the DXF typical floors then show each room
+(name, net size), windows, ventilators, inner doors and shafts, and the report gives a room schedule
+per unit type, the carpet in plan against the nominal carpet, and every failed check.
+
 ## Outputs
 
 * one DXF per leading scheme (metres, true north up): plot, widening, net plot, OSR, EIA belt, driveway,

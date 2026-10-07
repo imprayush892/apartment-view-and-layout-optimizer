@@ -21,6 +21,8 @@ LAYERS = {
     "A-BASEMENT": (9, "DASHED"), "A-SETBACK": (1, "DASHED"), "A-TOWER": (7, "CONTINUOUS"),
     "A-CORE": (250, "CONTINUOUS"), "A-LOBBY": (9, "CONTINUOUS"), "A-DOOR": (6, "CONTINUOUS"),
     "A-TEXT": (7, "CONTINUOUS"), "A-TABLE": (7, "CONTINUOUS"), "A-NORTH": (7, "CONTINUOUS"),
+    "A-ROOM": (8, "CONTINUOUS"), "A-ROOM-TEXT": (7, "CONTINUOUS"), "A-WINDOW": (4, "CONTINUOUS"),
+    "A-VENT": (140, "CONTINUOUS"), "A-DOOR-INT": (6, "CONTINUOUS"), "A-SHAFT": (5, "CONTINUOUS"),
 }
 UNIT_ACI = {"U1": 41, "U2": 51, "U3": 131, "U4": 171, "U5": 211}
 HATCH = {"A-ROAD-WIDENING": ("ANSI31", 1, 1.0), "A-OSR": ("SOLID", 3, None), "A-EIA-GREEN": ("SOLID", 82, None),
@@ -57,16 +59,37 @@ def _text(msp, s, x, y, h=1.2, layer="A-TEXT", align=TextEntityAlignment.MIDDLE_
     return t
 
 
-def _plate(msp, plate, dx, dy, detail=True, unit_label=None, text_h=0.9):
+def _plate(msp, plate, dx, dy, detail=True, unit_label=None, text_h=0.9, rooms=None):
+    """A floor plate; with ``rooms`` (its room layout) each flat is drawn room by room and its unit
+    label moves outside the facade."""
+    fl_rooms = (rooms or {}).get("flats", {})
     for f in plate.flats:
         _poly(msp, f.poly, f"A-UNIT-{f.unit}", dx, dy)
         (a, b) = f.door
         msp.add_line((a[0] + dx, a[1] + dy), (b[0] + dx, b[1] + dy), dxfattribs={"layer": "A-DOOR", "lineweight": 50})
+        lay = fl_rooms.get(f.slot)
+        if lay and lay["rooms"]:
+            _rooms(msp, lay, dx, dy, text_h * 0.55)
         if detail:
             c = f.poly.representative_point()
             lines = unit_label(f) if unit_label else [f.unit]
-            for i, s in enumerate(lines):
-                _text(msp, s, c.x + dx, c.y + dy + (len(lines) / 2 - i - 0.5) * text_h * 1.5, text_h)
+            if lay and lay["rooms"]:  # outside the outer facade, away from the hub
+                bx = f.poly.bounds
+                ox, oy = (1 if c.x > 0.5 else -1 if c.x < -0.5 else 0), (1 if c.y > 0.5 else -1 if c.y < -0.5 else 0)
+                if f.slot.endswith("_end"):
+                    ox = 0
+                else:
+                    oy = 0
+                cx = (bx[2] + 2.5) if ox > 0 else (bx[0] - 2.5) if ox < 0 else c.x
+                cy = (bx[3] + 1.2 + len(lines) * text_h * 0.75) if oy > 0 else (bx[1] - 1.2 - len(lines) * text_h * 0.75) \
+                    if oy < 0 else c.y
+                al = TextEntityAlignment.MIDDLE_LEFT if ox > 0 else TextEntityAlignment.MIDDLE_RIGHT if ox < 0 \
+                    else TextEntityAlignment.MIDDLE_CENTER
+                for i, s in enumerate(lines):
+                    _text(msp, s, cx + dx, cy + dy + (len(lines) / 2 - i - 0.5) * text_h * 1.5, text_h, align=al)
+            else:
+                for i, s in enumerate(lines):
+                    _text(msp, s, c.x + dx, c.y + dy + (len(lines) / 2 - i - 0.5) * text_h * 1.5, text_h)
             # facing arrow: from the door towards the facing direction
             mx, my = (a[0] + b[0]) / 2 + dx, (a[1] + b[1]) / 2 + dy
             vx, vy = {"N": (0, 1), "E": (1, 0), "S": (0, -1), "W": (-1, 0)}[f.door_dir]
@@ -82,7 +105,28 @@ def _plate(msp, plate, dx, dy, detail=True, unit_label=None, text_h=0.9):
     _poly(msp, plate.footprint, "A-TOWER", dx, dy)
 
 
-def write_scheme_dxf(path: str | Path, scheme: Scheme, site: FeasibilitySite, cfg: dict, title: str = "") -> Path:
+def _rooms(msp, lay, dx, dy, h):
+    """Rooms of one flat: outlines, name and net size, windows, ventilators and inner doors."""
+    for r in lay["rooms"]:
+        pts = [(x + dx, y + dy) for x, y in r["poly"]]
+        msp.add_lwpolyline(pts, close=True, dxfattribs={"layer": "A-ROOM"})
+        cx, cy = sum(p[0] for p in pts) / 4, sum(p[1] for p in pts) / 4
+        net_w, net_d = max(0.0, r["w"] - 0.15), max(0.0, r["d"] - 0.15)
+        _text(msp, r["code"], cx, cy + h * 0.7, h, "A-ROOM-TEXT")
+        _text(msp, f"{net_w:.2f}x{net_d:.2f}", cx, cy - h * 0.7, h * 0.8, "A-ROOM-TEXT")
+        for layer, segs in (("A-WINDOW", r["windows"]), ("A-VENT", r["vents"])):
+            for (x0, y0), (x1, y1) in segs:
+                msp.add_line((x0 + dx, y0 + dy), (x1 + dx, y1 + dy), dxfattribs={"layer": layer, "lineweight": 70})
+    for d in lay["doors"]:
+        if d["width"] and d["a"] != "ENTRY":
+            (x0, y0), (x1, y1) = d["seg"]
+            msp.add_line((x0 + dx, y0 + dy), (x1 + dx, y1 + dy), dxfattribs={"layer": "A-DOOR-INT", "lineweight": 50})
+
+
+def write_scheme_dxf(path: str | Path, scheme: Scheme, site: FeasibilitySite, cfg: dict, title: str = "",
+                     rooms: dict | None = None) -> Path:
+    """Site plan, towers, enlarged typical floors (room by room for plates in ``rooms``) and the
+    area statement of one scheme."""
     doc = _doc()
     msp = doc.modelspace()
     b = cfg["building"]
@@ -149,7 +193,11 @@ def write_scheme_dxf(path: str | Path, scheme: Scheme, site: FeasibilitySite, cf
     for p in plates:
         fb = p.footprint.bounds
         dx, dy = ox - fb[0], oy - fb[3]
-        _plate(msp, p, dx, dy, detail=True, unit_label=label, text_h=0.7)
+        pr = (rooms or {}).get(p.key)
+        _plate(msp, p, dx, dy, detail=True, unit_label=label, text_h=0.7, rooms=pr)
+        for sh in (pr or {}).get("shafts", []):
+            msp.add_lwpolyline([(x + dx, y + dy) for x, y in sh], close=True, dxfattribs={"layer": "A-SHAFT"})
+            _text(msp, "SHAFT", sum(x for x, _ in sh[:4]) / 4 + dx, sum(y for _, y in sh[:4]) / 4 + dy, 0.35, "A-SHAFT")
         towers = ", ".join(t.name for t in scheme.towers if t.plate.key == p.key)
         _text(msp, f"Typical floor {p.variant} ({towers})", ox, oy + 3, 1.8, align=TextEntityAlignment.LEFT)
         fac = p.facing()

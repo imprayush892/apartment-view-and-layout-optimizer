@@ -190,3 +190,32 @@ def test_quick_search_is_deterministic_and_exports(cfg, tmp_path):
                                                                     "scatter": []}}})
     text = Path(html).read_text()
     assert "__DATA__" not in text and "const DATA = {" in text
+
+
+def test_room_programme_follows_the_unit_label():
+    from viewtower.feasibility.rooms import program_for
+    assert [program_for(x) for x in ("1 BHK", "2 BHK", "2.5 BHK", "3 BHK", "3 BHK Plus", "3 BHK Large", "3.5 BHK", "4 BHK")] \
+        == ["1BHK", "2BHK", "2.5BHK", "3BHK", "3BHK+", "3BHK-L", "3.5BHK", "4BHK"]
+
+
+def test_room_layout_tiles_the_flat_and_meets_the_rules(cfg):
+    from shapely.geometry import box as sbox
+    from viewtower.feasibility.rooms import KINDS, NBC_MIN, WALL, frames, solve_flat, unit_programs
+    book = PlateBook(cfg)
+    p = book.get("X5b", ("U1", "U2", "U2", "U3", "U3"), 21.0, 11.5)
+    fr = next(f for f in frames(p, cfg["rooms"]) if f.unit == "U1")
+    lay = solve_flat(fr, unit_programs(cfg)["U1"], cfg["rooms"], time_s=10)
+    assert lay.rooms, lay.status
+    assert all(ok for ok, _ in lay.checks), [t for ok, t in lay.checks if not ok]
+    fx = lay.frame
+    rects = [sbox(*r.rect) for r in lay.rooms]
+    fixed = sum(sbox(*q).area for q in (fx.notch, fx.shaft) if q)
+    assert sum(r.area for r in rects) == pytest.approx(fx.W * fx.D - fixed, abs=1e-6)  # tiles the flat
+    assert all(a.intersection(b).area < 1e-9 for i, a in enumerate(rects) for b in rects[i + 1:])
+    for r in lay.rooms:
+        if KINDS[r.code]["ext"] == "hab" and r.code != "LIV":
+            assert r.windows, r.code
+        if KINDS[r.code]["ext"] == "vent":
+            assert r.vents, r.code
+        if r.code in NBC_MIN:
+            assert (r.rect[2] - r.rect[0] - WALL) * (r.rect[3] - r.rect[1] - WALL) >= NBC_MIN[r.code] - 1e-6

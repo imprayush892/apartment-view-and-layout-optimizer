@@ -41,8 +41,9 @@ def scatter_point(s, link: str | None) -> dict:
 
 
 def run_project(cfg_path: str | Path, out_dir: str | Path, readings: list[str] | None = None, quick: bool = False,
-                workers: int | None = None, progress=print, fixed: bool = False) -> dict:
-    """Search the plot (or, with ``fixed``, the arrangement in ``fixed:``) and write every output."""
+                workers: int | None = None, progress=print, fixed: bool = False, rooms: bool = False) -> dict:
+    """Search the plot (or, with ``fixed``, the arrangement in ``fixed:``) and write every output; with
+    ``rooms``, lay out the rooms of every flat in the leading schemes of the first reading."""
     from viewtower.feasibility.fixed import solve_fixed
 
     out = Path(out_dir)
@@ -59,18 +60,20 @@ def run_project(cfg_path: str | Path, out_dir: str | Path, readings: list[str] |
             defs.append((k, v["label"], v["override"]))
     slug = base.get("slug", "scheme") + ("_fixed" if fixed else "")
     top_n = int(base["search"]["top_n"])
-    variants, summary, files = {}, {}, []
+    variants, summary, files, room_data = {}, {}, [], {}
     for name, label, ov in defs:
         cfg = fconfig.load(cfg_path, deep_merge(ov, QUICK) if quick else ov)
         site = FeasibilitySite.build(cfg)
         progress(f"== reading '{name}': {label}")
-        cache = out / f".cache_{name}_{stable_hash(cfg)}.pkl"
+        cache = out / f".cache_{name}_{stable_hash({k: v for k, v in cfg.items() if k != 'rooms'})}.pkl"  # rooms do not change the search
         if cache.exists():
             res = pickle.loads(cache.read_bytes())
             progress(f"{name}: reusing {cache.name}")
         else:
             res = (solve_fixed if fixed else search)(cfg, progress=progress, workers=workers)
             cache.write_bytes(pickle.dumps(res))
+        if rooms and name == defs[0][0]:
+            room_data = _room_layouts(res, cfg, out, progress)
         vjson = {"label": label, "site": site_json(site, cfg), "schemes": {}, "scatter": []}
         summary[name] = {"label": label, "site": site.summary(), "best": {}}
         for sc, schemes in res.items():
@@ -78,7 +81,7 @@ def run_project(cfg_path: str | Path, out_dir: str | Path, readings: list[str] |
             links = {}
             for mode in ("target", "compliant"):
                 top = ranked(schemes, mode, top_n)
-                vjson["schemes"][sc][mode] = [scheme_json(s, cfg, label_for(s)) for s in top]
+                vjson["schemes"][sc][mode] = [scheme_json(s, cfg, label_for(s), room_data) for s in top]
                 for i, s in enumerate(top):
                     links[s.sid] = f"{sc}|{mode}|{i}"
                 if top:
@@ -86,7 +89,8 @@ def run_project(cfg_path: str | Path, out_dir: str | Path, readings: list[str] |
                     if name == defs[0][0]:
                         for i, s in enumerate(top[:2]):
                             fn = out / f"{slug}_{sc}_{mode}_{i + 1}.dxf"
-                            write_scheme_dxf(fn, s, site, cfg, f"{cfg.get('project', '')} · {sc} · {mode} · option {i + 1}: {label_for(s)}")
+                            write_scheme_dxf(fn, s, site, cfg, f"{cfg.get('project', '')} · {sc} · {mode} · option {i + 1}: {label_for(s)}",
+                                             rooms=room_data)
                             files.append(fn)
             vjson["scatter"] += [scatter_point(s, links.get(s.sid)) for s in schemes]
         variants[name] = vjson
@@ -95,8 +99,33 @@ def run_project(cfg_path: str | Path, out_dir: str | Path, readings: list[str] |
     files.append(write_viewer(out / f"{slug}_viewer.html", data))
     (out / f"{slug}_results.json").write_text(json.dumps(data, indent=1, default=str), encoding="utf-8")
     files.append(out / f"{slug}_results.json")
-    files.append(write_report(out / f"{slug}_report.md", base, summary))
+    files.append(write_report(out / f"{slug}_report.md", base, summary, room_data))
     return {"files": [str(f) for f in files], "summary": summary}
+
+
+def _room_layouts(res: dict, cfg: dict, out: Path, progress) -> dict:
+    """Room layouts (JSON per plate key) for the plates of the ``rooms.schemes`` leading schemes of
+    each scenario in each of ``rooms.modes``; cached in the output folder by plate and room rules."""
+    from viewtower.feasibility.rooms import layout_plate
+
+    n = int(cfg["rooms"]["schemes"])
+    plates = {}
+    for schemes in res.values():
+        for mode in cfg["rooms"].get("modes", ("target", "compliant")):
+            for s in ranked(schemes, mode, n):
+                for t in s.towers:
+                    plates.setdefault(t.plate.key, t.plate)
+    rules = {"rooms": {k: v for k, v in cfg["rooms"].items() if k not in ("schemes", "modes")}, "units": cfg["units"],
+             "plates": cfg["plates"]}
+    fn = out / f".rooms_{stable_hash(rules)}.pkl"
+    data = pickle.loads(fn.read_bytes()) if fn.exists() else {}
+    cache: dict = {}
+    for key, p in plates.items():
+        if key not in data:
+            progress(f"rooms: plate {key}")
+            data[key] = layout_plate(p, cfg, cache, progress)
+            fn.write_bytes(pickle.dumps(data))
+    return {k: data[k] for k in plates}
 
 
 def _subtitle(cfg: dict) -> str:

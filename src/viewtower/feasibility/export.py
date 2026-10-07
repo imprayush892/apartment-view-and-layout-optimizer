@@ -41,7 +41,8 @@ def site_json(site: FeasibilitySite, cfg: dict) -> dict:
     }
 
 
-def plate_json(p: Plate) -> dict:
+def plate_json(p: Plate, rooms: dict | None = None) -> dict:
+    """A plate in its local frame; ``rooms`` is its room layout (:func:`rooms.layout_plate`), if any."""
     return {
         "key": p.key, "variant": p.variant, "arm_depth": p.arm_depth, "end_width": p.end_width,
         "width": round(p.width, 2), "depth": round(p.depth, 2), "area_m2": round(p.area_m2, 2),
@@ -52,6 +53,7 @@ def plate_json(p: Plate) -> dict:
         "flats": [{"slot": f.slot, "unit": f.unit, "area_m2": round(f.area_m2, 2), "poly": rings(f.poly)[0],
                    "door": [[round(x, 2), round(y, 2)] for x, y in f.door], "door_dir": f.door_dir,
                    "outlook": f.outlook, "exterior_m": f.exterior_m} for f in p.flats],
+        "rooms": rooms,
     }
 
 
@@ -68,13 +70,13 @@ def tower_json(t: Tower, cfg: dict) -> dict:
     }
 
 
-def scheme_json(s: Scheme, cfg: dict, label: str = "") -> dict:
+def scheme_json(s: Scheme, cfg: dict, label: str = "", rooms: dict | None = None) -> dict:
     lay = s.layout
     return {
         "id": s.sid, "label": label, "scenario": s.scenario, "mode": s.mode, "score": s.score,
         "penalties": s.penalties, "metrics": s.metrics, "sensitivity": s.sensitivity,
         "towers": [tower_json(t, cfg) for t in s.towers],
-        "plates": {t.plate.key: plate_json(t.plate) for t in s.towers},
+        "plates": {t.plate.key: plate_json(t.plate, (rooms or {}).get(t.plate.key)) for t in s.towers},
         "layout": {"y_split": round(lay.y_split, 2) if lay.y_split is not None else None, "podiums": [rings(p) for p in lay.podiums],
                    "gap_band": rings(lay.gap_band), "visitor_strips": [r for v in lay.visitor_strips for r in rings(v)],
                    "visitor_bays": lay.visitor_bays},

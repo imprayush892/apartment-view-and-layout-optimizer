@@ -15,6 +15,8 @@
   --lvl-b: #184f95; --lvl-g: #2a78d6; --lvl-s: #6da7ec;
   --plot: #ecebe6; --widening: #f1c9c4; --osr: #a9d8a0; --green: #cfe9c0; --drive: #d9d8d3; --podium: #efe0c3;
   --visitor: #b9d2f2; --core: #4b4a46; --lobby: #e4e3dd; --accent: #c25a2c;
+  --room-day: #f6ead6; --room-bed: #e3ecf8; --room-wet: #dcefee; --room-kit: #f7dfd4; --room-out: #e2f0dc;
+  --window: #2a78d6; --vent: #1baf7a; --door-int: #c25a2c;
 }
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
@@ -26,6 +28,8 @@
     --lvl-b: #6da7ec; --lvl-g: #3987e5; --lvl-s: #1c5cab;
     --plot: #262624; --widening: #5a2f2b; --osr: #2f5a2a; --green: #2a4426; --drive: #34342f; --podium: #4a3f2c;
     --visitor: #24456e; --core: #c3c2b7; --lobby: #3a3a36; --accent: #e07a48;
+    --room-day: #3a3326; --room-bed: #24303f; --room-wet: #1f3533; --room-kit: #3d2b24; --room-out: #26361f;
+    --window: #6da7ec; --vent: #2fc48e; --door-int: #e07a48;
   }
 }
 :root[data-theme="dark"] {
@@ -37,6 +41,8 @@
   --lvl-b: #6da7ec; --lvl-g: #3987e5; --lvl-s: #1c5cab;
   --plot: #262624; --widening: #5a2f2b; --osr: #2f5a2a; --green: #2a4426; --drive: #34342f; --podium: #4a3f2c;
   --visitor: #24456e; --core: #c3c2b7; --lobby: #3a3a36; --accent: #e07a48;
+  --room-day: #3a3326; --room-bed: #24303f; --room-wet: #1f3533; --room-kit: #3d2b24; --room-out: #26361f;
+  --window: #6da7ec; --vent: #2fc48e; --door-int: #e07a48;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -85,6 +91,7 @@ td { font-variant-numeric: tabular-nums; }
 .ico { font-weight: 700; width: 16px; text-align: center; flex: none; }
 .plates { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
 .plates figure { margin: 0; }
+.plates figure.rooms { grid-column: 1 / -1; }
 .plates figcaption { color: var(--ink-2); font-size: 12.5px; margin-top: 4px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--ink-2); margin: 4px 0 8px; }
 .legend span { display: inline-flex; gap: 6px; align-items: center; }
@@ -564,8 +571,10 @@ function renderPlates() {
     if (seen.includes(t.plate)) continue; seen.push(t.plate);
     const p = S.plates[t.plate]; const names = S.towers.filter(x => x.plate === t.plate).map(x => x.name).join(", ");
     const xs = p.footprint[0].map(q => q[0]), ys = p.footprint[0].map(q => q[1]);
-    const minx = Math.min(...xs) - 4, maxx = Math.max(...xs) + 4, miny = Math.min(...ys) - 4, maxy = Math.max(...ys) + 4;
-    let s = `<svg viewBox="${minx} ${-maxy} ${maxx - minx} ${maxy - miny}" width="100%" style="max-height:420px">`;
+    const R = p.rooms, mg = R ? 9 : 4;
+    const minx = Math.min(...xs) - mg, maxx = Math.max(...xs) + mg, miny = Math.min(...ys) - mg + (R ? 3 : 0), maxy = Math.max(...ys) + mg - (R ? 3 : 0);
+    let s = `<svg viewBox="${minx} ${-maxy} ${maxx - minx} ${maxy - miny}" width="100%" style="max-height:${R ? 860 : 420}px">`;
+    if (R) { s += roomPlate(p, R); h += `<figure class="rooms">${s}</svg>${plateCaption(p, names)}${roomNote(p, R)}</figure>`; continue; }
     for (const f of p.flats) s += `<polygon points="${P(f.poly)}" fill="var(${UNIT_VAR[f.unit]})" stroke="var(--surface)" stroke-width="0.3"/>`;
     s += poly(p.lobby, `fill="var(--lobby)" stroke="none"`) + poly(p.core, `fill="var(--core)" stroke="none"`);
     s += poly(p.footprint, `fill="none" stroke="var(--ink)" stroke-width="0.25"`);
@@ -576,10 +585,53 @@ function renderPlates() {
       s += `<text x="${c[0]}" y="${-c[1] + 1.8}" font-size="1.5" text-anchor="middle" fill="var(--ink)" stroke="var(--surface)" stroke-width="0.4" paint-order="stroke">${fmt(u.carpet_ft2)} ft²${f.slot === p.refuge_slot ? " · refuge slot" : ""}</text>`;
     }
     s += `</svg>`;
-    const fc = { N: 0, E: 0, S: 0, W: 0 }; p.flats.forEach(f => fc[f.door_dir]++);
-    h += `<figure>${s}<figcaption><b>${names}</b> · ${p.variant}, ${p.flats.length} flats a core · ${p.width.toFixed(1)} × ${p.depth.toFixed(1)} m · plate ${fmt(p.area_m2)} m², core + lobby ${fmt(p.circulation_m2)} m² (${(p.efficiency * 100).toFixed(1)}% efficient) · doors N ${fc.N}, E ${fc.E}, S ${fc.S}, W ${fc.W}</figcaption></figure>`;
+    h += `<figure>${s}${plateCaption(p, names)}</figure>`;
   }
   $("plates").innerHTML = h;
+  bindTips($("plates"));
+}
+function plateCaption(p, names) {
+  const fc = { N: 0, E: 0, S: 0, W: 0 }; p.flats.forEach(f => fc[f.door_dir]++);
+  return `<figcaption><b>${names}</b> · ${p.variant}, ${p.flats.length} flats a core · ${p.width.toFixed(1)} × ${p.depth.toFixed(1)} m · plate ${fmt(p.area_m2)} m², core + lobby ${fmt(p.circulation_m2)} m² (${(p.efficiency * 100).toFixed(1)}% efficient) · doors N ${fc.N}, E ${fc.E}, S ${fc.S}, W ${fc.W}</figcaption>`;
+}
+const ROOM_FILL = { FOY: "--room-day", LIV: "--room-day", DIN: "--room-day", PAS: "--room-day", POJ: "--room-day",
+  MBR: "--room-bed", BR2: "--room-bed", BR3: "--room-bed", STD: "--room-bed", DRS: "--room-bed",
+  KIT: "--room-kit", UTL: "--room-kit", MT: "--room-wet", T2: "--room-wet", T3: "--room-wet", CT: "--room-wet", PWD: "--room-wet", BAL: "--room-out" };
+const segLine = (sg, attrs) => `<line x1="${sg[0][0]}" y1="${-sg[0][1]}" x2="${sg[1][0]}" y2="${-sg[1][1]}" ${attrs}/>`;
+function roomPlate(p, R) {
+  let s = poly(p.lobby, `fill="var(--lobby)" stroke="none"`) + poly(p.core, `fill="var(--core)" stroke="none"`);
+  for (const sh of R.shafts) s += `<polygon points="${P(sh)}" fill="var(--surface)" stroke="var(--vent)" stroke-width="0.12" stroke-dasharray="0.4 0.25"/>`;
+  for (const f of p.flats) {
+    const lay = R.flats[f.slot], u = B.units.find(x => x.id === f.unit);
+    if (!lay || !lay.rooms.length) { s += `<polygon points="${P(f.poly)}" fill="var(${UNIT_VAR[f.unit]})" opacity="0.5"/>`; continue; }
+    for (const r of lay.rooms) s += `<polygon points="${P(r.poly)}" fill="var(${ROOM_FILL[r.code] || "--room-day"})" stroke="var(--ink-2)" stroke-width="0.07"/>`;
+    for (const d of lay.doors) if (d.width && d.a !== "ENTRY") s += segLine(d.seg, `stroke="var(--door-int)" stroke-width="0.16"`);
+    for (const r of lay.rooms) {
+      for (const w of r.windows) s += segLine(w, `stroke="var(--window)" stroke-width="0.3"`);
+      for (const v of r.vents) s += segLine(v, `stroke="var(--vent)" stroke-width="0.3"`);
+      const c = centroid(r.poly), small = Math.min(r.w, r.d) < 1.65;
+      s += `<text x="${c[0]}" y="${-c[1] - (small ? -0.15 : 0.1)}" font-size="${small ? 0.42 : 0.55}" font-weight="650" text-anchor="middle" fill="var(--ink)">${r.code}</text>`;
+      if (!small) s += `<text x="${c[0]}" y="${-c[1] + 0.6}" font-size="0.42" text-anchor="middle" fill="var(--ink-2)">${Math.max(0, r.w - 0.15).toFixed(1)}×${Math.max(0, r.d - 0.15).toFixed(1)}</text>`;
+    }
+    const bad = lay.checks.filter(c => !c[0]).map(c => c[1]);
+    const tipTxt = `<b>${f.unit} ${u.label} · ${f.slot}</b><br>carpet in plan ${lay.carpet_m2.toFixed(1)} m² · ${fmt(u.carpet_ft2)} ft² nominal<br>` +
+      (bad.length ? `<span style="color:var(--critical)">${bad.join("<br>")}</span>` : "every rule met") +
+      `<br>Vastu: ${Object.entries(lay.vastu).filter(([, v]) => v).map(([k]) => k.replace(/_/g, " ")).join(", ") || "none"}`;
+    s += `<polygon points="${P(f.poly)}" fill="transparent" stroke="var(${UNIT_VAR[f.unit]})" stroke-width="0.35" data-tip="${tipTxt.replace(/"/g, "&quot;")}"/>`;
+    s += doorMark(f, 0.8);
+    const xs = f.poly.map(q => q[0]), ys = f.poly.map(q => q[1]), c = centroid(f.poly);
+    const end = f.slot.endsWith("_end"), side = end ? Math.sign(c[1]) : Math.sign(c[0]);
+    const lx = end ? c[0] : (side > 0 ? Math.max(...xs) + 0.8 : Math.min(...xs) - 0.8), ly = end ? (side > 0 ? Math.max(...ys) + 1.6 : Math.min(...ys) - 1.2) : c[1];
+    const anchor = end ? "middle" : (side > 0 ? "start" : "end");
+    s += `<text x="${lx}" y="${-ly}" font-size="1.0" font-weight="700" text-anchor="${anchor}" fill="var(${UNIT_VAR[f.unit]})">${f.unit} ${u.label} · ${f.door_dir}${bad.length ? " ⚠" : ""}</text>`;
+  }
+  return s;
+}
+function roomNote(p, R) {
+  const fl = Object.values(R.flats), ok = fl.filter(x => x.ok).length;
+  const sw = (c, t) => `<span><i class="sw" style="background:var(${c})"></i>${t}</span>`, ln = (c, t) => `<span><i class="sw" style="background:var(${c});height:3px"></i>${t}</span>`;
+  return `<div class="legend">${sw("--room-day", "Living, dining, foyer, passage, pooja")}${sw("--room-bed", "Bedrooms, study, dress")}${sw("--room-kit", "Kitchen, utility")}${sw("--room-wet", "Toilets")}${sw("--room-out", "Balcony")}${ln("--window", "Window")}${ln("--vent", "Ventilator / shaft")}${ln("--door-int", "Inner door")}</div>` +
+    `<div class="sub">Rooms laid out by CP-SAT on a 0.3 m grid under NBC 2016 Part 3 rules (light and air, toilet ventilation on the facade or the shared shaft, access through the foyer, minimum sizes). ${ok} of ${fl.length} flats meet every rule; hover a flat for its checks. Sizes are net of walls, in metres.</div>`;
 }
 
 // ------------------------------------------------------------ charts

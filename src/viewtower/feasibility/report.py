@@ -27,7 +27,43 @@ def _sb(t, cfg):
     return setback_for_height(t.height(cfg["building"]), cfg["setbacks"])
 
 
-def write_report(path: str | Path, cfg: dict, summary: dict) -> Path:
+def _room_section(cfg: dict, rooms: dict) -> list[str]:
+    """Room schedule per unit type (from its first flat that meets every rule) and the checks."""
+    units = {t["id"]: t for t in cfg["units"]["types"]}
+    flats = [lay for pr in rooms.values() for lay in pr["flats"].values()]
+    ok = [lay for lay in flats if lay["ok"]]
+    L = ["## Room layouts", "",
+         "Each flat of the leading schemes is laid out room by room on a 0.3 m grid (CP-SAT) under NBC 2016 Part 3 "
+         "rules: every habitable room has a window of at least a tenth of its floor area and no point more than "
+         "7.5 m from it; every toilet a ventilator on the facade or on a shared ventilation shaft (open to sky, "
+         f"{cfg['rooms']['shaft_w_m']} x {cfg['rooms']['shaft_d_m']} m, with mechanical exhaust above 30 m); the "
+         "kitchen a window or an exterior utility; every room reached from the foyer through the living, dining or "
+         "passage, with attached toilets off their bedroom; bedrooms at least 9.5 / 7.5 m², kitchen 5 m², bath + WC "
+         "2.8 m² (net of walls). Vastu placements are preferences, not rules.", "",
+         f"**{len(ok)} of {len(flats)} flat layouts meet every rule.**", ""]
+    for lay in flats:
+        if not lay["ok"]:
+            bad = [t for good, t in lay["checks"] if not good] or ["no layout found"]
+            L.append(f"- {lay['slot']} {lay['unit']}: " + "; ".join(bad))
+    if len(ok) < len(flats):
+        L.append("")
+    for u, t in units.items():
+        lay = next((x for x in ok if x["unit"] == u), None) or next((x for x in flats if x["unit"] == u and x["rooms"]), None)
+        if lay is None:
+            continue
+        nominal = t["carpet_ft2"] / 10.7639
+        vastu = ", ".join(k.replace("_", " ") for k, v in lay["vastu"].items() if v)
+        L += [f"### {t['label']} ({u}), {lay['slot']} flat: carpet in plan {lay['carpet_m2']:.1f} m² "
+              f"({lay['carpet_m2'] * 10.7639:,.0f} ft²) against {nominal:.1f} m² nominal", "",
+              "| Room | Net size m | Net m² | Light and air |", "|---|---|---|---|"]
+        for r in lay["rooms"]:
+            air = "window" if r["windows"] else ("ventilator" if r["vents"] else "")
+            L.append(f"| {r['label']} | {max(0, r['w'] - 0.15):.2f} × {max(0, r['d'] - 0.15):.2f} | {r['net_m2']:.1f} | {air} |")
+        L += ["", f"Vastu: {vastu or 'none of the preferred placements'}.", ""]
+    return L
+
+
+def write_report(path: str | Path, cfg: dict, summary: dict, rooms: dict | None = None) -> Path:
     L = [f"# {cfg.get('project', 'Feasibility')}: massing and unit-mix options", ""]
     base = summary.get("base") or next(iter(summary.values()), {})
     st = base.get("site", {})
@@ -67,5 +103,7 @@ def write_report(path: str | Path, cfg: dict, summary: dict) -> Path:
                               f"{lv['stackers_in_basement']} two-level stackers ({lv['stacker_share_of_basement_bays'] * 100:.0f}% of basement bays); "
                               f"part second stilt of {lv['stilt2_m2']:,} m². Running the basement under the EIA belt, if the EIA allows it, gives up to "
                               f"{lv['basement_under_green_cars']} cars.", ""]
+    if rooms:
+        L += _room_section(cfg, rooms)
     Path(path).write_text("\n".join(L) + "\n", encoding="utf-8")
     return Path(path)

@@ -99,6 +99,14 @@ fixed:                      # a fixed tower arrangement (viewtower feasibility -
   options: 3                # options reported per scenario
   weights: {fsi: 1, mix: 1, south: 20, height_spread: 1000, phase: 1}
 
+rooms:                      # room layouts inside each flat (viewtower feasibility --rooms)
+  schemes: 1                # leading schemes per scenario and mode whose plates get room layouts
+  modes: [target, compliant]
+  shaft_w_m: 2.4            # ventilation shaft shared by twin wing flats, open to sky; NBC 2016 Part 3
+  shaft_d_m: 3.4            #   asks about 8 m2 with a 2.4 m side above 30 m (with mechanical exhaust besides)
+  solve_s: [10, 30, 90]     # CP-SAT work budgets tried in turn until every check passes
+  programs: {}              # override a room programme: name -> {room code: target m2}; see rooms.PROGRAMS
+
 readings:                   # sensitivity runs: name -> (label, config override); base is always run
   eia_additional: {label: "EIA belt added to the setback", override: {eia: {mode: additional}, search: {prefilter_keep: 250, groupings_per_set: 1, fsi_floor_gap: 1.6}}}
   osr_setback: {label: "Full height setback from the OSR", override: {setbacks: {osr_gap: setback}, search: {prefilter_keep: 250, groupings_per_set: 1, fsi_floor_gap: 1.6}}}
