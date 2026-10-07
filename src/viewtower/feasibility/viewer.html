@@ -55,6 +55,9 @@ main { max-width: 1400px; margin: 0 auto; padding: 0 16px 40px; }
 .seg button { border: 0; background: transparent; color: var(--ink); padding: 6px 12px; font: inherit; cursor: pointer; }
 .seg button + button { border-left: 1px solid var(--axis); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+select { max-width: 100%; }
+#optSel { max-width: min(640px, calc(100vw - 110px)); }
+label.chk { max-width: 100%; }
 select, .btn { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 5px 8px; }
 .btn { cursor: pointer; }
 .btn:hover, .seg button:hover { outline: 2px solid var(--ring); }
@@ -309,6 +312,7 @@ function loadScheme() {
   if (S) S._orig = JSON.parse(JSON.stringify(base.towers));
 }
 function plateOf(t) { return S.plates[t.plate]; }
+function envFor(site, sb) { return site.envelopes[String(sb)] || site.envelopes[Number(sb).toFixed(1)] || []; }
 function footprint(t) { return tr(plateOf(t).footprint[0], t.x, t.y); }
 
 // ------------------------------------------------------------ live metrics
@@ -349,7 +353,7 @@ function geomChecks() {
   const site = variant().site, res = {};
   for (const t of S.towers) {
     const fp = footprint(t);
-    const env = site.envelopes[String(t.setback)] || [];
+    const env = envFor(site, t.setback);
     const pod = S.layout.podiums[t.podium] || [];
     res[t.name] = { env: insideAny(fp, env), pod: insideAny(fp, pod), spacing: [], ok: true };
   }
@@ -453,7 +457,7 @@ function renderPlan() {
   if (L.visitor) h += poly(S.layout.visitor_strips, `fill="var(--visitor)" stroke="none"`);
   if (L.setback) {
     const seen = new Set();
-    for (const t of S.towers) if (!seen.has(t.setback)) { seen.add(t.setback); h += poly(site.envelopes[String(t.setback)] || [], `fill="none" stroke="var(--critical)" stroke-width="0.35" stroke-dasharray="1.6 1.2"`); }
+    for (const t of S.towers) if (!seen.has(t.setback)) { seen.add(t.setback); h += poly(envFor(site, t.setback), `fill="none" stroke="var(--critical)" stroke-width="0.35" stroke-dasharray="1.6 1.2"`); }
   }
   h += poly(site.gross, `fill="none" stroke="var(--ink)" stroke-width="0.6"`);
   if (L.labels) {
@@ -770,7 +774,7 @@ function build3D() {
     const seen = new Set();
     for (const t of S.towers) if (!seen.has(t.setback)) {
       seen.add(t.setback);
-      (site.envelopes[String(t.setback)] || []).forEach(r => {
+      (envFor(site, t.setback)).forEach(r => {
         const pts = r.map(([x, y]) => new THREE.Vector3(x, b.podium_height_m + 0.2, -y)); pts.push(pts[0].clone());
         root.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: new THREE.Color(css("--critical")) })));
       });
