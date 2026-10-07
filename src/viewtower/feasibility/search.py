@@ -366,7 +366,7 @@ def evaluate_set(args):
     for cap in range(top, int(b["min_floors"]) + 3, -1):
         towers = _make_towers(a, bgrp)
         optimise_floors(towers, cfg, net, cap)
-        if fsi_of(towers, cfg, net) < float(cfg["fsi"]["target"]) - 0.6:
+        if fsi_of(towers, cfg, net) < float(cfg["fsi"]["target"]) - float(cfg["search"]["fsi_floor_gap"]):
             break
         floors = [t.floors for t in towers]
         lay = None
