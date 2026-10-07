@@ -185,14 +185,14 @@ svg text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
     </div>
   </section>
 
-  <section class="card">
+  <section class="card keep">
     <h2>Options explored</h2>
     <div class="sub">Every placed scheme for the selected reading. Filled: floors set for the FSI target. Ring: floors cut until every phase parks itself. Click a highlighted point to open it.</div>
     <div class="legend" id="legendScatter"></div>
     <svg id="scatter" width="100%" height="320"></svg>
   </section>
 
-  <section class="card">
+  <section class="card keep">
     <h2>Basis</h2>
     <div class="tablewrap"><table id="unitTbl"></table></div>
     <ul class="basis" id="basisList"></ul>
@@ -796,7 +796,8 @@ function update3DVisibility() { if (!R3) return; for (const m of R3.floorMeshes)
 function refreshAll(reload) {
   buildControls();
   if (reload) { loadScheme(); state.cut = 99; }
-  if (!S) { $("optDesc").textContent = "No scheme of this kind could be placed on the site."; return; }
+  document.querySelectorAll("main > section:not(.controls):not(.keep)").forEach(el => el.style.display = S ? "" : "none");
+  if (!S) { $("optDesc").textContent = "No scheme of this kind could be placed on the site under this reading; see the options explored below."; renderScatter(); return; }
   const M = compute();
   $("optDesc").innerHTML = `${S.label} · score ${S.score.toFixed(1)} (lower is better) · ${S.towers.length} towers on 2 podiums`;
   renderKPIs(M); renderPlan(); renderTowers(M); renderPlates(); renderMix(M); renderFacing(M); renderParking(M); renderArea(M);
