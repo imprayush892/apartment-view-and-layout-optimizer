@@ -25,6 +25,7 @@ Two scenarios:
 from __future__ import annotations
 
 import itertools
+import math
 from concurrent.futures import ProcessPoolExecutor
 
 from viewtower.feasibility.layout import Layout, Tower, place_chain, visitors_and_parking
@@ -281,9 +282,11 @@ def select(cfg: dict, plates: list[Plate], fit: dict, net: float, nogoods: list,
     # units: gap 0.1 m2 (0.01 FSI ~ 1,700), dev per mille x flats (1 pp ~ 10 N), south doors, floors, carpet/10
     m.Minimize(int(w["fsi"]) * gap + int(w["mix"]) * sum(dev) + int(w["south"]) * sum(south_t)
                + int(w["height_spread"]) * (hi_f - lo_f) + int(w["phase"]) * imb)
-    solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = time_s
+    solver = cp_model.CpSolver()  # interleaved workers on a deterministic-time budget: same answer every run
     solver.parameters.num_search_workers = 4
+    solver.parameters.interleave_search = True
+    solver.parameters.max_deterministic_time = time_s
+    solver.parameters.max_time_in_seconds = 6 * time_s  # guard only
     st = solver.Solve(m)
     if info is not None:
         info["status"] = solver.StatusName(st)
@@ -297,120 +300,163 @@ def solve_fixed(cfg: dict, progress=print, workers: int | None = None) -> dict[s
     site = FeasibilitySite.build(cfg)
     net = site.net.area
     book = PlateBook(cfg)
-    out = {}
-    for scenario in fx["scenarios"]:
-        plates = candidate_plates(cfg, book, scenario)
-        fit4 = fit_floors(cfg, plates, workers)
-        fit = fit_positions(cfg, plates, fit4, workers)
-        ok = sum(1 for v in fit.values() if max(v) >= int(fx["min_floors"]))
-        plates = best_geometries(plates, fit, int(fx["geometries_per_mix"]))
-        progress(f"{scenario}: {ok} of {len(fit)} candidate plates fit the arrangement; tallest "
-                 f"{max((max(v) for v in fit.values()), default=0)} floors; {len(plates)} kept for selection")
-        schemes, nogoods, exclude, pool, seen = [], [], [], [], set()
+    return {sc: _solve_scenario(cfg, site, net, book, sc, progress, workers) for sc in fx["scenarios"]}
 
-        def report(towers, lay):
-            visitors_and_parking(site, lay, cfg)
-            m = metrics(towers, lay, cfg, site)
-            m["levers"] = parking_levers(m, cfg, site)
-            pen = penalties(m, cfg, "target")
-            schemes.append(Scheme(scenario, "target", towers, lay, m, pen, round(sum(pen.values()), 3),
-                                  sid=f"{scenario[:3]}-fix-{len(schemes) + 1}"))
-            progress(f"{scenario}: option {sum(1 for x in schemes if x.mode == 'target')} FSI {m['fsi']:.3f}, "
-                     f"{m['flats']} flats, every type within {type_dev_pp(m['mix_counts'], cfg):.2f} pp")
-            comp = _compliant(site, cfg, net, plates, fit, towers, lay, nogoods, scenario)
-            if comp is not None and tuple((t.plate.key, t.floors) for t in comp[0]) not in seen:
-                ct, clay = comp
-                seen.add(tuple((t.plate.key, t.floors) for t in ct))
-                cm = metrics(ct, clay, cfg, site)
-                cp = penalties(cm, cfg, "compliant")
-                schemes.append(Scheme(scenario, "compliant", ct, clay, cm, cp, round(sum(cp.values()), 3),
-                                      sid=f"{scenario[:3]}-fix-{len(schemes)}c"))
-                progress(f"{scenario}: parking-compliant variant FSI {cm['fsi']:.3f}, {cm['flats']} flats, "
-                         f"every type within {type_dev_pp(cm['mix_counts'], cfg):.2f} pp")
-            exclude.append(tuple(sorted(unit_set(t.plate) for t in towers)))
 
-        def enough():
-            return sum(1 for x in schemes if x.mode == "target") >= int(fx["options"])
+def _solve_scenario(cfg: dict, site: FeasibilitySite, net: float, book: PlateBook, scenario: str, progress,
+                    workers: int | None) -> list[Scheme]:
+    fx = cfg["fixed"]
+    plates = candidate_plates(cfg, book, scenario)
+    fit4 = fit_floors(cfg, plates, workers)
+    fit = fit_positions(cfg, plates, fit4, workers)
+    ok = sum(1 for v in fit.values() if max(v) >= int(fx["min_floors"]))
+    plates = best_geometries(plates, fit, int(fx["geometries_per_mix"]))
+    progress(f"{scenario}: {ok} of {len(fit)} candidate plates fit the arrangement; tallest "
+             f"{max((max(v) for v in fit.values()), default=0)} floors; {len(plates)} kept for selection")
+    schemes, nogoods, exclude, pool, seen = [], [], [], [], set()
 
-        for _ in range(int(fx["max_solves"])):
-            info: dict = {}
-            pick = select(cfg, plates, fit, net, nogoods, exclude, time_s=float(fx["solve_s"]), info=info)
-            if pick is None:
-                why = ("no further set meets the mix and FSI bands" if info.get("status") == "INFEASIBLE"
-                       else f"no set found within {fx['solve_s']} s")
-                progress(f"{scenario}: {why}")
-                break
-            combo, floors = pick
-            towers = [Tower(f"T{i + 1}", p, fl, podium=g, segment=_segment(p, cfg, scenario))
-                      for i, (p, fl, g) in enumerate(zip(combo, floors, fx["podiums"]))]
-            failed: list = []
-            lay = place_chain(site, towers, cfg, fx["sides"], failed)
-            if lay is None:
-                n = failed[0] + 1 if failed else len(combo)
-                nogoods.append((combo[:n], floors[:n]))
-                fixed_up = _repair(site, cfg, net, towers, n)
-                if fixed_up is not None:  # a fallback; the solver may still find a closer set
-                    pool.append(fixed_up)
-                progress(f"{scenario}: towers 1-{n} {[p.variant for p in combo[:n]]} at {floors[:n]} floors "
-                         f"do not fit; cut" + (f" ({[t.floors for t in fixed_up[0]]} floors do)" if fixed_up else ""))
-                continue
+    def report(towers, lay):
+        visitors_and_parking(site, lay, cfg)
+        m = metrics(towers, lay, cfg, site)
+        m["levers"] = parking_levers(m, cfg, site)
+        pen = penalties(m, cfg, "target")
+        schemes.append(Scheme(scenario, "target", towers, lay, m, pen, round(sum(pen.values()), 3),
+                              sid=f"{scenario[:3]}-fix-{len(schemes) + 1}"))
+        progress(f"{scenario}: option {sum(1 for x in schemes if x.mode == 'target')} FSI {m['fsi']:.3f}, "
+                 f"{m['flats']} flats, every type within {type_dev_pp(m['mix_counts'], cfg):.2f} pp")
+        comp = _compliant(site, cfg, net, plates, fit, towers, lay, nogoods, scenario)
+        if comp is not None and tuple((t.plate.key, t.floors) for t in comp[0]) not in seen:
+            ct, clay = comp
+            seen.add(tuple((t.plate.key, t.floors) for t in ct))
+            cm = metrics(ct, clay, cfg, site)
+            cp = penalties(cm, cfg, "compliant")
+            schemes.append(Scheme(scenario, "compliant", ct, clay, cm, cp, round(sum(cp.values()), 3),
+                                  sid=f"{scenario[:3]}-fix-{len(schemes)}c"))
+            progress(f"{scenario}: parking-compliant variant FSI {cm['fsi']:.3f}, {cm['flats']} flats, "
+                     f"every type within {type_dev_pp(cm['mix_counts'], cfg):.2f} pp")
+        exclude.append(tuple(sorted(unit_set(t.plate) for t in towers)))
+
+    def enough():
+        return sum(1 for x in schemes if x.mode == "target") >= int(fx["options"])
+
+    for _ in range(int(fx["max_solves"])):
+        info: dict = {}
+        pick = select(cfg, plates, fit, net, nogoods, exclude, time_s=float(fx["solve_s"]), info=info)
+        if pick is None:
+            why = ("no further set meets the mix and FSI bands" if info.get("status") == "INFEASIBLE"
+                   else f"no set found within {fx['solve_s']} s")
+            progress(f"{scenario}: {why}")
+            break
+        combo, floors = pick
+        towers = [Tower(f"T{i + 1}", p, fl, podium=g, segment=_segment(p, cfg, scenario))
+                  for i, (p, fl, g) in enumerate(zip(combo, floors, fx["podiums"]))]
+        failed: list = []
+        lay = place_chain(site, towers, cfg, fx["sides"], failed)
+        if lay is None:
+            n = failed[0] + 1 if failed else len(combo)
+            nogoods.append((combo[:n], floors[:n]))
+            fixed_up = _repair(site, cfg, net, towers, n)
+            if fixed_up is not None:  # a fallback; the solver may still find a closer set
+                pool.append(fixed_up)
+            progress(f"{scenario}: towers 1-{n} {[p.variant for p in combo[:n]]} at {floors[:n]} floors "
+                     f"do not fit; cut" + (f" ({[t.floors for t in fixed_up[0]]} floors do)" if fixed_up else ""))
+            continue
+        report(towers, lay)
+        if enough():
+            break
+    tgt = float(cfg["fsi"]["target"])
+    for towers, lay in sorted(pool, key=lambda c: abs(fsi_of(c[0], cfg, net) - tgt)):
+        if enough():
+            break
+        if tuple(sorted(unit_set(t.plate) for t in towers)) not in exclude:
             report(towers, lay)
-            if enough():
-                break
-        tgt = float(cfg["fsi"]["target"])
-        for towers, lay in sorted(pool, key=lambda c: abs(fsi_of(c[0], cfg, net) - tgt)):
-            if enough():
-                break
-            if tuple(sorted(unit_set(t.plate) for t in towers)) not in exclude:
-                report(towers, lay)
-        out[scenario] = schemes
-    return out
+    return schemes
 
 
 def _compliant(site: FeasibilitySite, cfg: dict, net: float, plates: list[Plate], fit: dict, towers: list[Tower],
-               lay: Layout, nogoods: list, scenario: str):
+               lay: Layout, nogoods: list, scenario: str, rounds: int = 8):
     """The scheme closest to the FSI target whose residents park within each phase's basement, GF and
-    stilt 1 (and whose visitors fit the setback bays), keeping the unit mix in tolerance. Both the
-    same plates and positions with fewer floors and any plates placed anew are tried (parking goes by
-    the flat, so larger flats on the tighter podium can carry more FSI); the higher FSI is kept.
-    Returns (towers, layout) or None."""
+    stilt 1 (and whose visitors fit the setback bays), keeping the unit mix in tolerance.
+
+    First the same plates and positions with fewer floors. Then, since parking goes by the flat and
+    larger flats on the tighter podium can carry more FSI, any plates with each podium's flats capped
+    by its parking: moving the towers moves the podium split and so the parking, so each placed set
+    is also tried with fewer floors at its own positions, and the cap of a podium left short is
+    lowered by its shortfall for the next round. The highest FSI is kept. Returns (towers, layout)
+    or None."""
+    fx, ratio = cfg["fixed"], float(cfg["parking"]["ratio"])
     best = None
-    for same in (True, False):
-        got = _compliant_with(site, cfg, net, plates, fit, towers, lay, nogoods, scenario, same)
-        if got is not None and (best is None or fsi_of(got[0], cfg, net) > fsi_of(best[0], cfg, net)):
+
+    def consider(got):
+        nonlocal best
+        if got is not None and (best is None or fsi_of(got[0], cfg, net) > fsi_of(best[0], cfg, net) + 1e-9):
             best = got
+
+    consider(_fewer_floors(site, cfg, net, plates, fit, towers, lay, nogoods))
+    caps = _parking_caps(lay.parking, cfg)
+    cuts = list(nogoods)
+    for r in range(rounds):
+        pick = select(cfg, plates, fit, net, cuts, [], time_s=float(fx["solve_s"]), flat_caps=caps,
+                      fmin=int(cfg["building"]["min_floors"]))
+        if pick is None:
+            break
+        combo, floors = pick
+        if best is not None and fsi_of([Tower("", p, f) for p, f in zip(combo, floors)], cfg, net) <= \
+                fsi_of(best[0], cfg, net) + 1e-9:
+            break  # caps only tighten, so no later round can do better
+        ct = [Tower(f"T{i + 1}", p, f, podium=g, segment=_segment(p, cfg, scenario))
+              for i, (p, f, g) in enumerate(zip(combo, floors, fx["podiums"]))]
+        failed: list = []
+        cl = place_chain(site, ct, cfg, fx["sides"], failed)
+        if cl is None:
+            n = failed[0] + 1 if failed else len(combo)
+            cuts.append((combo[:n], floors[:n]))
+            continue
+        visitors_and_parking(site, cl, cfg)
+        if _parks(cl.parking):
+            consider((ct, cl))
+            break
+        consider(_fewer_floors(site, cfg, net, plates, fit, ct, cl, cuts))
+        cuts.append((combo, floors))  # does not park at these floors (nor taller)
+        if r % 2 == 1:  # every second miss, lower the cap of a podium left short by its shortfall
+            short = [d - s_ for d, s_ in zip(cl.parking["demand"], cl.parking["supply"])]
+            caps = [c - max(1, math.ceil(x / ratio)) if x > 0 else c for c, x in zip(caps, short)]
+            caps = [min(c, v) for c, v in zip(caps, _parking_caps(cl.parking, cfg, flats_only=True))]
     return best
 
 
-def _compliant_with(site, cfg, net, plates, fit, towers, lay, nogoods, scenario, same):
-    fx, ratio = cfg["fixed"], float(cfg["parking"]["ratio"])
-    caps = [int(s_ / ratio + 1e-9) for s_ in lay.parking["supply"]]
-    for _ in range(6):
-        pick = select(cfg, plates, fit, net, nogoods, [], time_s=float(fx["solve_s"]),
-                      combo=[t.plate for t in towers] if same else None, flat_caps=caps,
-                      fmin=int(cfg["building"]["min_floors"]))
+def _parks(pk: dict) -> bool:
+    return all(d <= s for d, s in zip(pk["demand"], pk["supply"])) and pk["visitor_bays"] >= pk["visitor_need"]
+
+
+def _parking_caps(pk: dict, cfg: dict, flats_only: bool = False) -> list[int]:
+    """Flats each podium can park: residents by its own supply, visitors by the setback bays (shared
+    in proportion to the flats); with ``flats_only`` just the visitor limit."""
+    ratio, vr = float(cfg["parking"]["ratio"]), float(cfg["parking"]["visitor_ratio"])
+    caps = [10 ** 6 if flats_only else int(s / ratio + 1e-9) for s in pk["supply"]]
+    if vr > 0 and pk["visitor_bays"] < pk["visitor_need"]:
+        k = pk["visitor_bays"] / pk["visitor_need"]
+        caps = [min(c, int(n * k)) for c, n in zip(caps, pk["flats"])]
+    return caps
+
+
+def _fewer_floors(site, cfg, net, plates, fit, towers, lay, nogoods, rounds: int = 3):
+    """The same plates at the same positions with fewer floors, so the podiums and their parking stay
+    as they are; each podium's flats capped by its parking."""
+    caps = _parking_caps(lay.parking, cfg)
+    for _ in range(rounds):
+        pick = select(cfg, plates, fit, net, nogoods, [], time_s=float(cfg["fixed"]["solve_s"]),
+                      combo=[t.plate for t in towers], flat_caps=caps, fmin=int(cfg["building"]["min_floors"]))
         if pick is None:
             return None
-        combo, floors = pick
-        if same:
-            ct = [Tower(t.name, t.plate, f, t.podium, t.segment, t.x, t.y) for t, f in zip(towers, floors)]
-            cl = Layout(ct, None, list(lay.raw_podiums), lay.gap_band, raw_podiums=list(lay.raw_podiums),
-                        basements=list(lay.basements))
-        else:
-            ct = [Tower(f"T{i + 1}", p, f, podium=g, segment=_segment(p, cfg, scenario))
-                  for i, (p, f, g) in enumerate(zip(combo, floors, fx["podiums"]))]
-            cl = place_chain(site, ct, cfg, fx["sides"])
-            if cl is None:
-                return None
+        ct = [Tower(t.name, t.plate, f, t.podium, t.segment, t.x, t.y) for t, f in zip(towers, pick[1])]
+        cl = Layout(ct, None, list(lay.raw_podiums), lay.gap_band, raw_podiums=list(lay.raw_podiums),
+                    basements=list(lay.basements))
         visitors_and_parking(site, cl, cfg)
-        pk = cl.parking
-        short = [d - s_ for d, s_ in zip(pk["demand"], pk["supply"])]
-        if max(short) <= 0 and pk["visitor_bays"] >= pk["visitor_need"]:
+        if _parks(cl.parking):
             return ct, cl
-        new = [min(c, int(s_ / ratio + 1e-9)) for c, s_ in zip(caps, pk["supply"])]
-        if pk["visitor_bays"] < pk["visitor_need"]:
-            new = [min(c, int(n * pk["visitor_bays"] / pk["visitor_need"])) for c, n in zip(new, pk["flats"])]
-        caps = [c - 1 if c == old and x > 0 else c for c, old, x in zip(new, caps, short)]
+        caps = [min(c, v) - (1 if d > s_ else 0) for c, v, d, s_ in
+                zip(caps, _parking_caps(cl.parking, cfg), cl.parking["demand"], cl.parking["supply"])]
     return None
 
 
