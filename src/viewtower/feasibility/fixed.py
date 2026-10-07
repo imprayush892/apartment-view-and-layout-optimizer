@@ -55,6 +55,22 @@ def candidate_plates(cfg: dict, book: PlateBook, scenario: str) -> list[Plate]:
     return out
 
 
+def best_geometries(plates: list[Plate], fit: dict[str, int], keep: int) -> list[Plate]:
+    """Plates with the same units differ only in geometry for the mix model: keep the ``keep`` that
+    rise highest in the arrangement (then the smallest footprint) for each variant and unit set."""
+    groups: dict = {}
+    for p in plates:
+        if fit.get(p.key, 0) <= 0:
+            continue
+        k = (p.variant, tuple(sorted(f.unit for f in p.flats)), p.refuge_flat().unit)
+        groups.setdefault(k, []).append(p)
+    out = []
+    for k in sorted(groups):
+        g = sorted(groups[k], key=lambda p: (-fit[p.key], p.width * p.depth, p.key))
+        out += g[:keep]
+    return out
+
+
 _W: dict = {}
 
 
@@ -189,12 +205,14 @@ def solve_fixed(cfg: dict, progress=print, workers: int | None = None) -> dict[s
         plates = candidate_plates(cfg, book, scenario)
         fit = fit_floors(cfg, plates, workers)
         ok = sum(1 for v in fit.values() if v >= int(fx["min_floors"]))
-        progress(f"{scenario}: {len(plates)} candidate plates, {ok} fit the arrangement; "
-                 f"tallest {max(fit.values()) if fit else 0} floors")
+        plates = best_geometries(plates, fit, int(fx["geometries_per_mix"]))
+        progress(f"{scenario}: {ok} candidate plates fit the arrangement; tallest {max(fit.values()) if fit else 0} "
+                 f"floors; {len(plates)} kept for selection")
         schemes, nogoods, exclude = [], [], []
         for _ in range(int(fx["max_solves"])):
-            pick = select(cfg, plates, fit, net, nogoods, exclude)
+            pick = select(cfg, plates, fit, net, nogoods, exclude, time_s=float(fx["solve_s"]))
             if pick is None:
+                progress(f"{scenario}: no further set meets the mix and FSI bands")
                 break
             combo, floors = pick
             towers = [Tower(f"T{i + 1}", p, fl, podium=g, segment=_segment(p, cfg, scenario))
@@ -202,6 +220,7 @@ def solve_fixed(cfg: dict, progress=print, workers: int | None = None) -> dict[s
             lay = place_chain(site, towers, cfg, fx["sides"])
             if lay is None:
                 nogoods.append((combo, floors))
+                progress(f"{scenario}: set {[p.variant for p in combo]} at {floors} floors does not fit; cut")
                 continue
             visitors_and_parking(site, lay, cfg)
             m = metrics(towers, lay, cfg, site)
