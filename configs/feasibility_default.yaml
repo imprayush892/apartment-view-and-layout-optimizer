@@ -84,7 +84,7 @@ parking:
 
 readings:                   # sensitivity runs: name -> (label, config override); base is always run
   eia_additional: {label: "EIA belt added to the setback", override: {eia: {mode: additional}, search: {prefilter_keep: 250, groupings_per_set: 1, fsi_floor_gap: 1.6}}}
-  osr_setback: {label: "Full height setback from the OSR", override: {setbacks: {osr_gap: setback}, search: {prefilter_keep: 250, groupings_per_set: 1}}}
+  osr_setback: {label: "Full height setback from the OSR", override: {setbacks: {osr_gap: setback}, search: {prefilter_keep: 250, groupings_per_set: 1, fsi_floor_gap: 1.6}}}
   basement_under_green: {label: "Basement allowed under the EIA belt", override: {eia: {basement_under: true}, search: {prefilter_keep: 250, groupings_per_set: 1}}}
 
 search:
