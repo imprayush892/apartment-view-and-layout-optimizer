@@ -469,7 +469,7 @@ function renderPlan() {
   }
   // north arrow and scale bar
   h += `<g transform="translate(${maxx - 8},${-maxy + 12})"><polygon points="0,-6 3,4 0,2 -3,4" fill="var(--ink)"/><text y="-8" font-size="3.4" text-anchor="middle" fill="var(--ink)">N</text></g>`;
-  h += `<g transform="translate(${minx + 4},${-miny - 6})">` + [0, 1, 2, 3, 4].map(i => `<rect x="${i * 10}" y="0" width="10" height="1.2" fill="${i % 2 ? "var(--surface)" : "var(--ink)"}" stroke="var(--ink)" stroke-width="0.2"/>`).join("") +
+  h += `<g transform="translate(${minx + 4},${-maxy + 6})">` + [0, 1, 2, 3, 4].map(i => `<rect x="${i * 10}" y="0" width="10" height="1.2" fill="${i % 2 ? "var(--surface)" : "var(--ink)"}" stroke="var(--ink)" stroke-width="0.2"/>`).join("") +
     `<text x="0" y="5" font-size="2.6" fill="var(--ink-2)">0</text><text x="50" y="5" font-size="2.6" fill="var(--ink-2)" text-anchor="middle">50 m</text></g>`;
   // towers
   planChecks = geomChecks();
