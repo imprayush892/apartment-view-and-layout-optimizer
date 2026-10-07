@@ -1,4 +1,4 @@
-"""Command-line interface: make-synthetic | inspect-dxf | site-view | run."""
+"""Command-line interface: make-synthetic | inspect-dxf | site-view | run | feasibility."""
 from __future__ import annotations
 
 import argparse
@@ -59,7 +59,21 @@ def main(argv=None) -> int:
     r = sub.add_parser("run", help="full search; writes report.json, units_best.csv and plan SVGs")
     r.add_argument("config")
     r.add_argument("--out", default="out")
+    f = sub.add_parser("feasibility", help="cruciform towers, unit mix, FSI, parking: DXF + HTML viewer + report")
+    f.add_argument("config")
+    f.add_argument("--out", default="out/feasibility")
+    f.add_argument("--readings", nargs="*", default=None, help="sensitivity readings to run (default: all in the config)")
+    f.add_argument("--quick", action="store_true", help="small search, for a first look")
+    f.add_argument("--workers", type=int, default=None)
     args = ap.parse_args(argv)
+
+    if args.cmd == "feasibility":
+        from viewtower.feasibility.run import run_project
+        res = run_project(args.config, args.out, readings=args.readings, quick=args.quick, workers=args.workers,
+                          progress=lambda m: print(m, file=sys.stderr, flush=True))
+        for fn in res["files"]:
+            print(fn)
+        return 0
 
     if args.cmd == "make-synthetic":
         from viewtower.synthetic import write

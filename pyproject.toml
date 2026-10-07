@@ -20,5 +20,8 @@ viewtower = "viewtower.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"viewtower.feasibility" = ["viewer.html"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
