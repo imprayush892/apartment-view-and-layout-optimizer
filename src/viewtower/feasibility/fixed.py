@@ -148,6 +148,17 @@ def fit_positions(cfg: dict, plates: list[Plate], fit: dict[str, int], workers: 
     return out
 
 
+_COVER: dict = {}
+
+
+def _covers(q: Plate, p: Plate) -> bool:
+    """True if plate ``q``'s footprint contains plate ``p``'s (both centred on the hub)."""
+    key = (q.key, p.key)
+    if key not in _COVER:
+        _COVER[key] = q.key == p.key or q.footprint.buffer(1e-6).contains(p.footprint)
+    return _COVER[key]
+
+
 def unit_set(p: Plate) -> tuple:
     return tuple(sorted(f.unit for f in p.flats))
 
@@ -262,18 +273,23 @@ def select(cfg: dict, plates: list[Plate], fit: dict, net: float, nogoods: list,
     ph = [sum(c for t, c in enumerate(carpet_t) if fx["podiums"][t] == g) for g in (0, 1)]
     imb = m.NewIntVar(0, 10 ** 7, "imb")
     m.AddAbsEquality(imb, ph[0] - ph[1])
-    for ng, ng_floors in nogoods:  # these front towers do not fit at these floors or taller
-        if not all(p.key in pos for p in ng):
-            continue
-        lits = []
+    # These front towers do not fit at these floors or taller, nor with plates that cover each
+    # failed plate's footprint (plates share the hub as origin, so such a plate takes more ground
+    # wherever it stands).
+    for ng, ng_floors in nogoods:
+        terms = []
         for t, (p, fl) in enumerate(zip(ng, ng_floors)):
-            same, taller = m.NewBoolVar(""), m.NewBoolVar("")
-            m.Add(k[t] == pos[p.key]).OnlyEnforceIf(same)
-            m.Add(k[t] != pos[p.key]).OnlyEnforceIf(same.Not())
+            cover = [1 if _covers(q, p) else 0 for q in P]
+            if not any(cover):
+                break
+            inside = m.NewIntVar(0, 1, "")
+            m.AddElement(k[t], cover, inside)
+            taller = m.NewBoolVar("")
             m.Add(f[t] >= fl).OnlyEnforceIf(taller)
             m.Add(f[t] < fl).OnlyEnforceIf(taller.Not())
-            lits += [same, taller]
-        m.AddBoolOr([l.Not() for l in lits])
+            terms += [inside, taller]
+        else:
+            m.Add(sum(terms) <= len(terms) - 1)
     ex = sorted({q for e in exclude if all(g in sid for g in e)
                  for q in itertools.permutations(sid[g] for g in e)})
     if ex:

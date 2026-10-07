@@ -111,13 +111,19 @@ a floor count per tower:
 
 The chosen set is placed. If it does not fit, the towers up to the one that could not be placed are cut
 from the model at those floors and taller (the chain places each tower against the ones before it only,
-so that prefix fails whatever follows), a version with a few floors off that still meets the bands is
-kept as a fallback, and the model is solved again. Options differ in the unit set of at least one tower.
+so that prefix fails whatever follows), together with any plates whose footprints cover theirs (plates
+share the hub as origin, so a covering plate takes more ground wherever it stands). A version with a few
+floors off that still meets the bands is kept as a fallback, and the model is solved again. Options
+differ in the unit set of at least one tower. CP-SAT runs interleaved workers on a deterministic-time
+budget (`solve_s`), so a config gives the same schemes every run.
 
 Each option also gets a **compliant** scheme: the model is solved again with each podium's flats capped
 by the cars its basement, ground and stilt 1 hold (and the visitor bays the setbacks hold), keeping the
-mix tolerance; the same plates and positions with fewer floors when the mix allows, otherwise any
-plates, placed anew.
+mix tolerance. It is found in two ways and the higher FSI is kept: the same plates at the same positions
+with fewer floors (the podiums, and so the parking, stay put), and any plates under the caps. Moving
+towers moves the podium split and so each phase's parking, so every placed set is also tried with fewer
+floors at its own positions, sets that do not park are cut, and a short podium's cap is lowered by its
+shortfall every second miss.
 
 ## Outputs
 
