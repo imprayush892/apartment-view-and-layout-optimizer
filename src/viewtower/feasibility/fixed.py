@@ -100,7 +100,10 @@ def fit_floors(cfg: dict, plates: list[Plate], workers: int | None = None) -> di
 
 def select(cfg: dict, plates: list[Plate], fit: dict[str, int], net: float, nogoods: list, exclude: list,
            time_s: float = 20.0):
-    """CP-SAT choice of (plate, floors) per tower; None if infeasible."""
+    """CP-SAT choice of (plate, floors) per tower; None if infeasible.
+
+    One plate index per tower; plate properties are looked up with element constraints, so the
+    model stays small whatever the number of candidate plates."""
     from ortools.sat.python import cp_model
 
     fx, b = cfg["fixed"], cfg["building"]
@@ -114,76 +117,91 @@ def select(cfg: dict, plates: list[Plate], fit: dict[str, int], net: float, nogo
     if not P:
         return None
     pos = {p.key: i for i, p in enumerate(P)}
+    n = len(P)
     R = [len(refuge_floors(f, b)) for f in range(fmin, fmax + 1)]
+    arr = {
+        "fit": [min(fit[p.key], fmax) for p in P],
+        "area": [int(round(10 * p.area_m2)) for p in P],
+        "rarea": [int(round(10 * p.refuge_flat().area_m2)) for p in P],
+        "south": [sum(1 for fl in p.flats if fl.door_dir == "S") for p in P],
+        "carpet": [int(sum(carpet[fl.unit] for fl in p.flats) / 10) for p in P],
+    }
+    for u in units:
+        arr["c" + u] = [p.counts().get(u, 0) for p in P]
+        arr["r" + u] = [1 if p.refuge_flat().unit == u else 0 for p in P]
     m = cp_model.CpModel()
-    x = {(t, k): m.NewBoolVar(f"x{t}_{k}") for t in range(T) for k in range(len(P))}
+    k = [m.NewIntVar(0, n - 1, f"k{t}") for t in range(T)]
     f = [m.NewIntVar(fmin, fmax, f"f{t}") for t in range(T)]
     r = [m.NewIntVar(0, max(R), f"r{t}") for t in range(T)]
-    y, z = {}, {}
+
+    def look(name, t, lo, hi):
+        v = m.NewIntVar(lo, hi, f"{name}{t}")
+        m.AddElement(k[t], arr[name], v)
+        return v
+
+    def times(a, bvar, hi, name):
+        v = m.NewIntVar(0, hi, name)
+        m.AddMultiplicationEquality(v, [a, bvar])
+        return v
+
+    cnt = {u: [] for u in units}
+    area_t, south_t, carpet_t = [], [], []
     for t in range(T):
-        m.AddExactlyOne(x[t, k] for k in range(len(P)))
         idx = m.NewIntVar(0, fmax - fmin, f"i{t}")
         m.Add(idx == f[t] - fmin)
         m.AddElement(idx, R, r[t])
-        for k, p in enumerate(P):
-            y[t, k] = m.NewIntVar(0, fmax, f"y{t}_{k}")
-            z[t, k] = m.NewIntVar(0, max(R), f"z{t}_{k}")
-            for var, src, hi in ((y[t, k], f[t], fmax), (z[t, k], r[t], max(R))):
-                m.Add(var <= hi * x[t, k])
-                m.Add(var <= src)
-                m.Add(var >= src - hi * (1 - x[t, k]))
-            m.Add(f[t] <= fit[p.key] + fmax * (1 - x[t, k]))
-    cnt = {}
-    for u in units:
-        cnt[u] = sum(p.counts().get(u, 0) * y[t, k] for t in range(T) for k, p in enumerate(P)) \
-            - sum(z[t, k] for t in range(T) for k, p in enumerate(P) if p.refuge_flat().unit == u)
-    N = sum(cnt.values())
+        m.Add(f[t] <= look("fit", t, 0, fmax))
+        for u in units:
+            per = look("c" + u, t, 0, 6)
+            isr = look("r" + u, t, 0, 1)
+            cnt[u].append(times(f[t], per, 6 * fmax, f"n{u}{t}") - times(r[t], isr, max(R), f"q{u}{t}"))
+        a = look("area", t, 0, max(arr["area"]))
+        ra = look("rarea", t, 0, max(arr["rarea"]))
+        area_t.append(times(f[t], a, fmax * max(arr["area"]), f"A{t}") - times(r[t], ra, max(R) * max(arr["rarea"]), f"RA{t}"))
+        south_t.append(times(f[t], look("south", t, 0, 6), 6 * fmax, f"S{t}"))
+        carpet_t.append(times(f[t], look("carpet", t, 0, max(arr["carpet"])), fmax * max(arr["carpet"]), f"C{t}"))
+    N_u = {u: sum(cnt[u]) for u in units}
+    N = sum(N_u.values())
     tol = int(round(10.0 * float(fx["mix_tol_pp"])))  # per mille
     dev = []
     for u in units:
         S = int(round(1000 * share[u]))
-        d = m.NewIntVar(0, 10 ** 7, f"dev{u}")
-        m.AddAbsEquality(d, 1000 * cnt[u] - S * N)
-        m.Add(1000 * cnt[u] - S * N <= tol * N)
-        m.Add(S * N - 1000 * cnt[u] <= tol * N)
+        m.Add(1000 * N_u[u] - S * N <= tol * N)
+        m.Add(S * N - 1000 * N_u[u] <= tol * N)
+        d = m.NewIntVar(0, 10 ** 6, f"dev{u}")
+        m.AddAbsEquality(d, 1000 * N_u[u] - S * N)
         dev.append(d)
     lob, club = float(cfg["fsi"]["gf_lobby_m2_per_core"]), float(cfg["fsi"]["clubhouse_m2"])
-    area = sum(int(round(10 * p.area_m2)) * y[t, k] for t in range(T) for k, p in enumerate(P)) \
-        - sum(int(round(10 * p.refuge_flat().area_m2)) * z[t, k] for t in range(T) for k, p in enumerate(P)) \
-        + int(round(10 * (T * lob + club)))
+    area = sum(area_t) + int(round(10 * (T * lob + club)))
     tgt, cap = float(cfg["fsi"]["target"]), float(cfg["fsi"]["cap"])
     m.Add(area <= int(cap * net * 10))
     m.Add(area >= int((tgt - float(fx["fsi_band"])) * net * 10))
-    gap = m.NewIntVar(0, 10 ** 8, "gap")
+    gap = m.NewIntVar(0, 10 ** 7, "gap")
     m.AddAbsEquality(gap, area - int(tgt * net * 10))
-    south = sum(sum(1 for fl in p.flats if fl.door_dir == "S") * y[t, k] for t in range(T) for k, p in enumerate(P))
     hi_f, lo_f = m.NewIntVar(fmin, fmax, "hi"), m.NewIntVar(fmin, fmax, "lo")
     m.AddMaxEquality(hi_f, f)
     m.AddMinEquality(lo_f, f)
-    phase = []
-    for g in (0, 1):
-        phase.append(sum(int(sum(carpet[fl.unit] for fl in p.flats) / 10) * y[t, k]
-                         for t in range(T) if fx["podiums"][t] == g for k, p in enumerate(P)))
+    ph = [sum(c for t, c in enumerate(carpet_t) if fx["podiums"][t] == g) for g in (0, 1)]
     imb = m.NewIntVar(0, 10 ** 7, "imb")
-    m.AddAbsEquality(imb, phase[0] - phase[1])
+    m.AddAbsEquality(imb, ph[0] - ph[1])
     for combo, floors in nogoods:  # this plate set does not fit at these floors or taller
-        lits = [x[t, pos[p.key]] for t, p in enumerate(combo) if p.key in pos]
-        if len(lits) < T:
+        if not all(p.key in pos for p in combo):
             continue
-        taller = []
-        for t, fl in enumerate(floors):
-            bt = m.NewBoolVar("")
-            m.Add(f[t] >= fl).OnlyEnforceIf(bt)
-            m.Add(f[t] < fl).OnlyEnforceIf(bt.Not())
-            taller.append(bt)
-        m.AddBoolOr([l.Not() for l in lits] + [bt.Not() for bt in taller])
-    for combo in exclude:  # already reported: ask for a different plate set
-        lits = [x[t, pos[p.key]] for t, p in enumerate(combo) if p.key in pos]
-        if len(lits) == T:
-            m.AddBoolOr([l.Not() for l in lits])
+        lits = []
+        for t, (p, fl) in enumerate(zip(combo, floors)):
+            same, taller = m.NewBoolVar(""), m.NewBoolVar("")
+            m.Add(k[t] == pos[p.key]).OnlyEnforceIf(same)
+            m.Add(k[t] != pos[p.key]).OnlyEnforceIf(same.Not())
+            m.Add(f[t] >= fl).OnlyEnforceIf(taller)
+            m.Add(f[t] < fl).OnlyEnforceIf(taller.Not())
+            lits += [same, taller]
+        m.AddBoolOr([l.Not() for l in lits])
+    ex = [tuple(pos[p.key] for p in combo) for combo in exclude if all(p.key in pos for p in combo)]
+    if ex:
+        m.AddForbiddenAssignments(k, ex)
     w = fx["weights"]
     # units: gap 0.1 m2 (0.01 FSI ~ 1,700), dev per mille x flats (1 pp ~ 10 N), south doors, floors, carpet/10
-    m.Minimize(int(w["fsi"]) * gap + int(w["mix"]) * sum(dev) + int(w["south"]) * south
+    m.Minimize(int(w["fsi"]) * gap + int(w["mix"]) * sum(dev) + int(w["south"]) * sum(south_t)
                + int(w["height_spread"]) * (hi_f - lo_f) + int(w["phase"]) * imb)
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = time_s
@@ -191,8 +209,7 @@ def select(cfg: dict, plates: list[Plate], fit: dict[str, int], net: float, nogo
     st = solver.Solve(m)
     if st not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         return None
-    combo = [next(P[k] for k in range(len(P)) if solver.Value(x[t, k])) for t in range(T)]
-    return combo, [solver.Value(v) for v in f]
+    return [P[solver.Value(v)] for v in k], [solver.Value(v) for v in f]
 
 
 def solve_fixed(cfg: dict, progress=print, workers: int | None = None) -> dict[str, list[Scheme]]:
