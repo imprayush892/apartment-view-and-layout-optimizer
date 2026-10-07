@@ -145,8 +145,8 @@ areas scaled to the flat. CP-SAT holds, as hard rules (after NBC 2016 Part 3):
 * access: the foyer takes the main door; foyer, living, dining and passage form one circulation;
   bedrooms, kitchen, study, pooja and the common toilet open off it, attached toilets and dress off
   their bedroom, the utility off the kitchen, the balcony off the living;
-* sizes: net of walls, bedrooms 9.5 / 7.5 m2, kitchen 5 m2, bath + WC 2.8 m2; room proportions at most
-  1 : 2.2.
+* sizes: net of walls, bedrooms 9.5 / 7.5 m2, kitchen 5 m2, bath + WC 2.8 m2, passages 1.05 m and
+  balconies 1.35 m clear; room proportions at most 1 : 2.2.
 
 Soft: each room's target area, a second exposure for living and master bedroom, kitchen windows,
 bedrooms off the passage, and the Vastu placements (kitchen south-east, master bedroom south-west,

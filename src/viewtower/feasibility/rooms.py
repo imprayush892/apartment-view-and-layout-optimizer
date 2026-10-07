@@ -43,7 +43,7 @@ KINDS = {
     "DIN": dict(label="Dining", ext=None, minw=2.4),
     "KIT": dict(label="Kitchen", ext=None, minw=2.1),
     "UTL": dict(label="Utility", ext="ext", minw=1.1),
-    "BAL": dict(label="Balcony", ext="bal", minw=1.2),
+    "BAL": dict(label="Balcony", ext="bal", minw=1.5),
     "MBR": dict(label="Master bed", ext="hab", minw=3.0),
     "BR2": dict(label="Bedroom 2", ext="hab", minw=2.9),
     "BR3": dict(label="Bedroom 3", ext="hab", minw=2.8),
@@ -57,7 +57,7 @@ KINDS = {
     "PWD": dict(label="Powder", ext="vent", minw=1.1),
     "DRS": dict(label="Dress", ext=None, minw=1.4),
     "POJ": dict(label="Pooja", ext=None, minw=1.1),
-    "PAS": dict(label="Passage", ext=None, minw=1.0),
+    "PAS": dict(label="Passage", ext=None, minw=1.2),
 }
 CIRC = ("FOY", "LIV", "DIN", "PAS")
 
@@ -640,7 +640,7 @@ def _finish(lay: FlatLayout) -> None:
                 break
             if not r.vents and fr.shaft:
                 s = shared_wall(r.rect, fr.shaft)
-                if s and _seg_len(s) >= 0.6:
+                if s and _seg_len(s) >= 0.6 - 1e-6:
                     r.vents.append(_sub(s, 0.6))
     # doors and openings
     side, e0, e1, lvl = fr.entry

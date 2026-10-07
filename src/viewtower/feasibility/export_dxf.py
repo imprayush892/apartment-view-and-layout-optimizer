@@ -199,12 +199,13 @@ def write_scheme_dxf(path: str | Path, scheme: Scheme, site: FeasibilitySite, cf
             msp.add_lwpolyline([(x + dx, y + dy) for x, y in sh], close=True, dxfattribs={"layer": "A-SHAFT"})
             _text(msp, "SHAFT", sum(x for x, _ in sh[:4]) / 4 + dx, sum(y for _, y in sh[:4]) / 4 + dy, 0.35, "A-SHAFT")
         towers = ", ".join(t.name for t in scheme.towers if t.plate.key == p.key)
-        _text(msp, f"Typical floor {p.variant} ({towers})", ox, oy + 3, 1.8, align=TextEntityAlignment.LEFT)
+        lift = 6.5 if pr else 0.0  # room plans put the end flats' labels outside the plate
+        _text(msp, f"Typical floor {p.variant} ({towers})", ox, oy + 3 + lift, 1.8, align=TextEntityAlignment.LEFT)
         fac = p.facing()
         _text(msp, f"{p.width:.1f} x {p.depth:.1f} m | plate {p.area_m2:,.0f} m2 | core+lobby {p.circulation_m2:,.0f} m2"
                    f" | doors N{fac['N']} E{fac['E']} S{fac['S']} W{fac['W']}",
-              ox, oy + 0.8, 1.1, align=TextEntityAlignment.LEFT)
-        oy -= (fb[3] - fb[1]) + 14
+              ox, oy + 0.8 + lift, 1.1, align=TextEntityAlignment.LEFT)
+        oy -= (fb[3] - fb[1]) + 14 + 2 * lift
 
     # ---------------- area statement
     m = scheme.metrics

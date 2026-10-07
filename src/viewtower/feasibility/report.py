@@ -39,7 +39,7 @@ def _room_section(cfg: dict, rooms: dict) -> list[str]:
          f"{cfg['rooms']['shaft_w_m']} x {cfg['rooms']['shaft_d_m']} m, with mechanical exhaust above 30 m); the "
          "kitchen a window or an exterior utility; every room reached from the foyer through the living, dining or "
          "passage, with attached toilets off their bedroom; bedrooms at least 9.5 / 7.5 m², kitchen 5 m², bath + WC "
-         "2.8 m² (net of walls). Vastu placements are preferences, not rules.", "",
+         "2.8 m² (net of walls); passages 1.05 m and balconies 1.35 m clear. Vastu placements are preferences, not rules.", "",
          f"**{len(ok)} of {len(flats)} flat layouts meet every rule.**", ""]
     for lay in flats:
         if not lay["ok"]:
@@ -57,7 +57,9 @@ def _room_section(cfg: dict, rooms: dict) -> list[str]:
               f"({lay['carpet_m2'] * 10.7639:,.0f} ft²) against {nominal:.1f} m² nominal", "",
               "| Room | Net size m | Net m² | Light and air |", "|---|---|---|---|"]
         for r in lay["rooms"]:
-            air = "window" if r["windows"] else ("ventilator" if r["vents"] else "")
+            air = ("window onto the balcony" if r.get("through_balcony") else "window") if r["windows"] else \
+                "ventilator" if r["vents"] else "balcony door" if r["code"] == "LIV" else \
+                "through the utility" if r["code"] == "KIT" else ""
             L.append(f"| {r['label']} | {max(0, r['w'] - 0.15):.2f} × {max(0, r['d'] - 0.15):.2f} | {r['net_m2']:.1f} | {air} |")
         L += ["", f"Vastu: {vastu or 'none of the preferred placements'}.", ""]
     return L
