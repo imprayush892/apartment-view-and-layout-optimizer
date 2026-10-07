@@ -306,7 +306,7 @@ def solve_fixed(cfg: dict, progress=print, workers: int | None = None) -> dict[s
         plates = best_geometries(plates, fit, int(fx["geometries_per_mix"]))
         progress(f"{scenario}: {ok} of {len(fit)} candidate plates fit the arrangement; tallest "
                  f"{max((max(v) for v in fit.values()), default=0)} floors; {len(plates)} kept for selection")
-        schemes, nogoods, exclude, pool = [], [], [], []
+        schemes, nogoods, exclude, pool, seen = [], [], [], [], set()
 
         def report(towers, lay):
             visitors_and_parking(site, lay, cfg)
@@ -318,8 +318,9 @@ def solve_fixed(cfg: dict, progress=print, workers: int | None = None) -> dict[s
             progress(f"{scenario}: option {sum(1 for x in schemes if x.mode == 'target')} FSI {m['fsi']:.3f}, "
                      f"{m['flats']} flats, every type within {type_dev_pp(m['mix_counts'], cfg):.2f} pp")
             comp = _compliant(site, cfg, net, plates, fit, towers, lay, nogoods, scenario)
-            if comp is not None:
+            if comp is not None and tuple((t.plate.key, t.floors) for t in comp[0]) not in seen:
                 ct, clay = comp
+                seen.add(tuple((t.plate.key, t.floors) for t in ct))
                 cm = metrics(ct, clay, cfg, site)
                 cp = penalties(cm, cfg, "compliant")
                 schemes.append(Scheme(scenario, "compliant", ct, clay, cm, cp, round(sum(cp.values()), 3),
