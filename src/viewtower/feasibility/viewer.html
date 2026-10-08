@@ -12,7 +12,7 @@
   --u1: #2a78d6; --u2: #eb6834; --u3: #1baf7a; --u4: #eda100; --u5: #e87ba4;
   --p1: #008300; --p2: #4a3aa7;
   --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b; --good-text: #006300;
-  --lvl-b: #184f95; --lvl-g: #2a78d6; --lvl-s: #6da7ec;
+  --lvl-b: #184f95; --lvl-b2: #0d2f5c; --lvl-g: #2a78d6; --lvl-s: #6da7ec;
   --plot: #ecebe6; --widening: #f1c9c4; --osr: #a9d8a0; --green: #cfe9c0; --drive: #d9d8d3; --podium: #efe0c3;
   --visitor: #b9d2f2; --core: #4b4a46; --lobby: #e4e3dd; --accent: #c25a2c;
   --room-day: #f6ead6; --room-bed: #e3ecf8; --room-wet: #dcefee; --room-kit: #f7dfd4; --room-out: #e2f0dc;
@@ -25,7 +25,7 @@
     --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
     --u1: #3987e5; --u2: #d95926; --u3: #199e70; --u4: #c98500; --u5: #d55181;
     --p1: #008300; --p2: #9085e9; --good-text: #0ca30c;
-    --lvl-b: #6da7ec; --lvl-g: #3987e5; --lvl-s: #1c5cab;
+    --lvl-b: #6da7ec; --lvl-b2: #a9cbf5; --lvl-g: #3987e5; --lvl-s: #1c5cab;
     --plot: #262624; --widening: #5a2f2b; --osr: #2f5a2a; --green: #2a4426; --drive: #34342f; --podium: #4a3f2c;
     --visitor: #24456e; --core: #c3c2b7; --lobby: #3a3a36; --accent: #e07a48;
     --room-day: #3a3326; --room-bed: #24303f; --room-wet: #1f3533; --room-kit: #3d2b24; --room-out: #26361f;
@@ -38,7 +38,7 @@
   --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
   --u1: #3987e5; --u2: #d95926; --u3: #199e70; --u4: #c98500; --u5: #d55181;
   --p1: #008300; --p2: #9085e9; --good-text: #0ca30c;
-  --lvl-b: #6da7ec; --lvl-g: #3987e5; --lvl-s: #1c5cab;
+  --lvl-b: #6da7ec; --lvl-b2: #a9cbf5; --lvl-g: #3987e5; --lvl-s: #1c5cab;
   --plot: #262624; --widening: #5a2f2b; --osr: #2f5a2a; --green: #2a4426; --drive: #34342f; --podium: #4a3f2c;
   --visitor: #24456e; --core: #c3c2b7; --lobby: #3a3a36; --accent: #e07a48;
   --room-day: #3a3326; --room-bed: #24303f; --room-wet: #1f3533; --room-kit: #3d2b24; --room-out: #26361f;
@@ -181,7 +181,7 @@ svg text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
   <section class="grid2">
     <div class="card">
       <h2>Car parking by phase</h2>
-      <div class="sub">Cars provided on basement, ground and stilt 1, against the cars needed at the required ratio.</div>
+      <div class="sub">Cars provided on the basement levels, ground and stilt 1, against the cars needed at the required ratio.</div>
       <div class="legend" id="legendPark"></div>
       <svg id="parkChart" width="100%" height="200"></svg>
       <div class="tablewrap"><table id="parkTbl"></table></div>
@@ -550,7 +550,8 @@ function renderTowers(M) {
   ck.push([capOK, false, `FSI ${M.fsi.toFixed(3)} ${capOK ? "within" : "over"} the ${B.fsi.cap} cap (target ${B.fsi.target}; gap ${(M.fsi - B.fsi.target).toFixed(3)})`]);
   ck.push([M.maxH <= B.building.max_height_m + 1e-9, false, `Tallest tower ${M.maxH.toFixed(1)} m against the ${B.building.max_height_m} m ceiling`]);
   [0, 1].forEach(g => ck.push([M.supply[g] >= M.demand[g], false, `Phase ${g + 1} parks ${M.supply[g]} cars for ${M.demand[g]} needed (${B.parking.ratio} × ${M.phase[g].flats} flats)`]));
-  ck.push([M.visBays >= M.visNeed, false, `Visitor bays in the setbacks: ${M.visBays} for ${M.visNeed} needed (${B.parking.visitor_ratio * 100}% of resident cars), none in the EIA belt`]);
+  { const pk = S.metrics.parking, vbs = (pk.visitor_basement || [0, 0]).reduce((a, b) => a + b, 0), setb = pk.visitor_bays_setback ?? M.visBays;
+    ck.push([M.visBays >= M.visNeed, false, `Visitor bays: ${setb} in the setbacks${vbs ? ` and ${vbs} in the basement` : ""} for ${M.visNeed} needed (${B.parking.visitor_ratio * 100}% of resident cars), none in the EIA belt`]); }
   const allIn = S.towers.every(t => planChecks[t.name].env && planChecks[t.name].pod);
   ck.push([allIn, false, allIn ? "All towers inside their height setback and on their podium" : "A tower is outside its setback line or off its podium (see plan)"]);
   const spOK = S.towers.every(t => !planChecks[t.name].spacing.length);
@@ -668,11 +669,21 @@ function renderFacing(M) {
   barRows("faceChart", ["N", "E", "S", "W"].map(d => ({ label: name[d], v: M.facing[d] / M.flats, color: col[d],
     text: `${(M.facing[d] / M.flats * 100).toFixed(1)}% · ${M.facing[d]}`, tip: `<b>${name[d]}-facing doors</b><br>${M.facing[d]} flats` })), 1, v => (v * 100).toFixed(0) + "%");
 }
+function parkLevels(pk) {
+  const bl = pk.basement_levels && pk.basement_levels[0].length ? pk.basement_levels : [[pk.basement[0]], [pk.basement[1]]];
+  const n = Math.max(bl[0].length, bl[1].length);
+  const rows = [];
+  for (let k = 0; k < n; k++) rows.push({ key: `B${k + 1}`, label: n > 1 ? `Basement ${k + 1}` : "Basement", c: k === 0 ? "--lvl-b" : "--lvl-b2", v: [bl[0][k] || 0, bl[1][k] || 0] });
+  rows.push({ key: "gf", label: "Ground floor", c: "--lvl-g", v: pk.gf }, { key: "s1", label: "Stilt 1 (part clubhouse)", c: "--lvl-s", v: pk.s1 });
+  return rows;
+}
 function renderParking(M) {
   const pk = S.metrics.parking, svg = $("parkChart"), W = svg.clientWidth || 520, left = 90, right = 70, rowH = 46, H = 2 * rowH + 26;
-  $("legendPark").innerHTML = [["--lvl-b", "Basement"], ["--lvl-g", "Ground floor"], ["--lvl-s", "Stilt 1"]].map(([c, l]) => `<span><i class="sw" style="background:var(${c})"></i>${l}</span>`).join("") +
-    `<span><i class="sw" style="background:var(--ink);width:3px"></i>Cars needed</span>`;
-  const maxV = Math.max(...pk.supply, ...M.demand) * 1.1;
+  const lv_rows = parkLevels(pk), vb = pk.visitor_basement || [0, 0];
+  $("legendPark").innerHTML = lv_rows.map(r => `<span><i class="sw" style="background:var(${r.c})"></i>${r.label.replace(" (part clubhouse)", "")}</span>`).join("") +
+    `<span><i class="sw" style="background:var(--ink);width:3px"></i>Cars needed${vb[0] + vb[1] ? " (residents + visitors parked below)" : ""}</span>`;
+  const phys = [0, 1].map(g => lv_rows.reduce((a, r) => a + r.v[g], 0));
+  const maxV = Math.max(...phys, ...M.demand.map((d, g) => d + vb[g])) * 1.1;
   const x = (v) => left + (W - left - right) * v / maxV;
   svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   let h = "";
@@ -680,24 +691,31 @@ function renderParking(M) {
   [0, 1].forEach(g => {
     const y = 8 + g * rowH; let x0 = left;
     h += `<text x="${left - 8}" y="${y + 18}" font-size="12.5" fill="var(--ink)" text-anchor="end">Phase ${g + 1}</text>`;
-    [["basement", "--lvl-b", "Basement"], ["gf", "--lvl-g", "Ground"], ["s1", "--lvl-s", "Stilt 1"]].forEach(([k, c, l], i) => {
-      const w = x(pk[k][g]) - left; h += `<rect x="${x0}" y="${y + 6}" width="${Math.max(0, w - 2)}" height="22" rx="${i === 2 ? 4 : 0}" fill="var(${c})" data-tip="<b>Phase ${g + 1} · ${l}</b><br>${pk[k][g]} cars"/>`; x0 += w;
+    lv_rows.forEach((r, i) => {
+      const w = x(r.v[g]) - left; h += `<rect x="${x0}" y="${y + 6}" width="${Math.max(0, w - 2)}" height="22" rx="${i === lv_rows.length - 1 ? 4 : 0}" fill="var(${r.c})" data-tip="<b>Phase ${g + 1} · ${r.label}</b><br>${r.v[g]} cars"/>`; x0 += w;
     });
-    h += `<line x1="${x(M.demand[g])}" y1="${y}" x2="${x(M.demand[g])}" y2="${y + 34}" stroke="var(--ink)" stroke-width="2.5" data-tip="<b>Phase ${g + 1} needs</b><br>${M.demand[g]} cars (${B.parking.ratio} × ${M.phase[g].flats} flats)"/>`;
+    const need = M.demand[g] + vb[g];
+    h += `<line x1="${x(need)}" y1="${y}" x2="${x(need)}" y2="${y + 34}" stroke="var(--ink)" stroke-width="2.5" data-tip="<b>Phase ${g + 1} needs</b><br>${M.demand[g]} cars (${B.parking.ratio} × ${M.phase[g].flats} flats)${vb[g] ? ` + ${vb[g]} visitors` : ""}"/>`;
     const d = pk.supply[g] - M.demand[g];
     h += `<text x="${W - right + 8}" y="${y + 21}" font-size="12" fill="var(--ink-2)">${d >= 0 ? "+" : ""}${d}</text>`;
   });
   svg.innerHTML = h; bindTips(svg);
   const lv = S.metrics.levers;
   let t = `<thead><tr><th>Level</th><th>Phase 1</th><th>Phase 2</th><th>Total</th></tr></thead><tbody>`;
-  [["Basement", "basement"], ["Ground floor", "gf"], ["Stilt 1 (part clubhouse)", "s1"], ["Provided", "supply"]].forEach(([l, k]) =>
-    t += `<tr><td>${l}</td><td>${pk[k][0]}</td><td>${pk[k][1]}</td><td>${pk[k][0] + pk[k][1]}</td></tr>`);
+  lv_rows.forEach(r => t += `<tr><td>${r.label}</td><td>${r.v[0]}</td><td>${r.v[1]}</td><td>${r.v[0] + r.v[1]}</td></tr>`);
+  if (vb[0] + vb[1]) t += `<tr><td>Less visitors parked in the basement</td><td>−${vb[0]}</td><td>−${vb[1]}</td><td>−${vb[0] + vb[1]}</td></tr>`;
+  t += `<tr><td>Provided for residents</td><td>${pk.supply[0]}</td><td>${pk.supply[1]}</td><td>${pk.supply[0] + pk.supply[1]}</td></tr>`;
   t += `<tr><td>Needed at ${B.parking.ratio}</td><td>${M.demand[0]}</td><td>${M.demand[1]}</td><td>${M.demand[0] + M.demand[1]}</td></tr>`;
-  t += `<tr><td>Visitor bays (setbacks)</td><td colspan="2">${M.visBays} provided / ${M.visNeed} needed</td><td></td></tr></tbody>`;
+  t += `<tr><td>Spare (provision)</td><td>${pk.supply[0] - M.demand[0]}</td><td>${pk.supply[1] - M.demand[1]}</td><td>${pk.supply[0] + pk.supply[1] - M.demand[0] - M.demand[1]}</td></tr>`;
+  const setb = pk.visitor_bays_setback ?? M.visBays;
+  t += `<tr><td>Visitor bays</td><td colspan="2">${setb} in the setbacks${vb[0] + vb[1] ? ` + ${vb[0] + vb[1]} in the basement` : ""} / ${M.visNeed} needed</td><td></td></tr>`;
+  if (pk.lower_needed_m2 && pk.basement_levels && pk.basement_levels[0].length > 1)
+    t += `<tr><td>Lower basement area needed</td><td>${fmt(pk.lower_needed_m2[0])} m²</td><td>${fmt(pk.lower_needed_m2[1])} m²</td><td>of ${fmt(pk.lower_basement_m2[0] + pk.lower_basement_m2[1])} m² provided</td></tr>`;
+  t += `</tbody>`;
   const short = Math.max(0, M.demand[0] - pk.supply[0]) + Math.max(0, M.demand[1] - pk.supply[1]) + Math.max(0, M.visNeed - M.visBays);
   if (short > 0 && lv) {
     t += `<tbody><tr><th class="l" colspan="4">To close the ${short}-car gap (any one of these)</th></tr>
-      <tr><td class="l" colspan="3">Second basement under part of the site</td><td>${fmt(short * B.parking.m2_per_car_basement + B.parking.ramp_basement_m2)} m²</td></tr>
+      <tr><td class="l" colspan="3">Another basement level under part of the site</td><td>${fmt(short * B.parking.m2_per_car_basement + B.parking.ramp_basement_m2)} m²</td></tr>
       <tr><td class="l" colspan="3">Two-level stackers in the basement</td><td>${short} stackers</td></tr>
       <tr><td class="l" colspan="3">Basement also under the EIA belt (if the EIA allows)</td><td>up to ${lv.basement_under_green_cars} cars</td></tr>
       <tr><td class="l" colspan="3">Part second stilt level (adds 3.3 m of podium)</td><td>${fmt(short * B.parking.m2_per_car_podium)} m²</td></tr></tbody>`;

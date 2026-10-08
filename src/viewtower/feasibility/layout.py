@@ -533,29 +533,97 @@ def visitors_and_parking(site: FeasibilitySite, lay: Layout, cfg: dict) -> None:
     else:
         bases = [site.basement_env.intersection(box(-1e4, lay.y_split, 1e4, 1e4)),
                  site.basement_env.intersection(box(-1e4, -1e4, 1e4, lay.y_split))]
-    club = float(cfg["fsi"]["clubhouse_m2"])
-    out = {"demand": demand, "flats": flats, "visitor_need": v_need, "visitor_bays": bays}
+    if pk.get("basement_split") == "balance":
+        bases = _balance_basements(site, lay, cfg, podiums, demand, v_need - bays) or bases
+        lay.basements = bases
+    levels = max(1, int(pk.get("basement_levels", 1)))
+    share = float(pk.get("lower_basement_share", 1.0))
+    ramp_lo, serv_lo = float(pk.get("ramp_lower_basement_m2", 200)), float(pk.get("lower_basement_services_m2", 150))
+    bay_b = float(pk["m2_per_car_basement"])
+    out = {"demand": demand, "flats": flats, "visitor_need": v_need, "visitor_bays": bays, "visitor_bays_setback": bays,
+           "visitor_basement": [0, 0], "basement_levels": [[], []], "lower_basement_m2": [0.0, 0.0]}
     for key in ("basement", "gf", "s1", "supply"):
         out[key] = [0, 0]
     for g in (0, 1):
         tw = [t for t in lay.towers if t.podium == g]
-        hubs = sum(t.plate.hub.area + t.plate.lobby.difference(t.plate.hub).area for t in tw)
-        base = bases[g].area
-        b_use = base - hubs - float(pk["basement_services_m2"]) / 2 - float(pk["basement_services_per_tower_m2"]) * len(tw) \
-            - (float(pk["ramp_basement_m2"]) if tw else 0)
-        pod = podiums[g].area
-        gf_use = pod - hubs - float(cfg["fsi"]["gf_lobby_m2_per_core"]) * len(tw) - (float(pk["ramp_gf_m2"]) if tw else 0)
-        s1_use = pod - hubs - (club if g == 0 else 0.0) - (float(pk["ramp_s1_m2"]) if tw else 0)
-        nb = max(0, int(b_use // float(pk["m2_per_car_basement"])))
-        ng = max(0, int(gf_use // float(pk["m2_per_car_podium"])))
-        ns = max(0, int(s1_use // float(pk["m2_per_car_podium"])))
-        out["basement"][g], out["gf"][g], out["s1"][g] = nb, ng, ns
-        out["supply"][g] = nb + ng + ns
+        base, pod = bases[g].area, podiums[g].area
+        lvl, ng, ns = _phase_cars(base, pod, tw, g, cfg)
+        out["lower_basement_m2"][g] = round(base * share * (levels - 1), 1)
+        out["basement_levels"][g] = lvl
+        out["basement"][g], out["gf"][g], out["s1"][g] = sum(lvl), ng, ns
+        out["supply"][g] = sum(lvl) + ng + ns
         out.setdefault("areas", []).append({"basement_m2": round(base, 1), "podium_m2": round(pod, 1)})
+    # visitors the setback bays cannot take park in the basement surplus, most spare phase first
+    if pk.get("visitors_in_basement", False) and bays < v_need:
+        left = v_need - bays
+        for g in sorted((0, 1), key=lambda g: demand[g] - out["supply"][g]):
+            take = min(left, max(0, out["supply"][g] - demand[g]))
+            out["visitor_basement"][g] = take
+            out["supply"][g] -= take  # supply is what is left for residents
+            left -= take
+        out["visitor_bays"] = bays + sum(out["visitor_basement"])
+    # the lower-level area each phase actually needs (residents and basement visitors)
+    out["lower_needed_m2"] = [0, 0]
+    for g in (0, 1):
+        upper = out["basement_levels"][g][0] + out["gf"][g] + out["s1"][g]
+        need = demand[g] + out["visitor_basement"][g] - upper
+        if need > 0 and levels > 1:
+            out["lower_needed_m2"][g] = round(need * bay_b + ramp_lo + serv_lo)
     out["total_demand"] = sum(demand)
     out["total_supply"] = sum(out["supply"])
     out["margin"] = out["total_supply"] - out["total_demand"]
     lay.parking = out
+
+
+def _phase_cars(base_area: float, pod_area: float, tw: list, g: int, cfg: dict) -> tuple[list[int], int, int]:
+    """Cars of one phase: per basement level, ground floor and stilt 1."""
+    pk = cfg["parking"]
+    levels = max(1, int(pk.get("basement_levels", 1)))
+    share = float(pk.get("lower_basement_share", 1.0))
+    ramp_lo, serv_lo = float(pk.get("ramp_lower_basement_m2", 200)), float(pk.get("lower_basement_services_m2", 150))
+    bay_b, bay_p = float(pk["m2_per_car_basement"]), float(pk["m2_per_car_podium"])
+    hubs = sum(t.plate.hub.area + t.plate.lobby.difference(t.plate.hub).area for t in tw)
+    b_use = base_area - hubs - float(pk["basement_services_m2"]) / 2 - float(pk["basement_services_per_tower_m2"]) * len(tw) \
+        - (float(pk["ramp_basement_m2"]) if tw else 0) - (ramp_lo if tw and levels > 1 else 0)
+    lvl = [max(0, int(b_use // bay_b))]
+    for k in range(1, levels):  # lower levels: cores, the ramp down (and up), services
+        lo_use = base_area * share - hubs - (ramp_lo * (2 if k < levels - 1 else 1) if tw else 0) - (serv_lo if tw else 0)
+        lvl.append(max(0, int(lo_use // bay_b)))
+    gf_use = pod_area - hubs - float(cfg["fsi"]["gf_lobby_m2_per_core"]) * len(tw) - (float(pk["ramp_gf_m2"]) if tw else 0)
+    s1_use = pod_area - hubs - (float(cfg["fsi"]["clubhouse_m2"]) if g == 0 else 0.0) - (float(pk["ramp_s1_m2"]) if tw else 0)
+    return lvl, max(0, int(gf_use // bay_p)), max(0, int(s1_use // bay_p))
+
+
+def _balance_basements(site: FeasibilitySite, lay: Layout, cfg: dict, podiums: list, demand: list[int],
+                       visitors_short: int) -> list | None:
+    """Split the basement between the phases on a straight east-west joint, placed between the two
+    phases' towers so each phase parks its own residents with the most even spare (visitors the
+    setbacks cannot take count against the phase with more room). None if no such joint exists
+    (the phases' towers overlap north to south)."""
+    groups = [[t for t in lay.towers if t.podium == g] for g in (0, 1)]
+    if not all(groups):
+        return None
+    ys = [sum(t.footprint().centroid.y for t in gr) / len(gr) for gr in groups]
+    north = 0 if ys[0] >= ys[1] else 1
+    lo = max(t.footprint().bounds[3] for t in groups[1 - north])  # top of the southern phase's towers
+    hi = min(t.footprint().bounds[1] for t in groups[north])      # bottom of the northern phase's towers
+    if hi - lo < 1.0:
+        return None
+    env = site.basement_env
+    best = None
+    y = lo + 0.5
+    while y <= hi - 0.5:
+        parts = {north: env.intersection(box(-1e4, y, 1e4, 1e4)), 1 - north: env.intersection(box(-1e4, -1e4, 1e4, y))}
+        spare = []
+        for g in (0, 1):
+            lvl, ng, ns = _phase_cars(parts[g].area, podiums[g].area, groups[g], g, cfg)
+            spare.append(sum(lvl) + ng + ns - demand[g])
+        score = min(spare[0], spare[1]) if visitors_short <= 0 else min(min(spare), sum(spare) - visitors_short)
+        key = (score, -abs(spare[0] - spare[1]))
+        if best is None or key > best[0]:
+            best = (key, [parts[0], parts[1]])
+        y += 0.5
+    return best[1] if best else None
 
 
 def _bays_in(strip, bw: float, clear: float, depth: float | None = None) -> int:

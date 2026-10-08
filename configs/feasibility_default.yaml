@@ -81,6 +81,13 @@ parking:
   ramp_basement_m2: 200     # per podium
   ramp_gf_m2: 400           # per podium: ramp down to the basement and up to stilt 1
   ramp_s1_m2: 150
+  basement_levels: 1        # basement levels under each phase; B2 and lower repeat the B1 footprint
+  lower_basement_share: 1.0 # share of the B1 footprint the lower levels take (below 1: a part level)
+  ramp_lower_basement_m2: 200   # per podium: the ramp B1 -> B2 (taken on both levels it joins)
+  lower_basement_services_m2: 150  # per podium and lower level: fire pumps, electrical, ventilation shafts
+  visitors_in_basement: false   # visitors the setback bays cannot take park in the basement surplus
+  basement_split: nearest   # nearest: each phase takes the basement nearer its towers; balance: one straight
+                            #   east-west joint between the phases' towers, placed so both phases park evenly
 
 fixed:                      # a fixed tower arrangement (viewtower feasibility --fixed): towers front to rear
   podiums: [0, 0, 1, 1]     # phase (podium) of each tower

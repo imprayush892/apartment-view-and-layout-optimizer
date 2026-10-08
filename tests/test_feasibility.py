@@ -219,3 +219,21 @@ def test_room_layout_tiles_the_flat_and_meets_the_rules(cfg):
             assert r.vents, r.code
         if r.code in NBC_MIN:
             assert (r.rect[2] - r.rect[0] - WALL) * (r.rect[3] - r.rect[1] - WALL) >= NBC_MIN[r.code] - 1e-6
+
+
+def test_second_basement_and_balanced_joint_add_cars_per_phase(cfg, site):
+    book = PlateBook(cfg)
+    fx = cfg["fixed"]
+    p = book.get("X5b", ("U2",) * 5, 21.0, 11.5)
+    one = place_chain(site, [Tower(f"T{i + 1}", p, 18, podium=g) for i, g in enumerate(fx["podiums"])], cfg, fx["sides"])
+    visitors_and_parking(site, one, cfg)
+    two_cfg = fconfig.load(EXAMPLE, {"parking": {"basement_levels": 2, "basement_split": "balance", "visitors_in_basement": True}})
+    two = place_chain(site, [Tower(f"T{i + 1}", p, 18, podium=g) for i, g in enumerate(fx["podiums"])], two_cfg, fx["sides"])
+    visitors_and_parking(site, two, two_cfg)
+    a, b = one.parking, two.parking
+    assert all(len(x) == 1 for x in a["basement_levels"]) and all(len(x) == 2 for x in b["basement_levels"])
+    assert sum(b["supply"]) + sum(b["visitor_basement"]) > sum(a["supply"])
+    assert b["visitor_bays"] >= b["visitor_need"]
+    assert sum(x.area for x in two.basements) == pytest.approx(site.basement_env.area, rel=1e-6)
+    for t in two.towers:  # the joint never cuts a tower: each core stands in its own phase's basement
+        assert two.basements[t.podium].buffer(1e-6).contains(t.footprint().intersection(site.basement_env))

@@ -72,7 +72,13 @@ closer than the setback may face each other for at most `facing_overlap_max_m`. 
 strip of visitor bays; groups are then spread towards the split.
 
 Parking per phase = basement + ground + stilt 1, after cores, ramps, services and the clubhouse, at
-`m2_per_car_*`. Visitor bays (`parking.visitor_ratio`) sit in the gap between podiums and in strips
+`m2_per_car_*`. `parking.basement_levels` adds lower basements (B2, B3 ...) under the same footprint
+(`lower_basement_share` for a part level), each less the cores, the ramp it shares with the level
+above (taken on both levels) and `lower_basement_services_m2`; the report gives the lower-level area
+each phase actually needs and the spare cars. With `basement_split: balance` the phases share the
+basement along one straight east-west joint between their towers, placed so both park their own
+residents with the most even spare; with `visitors_in_basement`, visitors the setback bays cannot
+take park in the basement surplus. Visitor bays (`parking.visitor_ratio`) sit in the gap between podiums and in strips
 between the fire driveway and the podium, never in the EIA belt.
 
 Every placed set yields two schemes:

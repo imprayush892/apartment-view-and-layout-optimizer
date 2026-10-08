@@ -96,11 +96,20 @@ def write_report(path: str | Path, cfg: dict, summary: dict, rooms: dict | None 
                 L += ["Mix: " + " · ".join(f"{t['label']} ({t['id']}) {m['mix_counts'].get(t['id'], 0)} = "
                                           f"{m['mix_counts'].get(t['id'], 0) / n * 100:.1f}% (target {t['share'] * 100:.0f}%)"
                                           for t in cfg["units"]["types"]), ""]
+                lvls = pk.get("basement_levels") or [[], []]
+                if max(len(x) for x in lvls) > 1:
+                    L += ["Cars by level: " + " · ".join(
+                        f"P{g + 1} " + ", ".join(f"B{k + 1} {n}" for k, n in enumerate(lvls[g])) + f", GF {pk['gf'][g]}, stilt 1 {pk['s1'][g]}"
+                        for g in (0, 1)) + f". Visitors: {pk.get('visitor_bays_setback', pk['visitor_bays'])} in the setbacks"
+                        + (f", {sum(pk.get('visitor_basement', [0, 0]))} in the basement" if sum(pk.get('visitor_basement', [0, 0])) else "")
+                        + f". Lower basement each phase needs: P1 {pk['lower_needed_m2'][0]:,} m², P2 {pk['lower_needed_m2'][1]:,} m² "
+                        f"(of {pk['lower_basement_m2'][0]:,.0f} / {pk['lower_basement_m2'][1]:,.0f} m² provided; "
+                        f"spare {pk['supply'][0] - pk['demand'][0]} / {pk['supply'][1] - pk['demand'][1]} cars).", ""]
                 if name == next(iter(summary)):
                     L += _scheme_rows(s, cfg) + [""]
                     lv = m.get("levers")
                     if mode == "target" and lv and lv["shortfall_cars"] > 0:
-                        L += [f"Parking gap {lv['shortfall_cars']} cars. Any one closes it: a second basement of about "
+                        L += [f"Parking gap {lv['shortfall_cars']} cars. Any one closes it: another basement level of about "
                               f"{lv['second_basement_m2']:,} m² ({lv['second_basement_share'] * 100:.0f}% of the basement footprint); "
                               f"{lv['stackers_in_basement']} two-level stackers ({lv['stacker_share_of_basement_bays'] * 100:.0f}% of basement bays); "
                               f"part second stilt of {lv['stilt2_m2']:,} m². Running the basement under the EIA belt, if the EIA allows it, gives up to "

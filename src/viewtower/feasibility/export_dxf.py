@@ -216,7 +216,7 @@ def write_scheme_dxf(path: str | Path, scheme: Scheme, site: FeasibilitySite, cf
         f"Flats {m['flats']} | carpet {m['carpet_ft2']:,} ft2 | SBU (x{cfg['units']['loading']}) {m['sbu_ft2']:,} ft2",
         "Mix: " + "  ".join(f"{u} {m['mix_counts'][u]} ({m['mix_shares'][u] * 100:.1f}%)" for u in m["mix_counts"]),
         f"Door facing: N {m['facing']['N']}  E {m['facing']['E']}  S {m['facing']['S']}  W {m['facing']['W']}",
-        f"Cars: demand {pk.get('demand')} supply {pk.get('supply')} (basement {pk.get('basement')} GF {pk.get('gf')}"
+        f"Cars: demand {pk.get('demand')} supply {pk.get('supply')} (basement {pk.get('basement_levels') or pk.get('basement')} GF {pk.get('gf')}"
         f" stilt-1 {pk.get('s1')}) | visitor bays {pk.get('visitor_bays')}/{pk.get('visitor_need')}",
         f"EIA green {site.green.area:,.0f} m2 ({site.green.area / site.net.area * 100:.1f}%, {site.green_width_m:.2f} m belt)"
         f" | OSR {site.osr.area:,.0f} m2 | road widening {site.widening.area:,.0f} m2",
