@@ -79,7 +79,7 @@ def scheme_json(s: Scheme, cfg: dict, label: str = "", rooms: dict | None = None
         "plates": {t.plate.key: plate_json(t.plate, (rooms or {}).get(t.plate.key)) for t in s.towers},
         "layout": {"y_split": round(lay.y_split, 2) if lay.y_split is not None else None, "podiums": [rings(p) for p in lay.podiums],
                    "gap_band": rings(lay.gap_band), "visitor_strips": [r for v in lay.visitor_strips for r in rings(v)],
-                   "visitor_bays": lay.visitor_bays},
+                   "visitor_bays": lay.visitor_bays, "basements": [rings(b) for b in (lay.basements or [])]},
     }
 
 

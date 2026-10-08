@@ -140,6 +140,15 @@ def write_scheme_dxf(path: str | Path, scheme: Scheme, site: FeasibilitySite, cf
     _poly(msp, site.green, "A-EIA-GREEN", hatch=True)
     _poly(msp, site.driveway, "A-DRIVEWAY")
     _poly(msp, site.basement_env, "A-BASEMENT")
+    pk = scheme.metrics.get("parking", {})
+    for g, bs in enumerate(scheme.layout.basements or []):  # each phase's basement (all levels), the joint between
+        if bs.is_empty:
+            continue
+        _poly(msp, bs, "A-BASEMENT")
+        lv = (pk.get("basement_levels") or [[], []])[g]
+        c = bs.representative_point()
+        _text(msp, f"P{g + 1} basement " + " / ".join(f"B{k + 1} {n} cars" for k, n in enumerate(lv)), c.x, c.y - 6, 1.4,
+              "A-BASEMENT")
     for g, pod in enumerate(scheme.layout.podiums):
         _poly(msp, pod, f"A-PODIUM-P{g + 1}", thickness=float(b["podium_height_m"]))
     for v in scheme.layout.visitor_strips:

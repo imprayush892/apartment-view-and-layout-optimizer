@@ -219,7 +219,7 @@ const SEG_LABEL = { middle: "Middle", upper_middle: "Upper-middle", luxury: "Lux
 const SCEN_LABEL = { segregated: "A · Segregated towers", targeted: "A · Targeted towers (price bands)", mixed: "B · Mixed towers" };
 const MODE_LABEL = { target: "At FSI " + B.fsi.target, compliant: "All rules met" };
 const state = { variant: Object.keys(DATA.variants)[0], scenario: null, mode: "target", idx: 0, colorBy: "unit", cut: 99,
-  layers: { widening: true, green: true, osr: true, drive: true, podium: true, visitor: true, basement: false, setback: true, flats: true, doors: true, labels: true } };
+  layers: { widening: true, green: true, osr: true, drive: true, podium: true, visitor: true, basement: true, setback: true, flats: true, doors: true, labels: true } };
 let S = null;  // working copy of the selected scheme
 
 // ------------------------------------------------------------ rules (mirrors the Python engine)
@@ -461,7 +461,10 @@ function renderPlan() {
   if (L.green) h += poly(site.green, `fill="var(--green)" stroke="none"`);
   if (L.osr) h += poly(site.osr, `fill="var(--osr)" stroke="none"`);
   if (L.drive) h += poly(site.driveway, `fill="var(--drive)" stroke="none"`);
-  if (L.basement) h += poly(site.basement_env, `fill="none" stroke="var(--muted)" stroke-width="0.4" stroke-dasharray="2 1.5"`);
+  if (L.basement) {
+    h += poly(site.basement_env, `fill="none" stroke="var(--muted)" stroke-width="0.4" stroke-dasharray="2 1.5"`);
+    (S.layout.basements || []).forEach((bs, g) => { h += poly(bs, `fill="none" stroke="var(--p${g + 1})" stroke-width="0.6" stroke-dasharray="3 1.5" data-tip="<b>Phase ${g + 1} basement</b><br>${(S.metrics.parking.basement_levels || [[], []])[g].map((n, k) => `B${k + 1} ${n} cars`).join(" · ")}"`); });
+  }
   if (L.podium) S.layout.podiums.forEach((pd, g) => h += poly(pd, `fill="var(--podium)" stroke="var(--axis)" stroke-width="0.3"`));
   if (L.visitor) h += poly(S.layout.visitor_strips, `fill="var(--visitor)" stroke="none"`);
   if (L.setback) {
@@ -500,7 +503,7 @@ function renderPlan() {
     }
     h += g;
   }
-  svg.innerHTML = h;
+  svg.innerHTML = h; bindTips(svg);
   svg.querySelectorAll("g.tower").forEach(el => el.addEventListener("pointerdown", startDrag));
   const bad = S.towers.filter(t => !planChecks[t.name].ok);
   $("planMsg").innerHTML = bad.length ? bad.map(t => {
@@ -703,14 +706,18 @@ function renderParking(M) {
   const lv = S.metrics.levers;
   let t = `<thead><tr><th>Level</th><th>Phase 1</th><th>Phase 2</th><th>Total</th></tr></thead><tbody>`;
   lv_rows.forEach(r => t += `<tr><td>${r.label}</td><td>${r.v[0]}</td><td>${r.v[1]}</td><td>${r.v[0] + r.v[1]}</td></tr>`);
-  if (vb[0] + vb[1]) t += `<tr><td>Less visitors parked in the basement</td><td>−${vb[0]}</td><td>−${vb[1]}</td><td>−${vb[0] + vb[1]}</td></tr>`;
+  const neg = (v) => v ? `−${v}` : "0";
+  if (vb[0] + vb[1]) t += `<tr><td>Less visitors parked in the basement</td><td>${neg(vb[0])}</td><td>${neg(vb[1])}</td><td>${neg(vb[0] + vb[1])}</td></tr>`;
   t += `<tr><td>Provided for residents</td><td>${pk.supply[0]}</td><td>${pk.supply[1]}</td><td>${pk.supply[0] + pk.supply[1]}</td></tr>`;
   t += `<tr><td>Needed at ${B.parking.ratio}</td><td>${M.demand[0]}</td><td>${M.demand[1]}</td><td>${M.demand[0] + M.demand[1]}</td></tr>`;
   t += `<tr><td>Spare (provision)</td><td>${pk.supply[0] - M.demand[0]}</td><td>${pk.supply[1] - M.demand[1]}</td><td>${pk.supply[0] + pk.supply[1] - M.demand[0] - M.demand[1]}</td></tr>`;
   const setb = pk.visitor_bays_setback ?? M.visBays;
-  t += `<tr><td>Visitor bays</td><td colspan="2">${setb} in the setbacks${vb[0] + vb[1] ? ` + ${vb[0] + vb[1]} in the basement` : ""} / ${M.visNeed} needed</td><td></td></tr>`;
-  if (pk.lower_needed_m2 && pk.basement_levels && pk.basement_levels[0].length > 1)
-    t += `<tr><td>Lower basement area needed</td><td>${fmt(pk.lower_needed_m2[0])} m²</td><td>${fmt(pk.lower_needed_m2[1])} m²</td><td>of ${fmt(pk.lower_basement_m2[0] + pk.lower_basement_m2[1])} m² provided</td></tr>`;
+  t += `<tr><td>Visitor bays: setbacks${vb[0] + vb[1] ? " + basement" : ""}</td><td colspan="2">${setb}${vb[0] + vb[1] ? ` + ${vb[0] + vb[1]}` : ""}</td><td>${M.visBays} / ${M.visNeed}</td></tr>`;
+  if (pk.lower_needed_m2 && pk.basement_levels && pk.basement_levels[0].length > 1) {
+    const lb = pk.lower_basement_m2, ln = pk.lower_needed_m2;
+    t += `<tr><td>Lower basement built, m²</td><td>${fmt(lb[0])}</td><td>${fmt(lb[1])}</td><td>${fmt(lb[0] + lb[1])}</td></tr>`;
+    t += `<tr><td>Lower basement needed, m²</td><td>${fmt(ln[0])}</td><td>${fmt(ln[1])}</td><td>${fmt(ln[0] + ln[1])}</td></tr>`;
+  }
   t += `</tbody>`;
   const short = Math.max(0, M.demand[0] - pk.supply[0]) + Math.max(0, M.demand[1] - pk.supply[1]) + Math.max(0, M.visNeed - M.visBays);
   if (short > 0 && lv) {
