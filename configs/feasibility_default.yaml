@@ -1,0 +1,147 @@
+# Feasibility defaults: cruciform towers, unit mix, FSI, setbacks, parking, phasing.
+# Units: metres and m2 unless a key ends in _ft2. Plan frame: x east, y true north.
+# A project config is deep-merged over this file (`viewtower feasibility <config>`).
+
+site:
+  plot: []                  # gross plot polygon [[x, y], ...], metres, north up
+  plot_area_m2: null        # if set, the polygon is scaled about the origin to this area
+  front_edge: 0             # edge index (vertex i -> i+1) on the main road
+  road_widening_m: 0.0      # strip acquired along the front edge; FSI basis = plot minus this strip
+  front_road: Main road
+  rear_road: null
+
+osr:                        # open-space reservation, gifted
+  area_ratio: 0.10          # of the net plot
+  min_width_m: 10.0
+  anchor_vertex: null       # vertex the OSR is anchored at; inner edge vertical, top edge horizontal
+  polygon: null             # or give the OSR polygon explicitly
+
+eia:
+  green_ratio: 0.15         # green belt on natural ground, all round the developable land
+  osr_counts: false         # OSR is gifted, so it does not count towards the EIA green
+  along_osr: false          # belt runs along the plot boundary; the OSR edge already faces open green
+  basement_under: false     # true: the basement may run under the belt (only if the EIA accepts green over slab)
+  # coincident: the belt sits inside the height setback (tower line still measured from the boundary)
+  # additional: the tower setback is measured from the belt's inner edge
+  mode: coincident
+
+setbacks:                   # all-round setback by building height (front measured from the widening line)
+  base_m: 7.0               # up to base_height_m
+  base_height_m: 30.0
+  step_height_m: 6.0        # every further step_height_m ...
+  step_m: 1.0               # ... adds step_m
+  osr_gap: driveway         # driveway: towers keep the access ring off the OSR; setback: full height setback
+  same_podium_gap_m: 6.0    # minimum clear distance between towers on one podium (read as one block)
+  facing_overlap_max_m: 3.0 # facades on one podium closer than the setback may face each other for this long
+
+access:
+  driveway_m: 7.2           # fire-tender ring inside the green belt
+  visitor_bay_w_m: 2.5      # perpendicular visitor bays, outside the EIA belt
+  visitor_bay_d_m: 5.0
+  bay_end_clear_m: 6.0      # kept clear at each end of a visitor strip (turning, gates)
+
+building:
+  podium_height_m: 6.6      # GF + stilt 1
+  floor_to_floor_m: 3.1
+  max_height_m: 76.0
+  min_floors: 10
+  refuge_thresholds_m: [24, 39, 54, 69]   # first floor above each level gives one flat to refuge
+
+fsi:
+  target: 4.25
+  cap: 4.30
+  gf_lobby_m2_per_core: 60
+  clubhouse_m2: 1000        # single level on stilt 1 of the phase-1 podium; counts in FSI (habitable)
+
+units:
+  loading: 1.40             # super built-up = loading x carpet
+  builtup_factor: 1.08      # FSI built-up of a flat = factor x carpet (carpet includes balconies)
+  types: []                 # [{id, label, carpet_ft2, share, segment}]
+
+plates:
+  corridor_m: 2.0           # lobby spine and corridor width
+  stub_m: 2.4               # lobby stub into the east arm (gives that arm N and S doors)
+  end_width_m: [11.5, 13.0] # width of the end flats (N and S arms)
+  arm_depth_m: [19.0, 21.0, 23.0] # depth of the E and W arms = 2 x wing-flat depth
+  core_m2: {6: 100, 5: 95, 4: 85}   # lifts, stairs, shafts, fire lobby per core (excludes lobby)
+  variants: [X6, X5, X5b, X4]
+
+facing:
+  convention: door          # door: the direction you face stepping out of the main door (Vastu)
+  max_west_share: 0.10
+  score: {N: 1.0, E: 1.0, S: 0.6, W: 0.0}
+
+parking:
+  ratio: 1.9                # cars per apartment, in basement + GF + stilt 1
+  visitor_ratio: 0.10       # extra visitor bays in the setbacks, as a share of resident parking
+  m2_per_car_basement: 29.0 # with the deductions below ~33 m2 gross a car, as the Option 1B CAD basement
+  m2_per_car_podium: 30.0
+  basement_services_m2: 300 # UG sump, fire tank, STP, electrical (plus per tower below)
+  basement_services_per_tower_m2: 100
+  ramp_basement_m2: 200     # per podium
+  ramp_gf_m2: 400           # per podium: ramp down to the basement and up to stilt 1
+  ramp_s1_m2: 150
+  basement_levels: 1        # basement levels under each phase; B2 and lower repeat the B1 footprint
+  lower_basement_share: 1.0 # share of the B1 footprint the lower levels take (below 1: a part level)
+  ramp_lower_basement_m2: 200   # per podium: the ramp B1 -> B2 (taken on both levels it joins)
+  lower_basement_services_m2: 150  # per podium and lower level: fire pumps, electrical, ventilation shafts
+  visitors_in_basement: false   # visitors the setback bays cannot take park in the basement surplus
+  basement_split: nearest   # nearest: each phase takes the basement nearer its towers; balance: one straight
+                            #   east-west joint between the phases' towers, placed so both phases park evenly
+
+fixed:                      # a fixed tower arrangement (viewtower feasibility --fixed): towers front to rear
+  podiums: [0, 0, 1, 1]     # phase (podium) of each tower
+  sides: [E, W, E, W]       # side of the site each tower takes, so the chain zig-zags
+  scenarios: [mixed, targeted]
+  variants: [X6, X5, X5b]
+  arm_depth_m: [21.0, 23.0]
+  end_width_m: [13.0, 14.0, 15.0]
+  assignment: [value, compact]
+  min_floors: 15
+  mix_tol_pp: 1.0           # every unit type within this many percentage points of its share (hard)
+  fsi_band: 0.10            # FSI no further than this below the target, never above the cap (hard)
+  max_solves: 40
+  solve_s: 5                # CP-SAT deterministic time per solve (work units, about seconds); reproducible
+  geometries_per_mix: 2     # plate geometries kept per unit set (the ones that rise highest)
+  options: 3                # options reported per scenario
+  weights: {fsi: 1, mix: 1, south: 20, height_spread: 1000, phase: 1}
+
+rooms:                      # room layouts inside each flat (viewtower feasibility --rooms)
+  schemes: 1                # leading schemes per scenario and mode whose plates get room layouts
+  modes: [target, compliant]
+  shaft_w_m: 2.4            # ventilation shaft shared by twin wing flats, open to sky; NBC 2016 Part 3
+  shaft_d_m: 3.4            #   asks about 8 m2 with a 2.4 m side above 30 m (with mechanical exhaust besides)
+  solve_s: [10, 30, 90]     # CP-SAT work budgets tried in turn until every check passes
+  programs: {}              # override a room programme: name -> {room code: target m2}; see rooms.PROGRAMS
+
+readings:                   # sensitivity runs: name -> (label, config override); base is always run
+  eia_additional: {label: "EIA belt added to the setback", override: {eia: {mode: additional}, search: {prefilter_keep: 250, groupings_per_set: 1, fsi_floor_gap: 1.6}}}
+  osr_setback: {label: "Full height setback from the OSR", override: {setbacks: {osr_gap: setback}, search: {prefilter_keep: 250, groupings_per_set: 1, fsi_floor_gap: 1.6}}}
+  basement_under_green: {label: "Basement allowed under the EIA belt", override: {eia: {basement_under: true}, search: {prefilter_keep: 250, groupings_per_set: 1}}}
+
+search:
+  scenarios: [segregated, mixed]
+  towers: [4, 5, 6]
+  podiums: 2
+  min_types_mixed: 4        # mixed scenario: each tower carries at least this many unit types
+  max_mix_dev_pp: 6.0       # pre-filter on the unit-mix deviation (percentage points)
+  prefilter_keep: 700        # tower sets placed per scenario (plus the best per_family of every family)
+  per_family: 3
+  groupings_per_set: 2
+  reorder_caps: 2           # at the tallest this-many height caps, also try the reversed tower orders
+  fsi_floor_gap: 0.6        # lower the height cap until FSI is this far below target, then give up on the set
+  raster_m: 0.5
+  top_n: 5
+  weights:
+    fsi_per_0_01: 2.0
+    mix_per_pp: 1.5
+    facing_ne_gap: 20.0
+    facing_west: 100.0
+    slender_std: 10.0
+    slender_min: 1.6
+    slender_low: 10.0
+    height_spread_per_10m: 2.0
+    phase_imbalance: 20.0
+    parking_thin: 5.0
+    per_extra_tower: 2.0
+    efficiency: 50.0

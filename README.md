@@ -41,6 +41,28 @@ Results on the synthetic site, reproducible with the commands above:
 - Economics use **synthetic placeholder rates**. The GDV figures only compare options against each
   other; they are not market estimates.
 
+## FSI feasibility: cruciform towers, unit mix, parking (`viewtower feasibility`)
+
+A second, separate engine for plots where the FSI, the height ceiling, height-banded setbacks, door
+orientation and car parking drive the scheme rather than the view:
+
+```bash
+viewtower feasibility configs/feasibility_example.yaml --out out/feasibility          # full search + sensitivity readings
+viewtower feasibility configs/feasibility_example.yaml --out out/feasibility --quick  # small search, first look
+viewtower feasibility configs/feasibility_example.yaml --out out/fixed --fixed        # keep the arrangement in fixed:
+viewtower feasibility configs/feasibility_example.yaml --out out/fixed --fixed --rooms  # plus room layouts of each flat
+```
+
+It models the site rings (road widening, OSR, EIA green belt, fire driveway, podium), cruciform plates
+whose doors are placed so no flat faces west, a unit mix held to target shares, two podiums as two
+phases, refuge floors and parking per phase. Two scenarios are searched: towers segregated by market
+segment, and towers that each mix unit types. With `--fixed` the tower arrangement in the config is kept
+and only plates and floors are chosen (CP-SAT, unit mix held within a tolerance); `--rooms` lays out
+every flat of the leading schemes room by room under NBC light, ventilation-shaft and access rules. The outputs are DXF drawings (ezdxf), a self-contained
+HTML viewer with draggable towers and live floor editing, JSON and a markdown report. Method and rules:
+[16_feasibility](docs/spec/16_feasibility.md). Defaults: [`configs/feasibility_default.yaml`](configs/feasibility_default.yaml).
+Keep real project configs and outputs under `private/`.
+
 ## Web app: Viewtower Studio (`web/`)
 
 A static, build-free web app with the same engine ported to JavaScript:
@@ -96,12 +118,14 @@ DXF / map pin ─► normalised geometry ─► "is this the buildable envelope?
 | 13 | Typology tokens, open vector dataset, deterministic / probabilistic / hybrid systems | [docs/spec/13_typology_tokens.md](docs/spec/13_typology_tokens.md) |
 | 14 | 500-architect image-only study (three blind rounds) | [docs/spec/14_architect_study.md](docs/spec/14_architect_study.md) |
 | 15 | UX study (four rounds of 50 designers, A/B tests) | [docs/spec/15_ux_study.md](docs/spec/15_ux_study.md) |
-| 16 | Repository structure | below |
+| 16 | FSI feasibility (cruciform towers, unit mix, parking, phasing) | [docs/spec/16_feasibility.md](docs/spec/16_feasibility.md) |
+| 17 | Repository structure | below |
 
 ## Repository structure
 
 ```
-configs/            default.yaml (all defaults), synthetic_coastal.yaml (example), template_project.yaml
+configs/            default.yaml (all defaults), synthetic_coastal.yaml (example), template_project.yaml,
+                    feasibility_default.yaml + feasibility_example.yaml (FSI feasibility)
 data/
   precedents/       schema.json + precedents.yaml (15 buildings, facts only, unknowns null)
   registry/         data_sources.yaml (source, URL, access date, licence, reliability, transformation)
@@ -118,6 +142,10 @@ src/viewtower/
   units/            subdivide.py (unit envelopes, room frontage assignment)
   evaluation/       classify.py (view classes + reasons), economics.py (rates, GDV, risk)
   optimize/         search.py (enumerate/filter/evaluate), pareto.py
+  feasibility/      site.py (rings, setbacks), plates.py (cruciform plates, doors), layout.py (placement, podiums,
+                    parking), search.py (mix allocation, scenarios), fixed.py (fixed arrangement, CP-SAT),
+                    rooms.py (room layouts, CP-SAT),
+                    export*.py + viewer.html (DXF, HTML), run.py
   pipeline.py, report.py, synthetic.py, cli.py
 tests/              geometry, DXF, typology exactness, ray-engine analytic cases, classes, determinism
 ```

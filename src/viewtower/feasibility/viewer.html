@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --surface-2: #f2f1ed; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --u1: #2a78d6; --u2: #eb6834; --u3: #1baf7a; --u4: #eda100; --u5: #e87ba4;
+  --p1: #008300; --p2: #4a3aa7;
+  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b; --good-text: #006300;
+  --lvl-b: #184f95; --lvl-b2: #0d2f5c; --lvl-g: #2a78d6; --lvl-s: #6da7ec;
+  --plot: #ecebe6; --widening: #f1c9c4; --osr: #a9d8a0; --green: #cfe9c0; --drive: #d9d8d3; --podium: #efe0c3;
+  --visitor: #b9d2f2; --core: #4b4a46; --lobby: #e4e3dd; --accent: #c25a2c;
+  --room-day: #f6ead6; --room-bed: #e3ecf8; --room-wet: #dcefee; --room-kit: #f7dfd4; --room-out: #e2f0dc;
+  --window: #2a78d6; --vent: #1baf7a; --door-int: #c25a2c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --u1: #3987e5; --u2: #d95926; --u3: #199e70; --u4: #c98500; --u5: #d55181;
+    --p1: #008300; --p2: #9085e9; --good-text: #0ca30c;
+    --lvl-b: #6da7ec; --lvl-b2: #a9cbf5; --lvl-g: #3987e5; --lvl-s: #1c5cab;
+    --plot: #262624; --widening: #5a2f2b; --osr: #2f5a2a; --green: #2a4426; --drive: #34342f; --podium: #4a3f2c;
+    --visitor: #24456e; --core: #c3c2b7; --lobby: #3a3a36; --accent: #e07a48;
+    --room-day: #3a3326; --room-bed: #24303f; --room-wet: #1f3533; --room-kit: #3d2b24; --room-out: #26361f;
+    --window: #6da7ec; --vent: #2fc48e; --door-int: #e07a48;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --surface-2: #232321; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --u1: #3987e5; --u2: #d95926; --u3: #199e70; --u4: #c98500; --u5: #d55181;
+  --p1: #008300; --p2: #9085e9; --good-text: #0ca30c;
+  --lvl-b: #6da7ec; --lvl-b2: #a9cbf5; --lvl-g: #3987e5; --lvl-s: #1c5cab;
+  --plot: #262624; --widening: #5a2f2b; --osr: #2f5a2a; --green: #2a4426; --drive: #34342f; --podium: #4a3f2c;
+  --visitor: #24456e; --core: #c3c2b7; --lobby: #3a3a36; --accent: #e07a48;
+  --room-day: #3a3326; --room-bed: #24303f; --room-wet: #1f3533; --room-kit: #3d2b24; --room-out: #26361f;
+  --window: #6da7ec; --vent: #2fc48e; --door-int: #e07a48;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { padding: 20px 16px 8px; max-width: 1400px; margin: 0 auto; }
+header h1 { font-size: 22px; margin: 0 0 4px; font-weight: 650; }
+header p { margin: 0; color: var(--ink-2); }
+main { max-width: 1400px; margin: 0 auto; padding: 0 16px 40px; }
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 14px 16px; margin: 12px 0; min-width: 0; }
+.card h2 { font-size: 15px; margin: 0 0 8px; font-weight: 650; }
+.card .sub { color: var(--ink-2); font-size: 12.5px; margin: -4px 0 10px; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.grid2 > .card { margin: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.controls { position: sticky; top: 0; z-index: 5; background: var(--page); padding: 10px 0 6px; border-bottom: 1px solid var(--ring); }
+.seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: transparent; color: var(--ink); padding: 6px 12px; font: inherit; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--axis); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+select { max-width: 100%; }
+#optSel { max-width: min(640px, calc(100vw - 110px)); }
+label.chk { max-width: 100%; }
+select, .btn { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 5px 8px; }
+.btn { cursor: pointer; }
+.btn:hover, .seg button:hover { outline: 2px solid var(--ring); }
+label.chk { display: inline-flex; gap: 5px; align-items: center; color: var(--ink-2); font-size: 12.5px; cursor: pointer; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+.kpi { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 10px 12px; }
+.kpi .v { font-size: 22px; font-weight: 650; }
+.kpi .l { color: var(--ink-2); font-size: 12px; }
+.kpi .s { color: var(--muted); font-size: 11.5px; }
+.status { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 5px 8px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; }
+th { color: var(--ink-2); font-weight: 600; }
+td:first-child, th:first-child, td.l, th.l { text-align: left; }
+td { font-variant-numeric: tabular-nums; }
+.tablewrap { overflow-x: auto; }
+.fl { display: inline-flex; align-items: center; gap: 4px; }
+.fl button { width: 24px; height: 24px; padding: 0; border-radius: 6px; border: 1px solid var(--axis); background: var(--surface); color: var(--ink); cursor: pointer; }
+#plan { width: 100%; height: 640px; display: block; touch-action: none; background: var(--surface); }
+#view3d { width: 100%; height: 640px; position: relative; border-radius: 8px; overflow: hidden; background: var(--surface-2); touch-action: none; }
+#view3d .hint { position: absolute; left: 8px; bottom: 6px; color: var(--muted); font-size: 11.5px; pointer-events: none; }
+.checks { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 4px 16px; }
+.checks li { display: flex; gap: 8px; align-items: baseline; font-size: 13px; }
+.ico { font-weight: 700; width: 16px; text-align: center; flex: none; }
+.plates { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+.plates figure { margin: 0; }
+.plates figure.rooms { grid-column: 1 / -1; }
+.plates figcaption { color: var(--ink-2); font-size: 12.5px; margin-top: 4px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--ink-2); margin: 4px 0 8px; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.tip { position: fixed; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--ring); border-radius: 8px; padding: 6px 9px; font-size: 12.5px; box-shadow: 0 4px 16px rgba(0,0,0,.12); display: none; z-index: 20; max-width: 300px; }
+.note { color: var(--ink-2); font-size: 12.5px; }
+.msg { font-size: 12.5px; margin-top: 6px; min-height: 18px; }
+ul.basis { margin: 6px 0; padding-left: 18px; color: var(--ink-2); }
+ul.basis li { margin: 2px 0; }
+svg text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+@media (max-width: 900px) {
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  #plan, #view3d { height: 480px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title"></h1>
+  <p id="subtitle"></p>
+</header>
+<main>
+  <section class="controls">
+    <div class="row">
+      <div class="seg" id="scenarioSeg" role="group" aria-label="Scenario"></div>
+      <div class="seg" id="modeSeg" role="group" aria-label="Basis"></div>
+      <label class="chk">Option <select id="optSel"></select></label>
+      <label class="chk">Reading <select id="varSel"></select></label>
+      <button class="btn" id="resetBtn" title="Undo floor and position edits">Reset edits</button>
+      <button class="btn" id="themeBtn" title="Toggle light and dark">Theme</button>
+    </div>
+    <div class="msg note" id="optDesc"></div>
+  </section>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="grid2">
+    <div class="card">
+      <h2>Site plan</h2>
+      <div class="sub">North up. Drag a tower to test another position; it turns red when it breaks a setback, spacing or podium rule.</div>
+      <div class="row" id="layerRow"></div>
+      <svg id="plan" role="img" aria-label="Site plan"></svg>
+      <div class="msg" id="planMsg"></div>
+    </div>
+    <div class="card">
+      <h2>Massing</h2>
+      <div class="sub">Drag to orbit, shift-drag or right-drag to pan, scroll to zoom.</div>
+      <div class="row">
+        <label class="chk">Colour by <select id="colorBy">
+          <option value="unit">Unit type</option><option value="phase">Phase</option><option value="facing">Door facing</option>
+        </select></label>
+        <label class="chk">Show up to floor <input type="range" id="cut" min="1" max="22" value="22"> <span id="cutV"></span></label>
+        <label class="chk"><input type="checkbox" id="showEnv"> Setback lines</label>
+      </div>
+      <div class="legend" id="legend3d"></div>
+      <div id="view3d"><div class="hint" id="hint3d"></div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Towers</h2>
+    <div class="sub">Change floors with − and +; every figure on the page updates. Heights include the 2-level podium.</div>
+    <div class="tablewrap"><table id="towerTbl"></table></div>
+    <ul class="checks" id="checks"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Typical floors</h2>
+    <div class="sub">Cruciform plates. Arrows show the way you face stepping out of each main door (the Vastu facing). Labels: unit, carpet ft², door facing.</div>
+    <div class="legend" id="legendUnits"></div>
+    <div class="plates" id="plates"></div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <h2>Unit mix: achieved against target</h2>
+      <div class="sub">Bar: share of flats achieved. Tick: target share.</div>
+      <svg id="mixChart" width="100%" height="220"></svg>
+    </div>
+    <div class="card">
+      <h2>Door facing</h2>
+      <div class="sub">Share of flats whose main door faces each way.</div>
+      <svg id="faceChart" width="100%" height="220"></svg>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <h2>Car parking by phase</h2>
+      <div class="sub">Cars provided on the basement levels, ground and stilt 1, against the cars needed at the required ratio.</div>
+      <div class="legend" id="legendPark"></div>
+      <svg id="parkChart" width="100%" height="200"></svg>
+      <div class="tablewrap"><table id="parkTbl"></table></div>
+    </div>
+    <div class="card">
+      <h2>Area statement</h2>
+      <div class="tablewrap"><table id="areaTbl"></table></div>
+    </div>
+  </section>
+
+  <section class="card keep">
+    <h2>Options explored</h2>
+    <div class="sub">Every placed scheme for the selected reading. Filled: floors set for the FSI target. Ring: floors cut until every phase parks itself. Click a highlighted point to open it.</div>
+    <div class="legend" id="legendScatter"></div>
+    <svg id="scatter" width="100%" height="320"></svg>
+  </section>
+
+  <section class="card keep">
+    <h2>Basis</h2>
+    <div class="tablewrap"><table id="unitTbl"></table></div>
+    <ul class="basis" id="basisList"></ul>
+  </section>
+</main>
+<div class="tip" id="tip"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const DATA = __DATA__;
+const B = DATA.basis;
+const $ = (id) => document.getElementById(id);
+const fmt = (v, d = 0) => (v == null || isNaN(v)) ? "–" : Number(v).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const UNIT_IDS = B.units.map(u => u.id);
+const UNIT_VAR = Object.fromEntries(UNIT_IDS.map((u, i) => [u, `--u${i + 1}`]));
+const SEG_LABEL = { middle: "Middle", upper_middle: "Upper-middle", luxury: "Luxury", mixed: "Mixed" };
+const SCEN_LABEL = { segregated: "A · Segregated towers", targeted: "A · Targeted towers (price bands)", mixed: "B · Mixed towers" };
+const MODE_LABEL = { target: "At FSI " + B.fsi.target, compliant: "All rules met" };
+const state = { variant: Object.keys(DATA.variants)[0], scenario: null, mode: "target", idx: 0, colorBy: "unit", cut: 99,
+  layers: { widening: true, green: true, osr: true, drive: true, podium: true, visitor: true, basement: true, setback: true, flats: true, doors: true, labels: true } };
+let S = null;  // working copy of the selected scheme
+
+// ------------------------------------------------------------ rules (mirrors the Python engine)
+function heightOf(f) { return +(B.building.podium_height_m + f * B.building.floor_to_floor_m).toFixed(3); }
+function setbackFor(h) {
+  const r = B.setbacks;
+  if (h <= r.base_height_m + 1e-9) return r.base_m;
+  return r.base_m + Math.ceil((h - r.base_height_m) / r.step_height_m - 1e-9) * r.step_m;
+}
+function refugeFloors(f) {
+  const out = [];
+  for (const t of B.building.refuge_thresholds_m) {
+    for (let n = 1; n <= f; n++) {
+      const lvl = B.building.podium_height_m + (n - 1) * B.building.floor_to_floor_m;
+      if (lvl > t) { if (!out.includes(n)) out.push(n); break; }
+    }
+  }
+  return out;
+}
+function maxFloors() { return Math.floor((B.building.max_height_m - B.building.podium_height_m) / B.building.floor_to_floor_m + 1e-9); }
+
+// ------------------------------------------------------------ geometry
+function ringArea(r) { let a = 0; for (let i = 0; i < r.length; i++) { const [x1, y1] = r[i], [x2, y2] = r[(i + 1) % r.length]; a += x1 * y2 - x2 * y1; } return a / 2; }
+function pip(pt, r) {
+  let c = false; const [x, y] = pt;
+  for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+    const [xi, yi] = r[i], [xj, yj] = r[j];
+    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) c = !c;
+  }
+  return c;
+}
+function segX(a, b, c, d) {
+  const o = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+  const d1 = o(c, d, a), d2 = o(c, d, b), d3 = o(a, b, c), d4 = o(a, b, d);
+  return ((d1 > 1e-9 && d2 < -1e-9) || (d1 < -1e-9 && d2 > 1e-9)) && ((d3 > 1e-9 && d4 < -1e-9) || (d3 < -1e-9 && d4 > 1e-9));
+}
+function segDist(a, b, c, d) {
+  if (segX(a, b, c, d)) return 0;
+  const pd = (p, s, e) => {
+    const dx = e[0] - s[0], dy = e[1] - s[1], L = dx * dx + dy * dy;
+    let t = L ? ((p[0] - s[0]) * dx + (p[1] - s[1]) * dy) / L : 0; t = Math.max(0, Math.min(1, t));
+    return Math.hypot(p[0] - s[0] - t * dx, p[1] - s[1] - t * dy);
+  };
+  return Math.min(pd(a, c, d), pd(b, c, d), pd(c, a, b), pd(d, a, b));
+}
+function ringInside(inner, outer) {
+  // every vertex inside and no crossing edges; the inner ring is first pulled 5 cm towards its centre
+  // so exported coordinates rounded to the millimetre never fail a tower that sits on the line
+  const cx = inner.reduce((s, p) => s + p[0], 0) / inner.length, cy = inner.reduce((s, p) => s + p[1], 0) / inner.length;
+  const rad = Math.max(...inner.map(p => Math.hypot(p[0] - cx, p[1] - cy)));
+  const k = Math.max(0, 1 - 0.05 / rad);
+  inner = inner.map(p => [cx + (p[0] - cx) * k, cy + (p[1] - cy) * k]);
+  for (const p of inner) if (!pip(p, outer)) return false;
+  for (let i = 0; i < inner.length; i++) for (let j = 0; j < outer.length; j++)
+    if (segX(inner[i], inner[(i + 1) % inner.length], outer[j], outer[(j + 1) % outer.length])) return false;
+  return true;
+}
+function insideAny(inner, rings) { return rings.some(o => ringInside(inner, o)); }
+function polyDist(A, Bp) {
+  if (pip(A[0], Bp) || pip(Bp[0], A)) return 0;
+  let m = Infinity;
+  for (let i = 0; i < A.length; i++) for (let j = 0; j < Bp.length; j++)
+    m = Math.min(m, segDist(A[i], A[(i + 1) % A.length], Bp[j], Bp[(j + 1) % Bp.length]));
+  return m;
+}
+function edges(r) {
+  const ccw = ringArea(r) > 0, out = [];
+  for (let i = 0; i < r.length; i++) {
+    const [ax, ay] = r[i], [bx, by] = r[(i + 1) % r.length]; const dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy);
+    if (L < 1e-6) continue;
+    out.push(ccw ? [ax, ay, bx, by, dy / L, -dx / L] : [ax, ay, bx, by, -dy / L, dx / L]);
+  }
+  return out;
+}
+function facingOverlap(A, Bp, within) {
+  let worst = 0;
+  for (const [ax, ay, bx, by, nx, ny] of edges(A)) for (const [cx, cy, dx, dy, mx, my] of edges(Bp)) {
+    if (Math.abs(nx + mx) > 1e-6 || Math.abs(ny + my) > 1e-6) continue;
+    const d = (cx - ax) * nx + (cy - ay) * ny;
+    if (d <= 1e-6 || d >= within) continue;
+    const tx = -ny, ty = nx;
+    const a0 = Math.min(ax * tx + ay * ty, bx * tx + by * ty), a1 = Math.max(ax * tx + ay * ty, bx * tx + by * ty);
+    const b0 = Math.min(cx * tx + cy * ty, dx * tx + dy * ty), b1 = Math.max(cx * tx + cy * ty, dx * tx + dy * ty);
+    worst = Math.max(worst, Math.min(a1, b1) - Math.max(a0, b0));
+  }
+  return worst;
+}
+const tr = (ring, dx, dy) => ring.map(([x, y]) => [x + dx, y + dy]);
+
+// ------------------------------------------------------------ data access
+function variant() { return DATA.variants[state.variant]; }
+function schemesFor(v, sc, mode) { return ((v.schemes[sc] || {})[mode]) || []; }
+function loadScheme() {
+  const list = schemesFor(variant(), state.scenario, state.mode);
+  const base = list[Math.min(state.idx, list.length - 1)];
+  S = base ? JSON.parse(JSON.stringify(base)) : null;
+  if (S) S._orig = JSON.parse(JSON.stringify(base.towers));
+}
+function plateOf(t) { return S.plates[t.plate]; }
+function envFor(site, sb) { return site.envelopes[String(sb)] || site.envelopes[Number(sb).toFixed(1)] || []; }
+function footprint(t) { return tr(plateOf(t).footprint[0], t.x, t.y); }
+
+// ------------------------------------------------------------ live metrics
+function compute() {
+  const net = variant().site.summary.net_m2;
+  const lob = B.fsi.gf_lobby_m2_per_core, load = B.loading;
+  const carpet = Object.fromEntries(B.units.map(u => [u.id, u.carpet_ft2]));
+  const mix = Object.fromEntries(UNIT_IDS.map(u => [u, 0]));
+  const facing = { N: 0, E: 0, S: 0, W: 0 };
+  const phase = [{ flats: 0, sbu: 0 }, { flats: 0, sbu: 0 }];
+  let fsi = B.fsi.clubhouse_m2;
+  for (const t of S.towers) {
+    const p = plateOf(t);
+    t.height = heightOf(t.floors); t.setback = setbackFor(t.height); t.refuges = refugeFloors(t.floors);
+    const ref = p.flats.find(f => f.slot === p.refuge_slot);
+    const fb = {}; for (const f of p.flats) fb[f.unit] = (fb[f.unit] || 0) + t.floors;
+    fb[ref.unit] -= t.refuges.length;
+    t.flats_by_type = fb; t.flats = Object.values(fb).reduce((a, b) => a + b, 0);
+    t.fsi_m2 = t.floors * p.area_m2 - t.refuges.length * ref.area_m2 + lob;
+    t.slenderness = t.height / Math.min(p.width, p.depth);
+    fsi += t.fsi_m2;
+    for (const f of p.flats) facing[f.door_dir] += t.floors - (f === ref ? t.refuges.length : 0);
+    for (const [u, n] of Object.entries(fb)) { mix[u] += n; phase[t.podium].flats += n; phase[t.podium].sbu += n * carpet[u] * load; }
+  }
+  const n = Object.values(mix).reduce((a, b) => a + b, 0);
+  const shares = Object.fromEntries(UNIT_IDS.map(u => [u, n ? mix[u] / n : 0]));
+  const dev = 50 * B.units.reduce((s, u) => s + Math.abs(shares[u.id] - u.share), 0);
+  const devmax = 100 * Math.max(...B.units.map(u => Math.abs(shares[u.id] - u.share)));
+  const cpt = Object.entries(mix).reduce((s, [u, k]) => s + k * carpet[u], 0);
+  const pk = S.metrics.parking;
+  const demand = phase.map(p => Math.ceil(B.parking.ratio * p.flats - 1e-9));
+  const visNeed = Math.ceil(B.parking.visitor_ratio * (demand[0] + demand[1]) - 1e-9);
+  const hs = S.towers.map(t => t.height);
+  return { fsi: fsi / net, fsi_m2: fsi, flats: n, mix, shares, dev, devmax, carpet: cpt, sbu: cpt * load, facing,
+    phase, demand, supply: pk.supply, visNeed, visBays: pk.visitor_bays, maxH: Math.max(...hs), minH: Math.min(...hs), net };
+}
+
+function geomChecks() {
+  const site = variant().site, res = {};
+  for (const t of S.towers) {
+    const fp = footprint(t);
+    const env = envFor(site, t.setback);
+    const pod = S.layout.podiums[t.podium] || [];
+    res[t.name] = { env: insideAny(fp, env), pod: insideAny(fp, pod), spacing: [], ok: true };
+  }
+  for (let i = 0; i < S.towers.length; i++) for (let j = i + 1; j < S.towers.length; j++) {
+    const a = S.towers[i], b = S.towers[j], A = footprint(a), Bp = footprint(b);
+    const d = polyDist(A, Bp), s = setbackFor(Math.max(a.height, b.height));
+    if (a.podium !== b.podium) {
+      if (d < s - 1e-6) { res[a.name].spacing.push(`${b.name}: ${d.toFixed(1)} m < ${s} m block setback`); res[b.name].spacing.push(`${a.name}: ${d.toFixed(1)} m < ${s} m block setback`); }
+    } else {
+      if (d < B.setbacks.same_podium_gap_m - 1e-6) { const m = `${d.toFixed(1)} m < ${B.setbacks.same_podium_gap_m} m on one podium`; res[a.name].spacing.push(`${b.name}: ${m}`); res[b.name].spacing.push(`${a.name}: ${m}`); }
+      else if (d < s) {
+        const ov = facingOverlap(A, Bp, s);
+        if (ov > B.setbacks.facing_overlap_max_m + 1e-6) { const m = `facades overlap ${ov.toFixed(1)} m (max ${B.setbacks.facing_overlap_max_m} m) at ${d.toFixed(1)} m`; res[a.name].spacing.push(`${b.name}: ${m}`); res[b.name].spacing.push(`${a.name}: ${m}`); }
+      }
+    }
+  }
+  for (const k in res) res[k].ok = res[k].env && res[k].pod && !res[k].spacing.length;
+  return res;
+}
+
+// ------------------------------------------------------------ controls
+function seg(el, items, cur, onPick) {
+  el.innerHTML = "";
+  for (const [k, label] of items) {
+    const b = document.createElement("button"); b.textContent = label; b.setAttribute("aria-pressed", String(k === cur));
+    b.onclick = () => onPick(k); el.appendChild(b);
+  }
+}
+function buildControls() {
+  const v = variant();
+  const scen = Object.keys(v.schemes);
+  if (!scen.includes(state.scenario)) state.scenario = scen[0];
+  seg($("scenarioSeg"), scen.map(s => [s, SCEN_LABEL[s] || s]), state.scenario, (k) => { state.scenario = k; state.idx = 0; refreshAll(true); });
+  seg($("modeSeg"), ["target", "compliant"].map(m => [m, MODE_LABEL[m]]), state.mode, (k) => { state.mode = k; state.idx = 0; refreshAll(true); });
+  const list = schemesFor(v, state.scenario, state.mode);
+  $("optSel").innerHTML = list.map((s, i) => `<option value="${i}">${i + 1}. ${s.label}</option>`).join("") || "<option>none placed</option>";
+  $("optSel").value = String(Math.min(state.idx, Math.max(0, list.length - 1)));
+  $("varSel").innerHTML = Object.entries(DATA.variants).map(([k, vv]) => `<option value="${k}">${vv.label}</option>`).join("");
+  $("varSel").value = state.variant;
+}
+$("optSel").onchange = (e) => { state.idx = +e.target.value; refreshAll(true); };
+$("varSel").onchange = (e) => { state.variant = e.target.value; state.idx = 0; refreshAll(true); };
+$("resetBtn").onclick = () => refreshAll(true);
+$("colorBy").onchange = (e) => { state.colorBy = e.target.value; build3D(); };
+$("cut").oninput = (e) => { state.cut = +e.target.value; $("cutV").textContent = e.target.value; update3DVisibility(); };
+$("showEnv").onchange = () => build3D();
+$("themeBtn").onclick = () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  refreshAll(false);
+};
+
+// ------------------------------------------------------------ KPIs
+function statusIcon(ok, warn) {
+  if (ok) return `<span class="ico" style="color:var(--good)" aria-label="pass">✓</span>`;
+  if (warn) return `<span class="ico" style="color:var(--warning)" aria-label="warning">!</span>`;
+  return `<span class="ico" style="color:var(--critical)" aria-label="fail">✕</span>`;
+}
+function renderKPIs(M) {
+  const cars = M.supply[0] + M.supply[1], need = M.demand[0] + M.demand[1];
+  const ne = (M.facing.N + M.facing.E) / M.flats, w = M.facing.W / M.flats;
+  const k = [
+    ["FSI on net plot", M.fsi.toFixed(3), `${fmt(M.fsi_m2)} m² · target ${B.fsi.target}, cap ${B.fsi.cap}`, M.fsi <= B.fsi.cap + 1e-9],
+    ["Apartments", fmt(M.flats), `avg carpet ${fmt(M.carpet / M.flats)} ft² · SBU ${fmt(M.sbu / M.flats)} ft²`, true],
+    ["Saleable (SBU)", (M.sbu / 1e5).toFixed(2) + " L ft²", `carpet ${(M.carpet / 1e5).toFixed(2)} L ft² × ${B.loading}`, true],
+    ["Tallest tower", M.maxH.toFixed(1) + " m", `ceiling ${B.building.max_height_m} m · lowest ${M.minH.toFixed(1)} m`, M.maxH <= B.building.max_height_m + 1e-9],
+    ["Cars provided / needed", `${fmt(cars)} / ${fmt(need)}`, `P1 ${M.supply[0]}/${M.demand[0]} · P2 ${M.supply[1]}/${M.demand[1]} · visitor ${M.visBays}/${M.visNeed}`,
+      M.supply[0] >= M.demand[0] && M.supply[1] >= M.demand[1]],
+    ["Doors facing N or E", (ne * 100).toFixed(0) + "%", `S ${(M.facing.S / M.flats * 100).toFixed(0)}% · W ${(w * 100).toFixed(0)}%`, w <= B.facing.max_west_share + 1e-9],
+    ["Unit-mix deviation", M.dev.toFixed(1) + " pp", "half the sum of share gaps", M.dev <= 3],
+    ["Largest unit-type gap", M.devmax.toFixed(1) + " pp", "worst single type against its share", M.devmax <= 1.5],
+  ];
+  $("kpis").innerHTML = k.map(([l, v, s, ok]) => `<div class="kpi"><div class="l">${l}</div><div class="v"><span class="status">${statusIcon(ok, !ok && l.startsWith("Unit"))}${v}</span></div><div class="s">${s}</div></div>`).join("");
+}
+
+// ------------------------------------------------------------ plan
+const LAYERS = [["widening", "Road widening"], ["green", "EIA green belt"], ["osr", "OSR"], ["drive", "Fire driveway"], ["podium", "Podiums"],
+  ["visitor", "Visitor bays"], ["basement", "Basement edge"], ["setback", "Setback lines"], ["flats", "Flats"], ["doors", "Doors"], ["labels", "Labels"]];
+function buildLayerRow() {
+  $("layerRow").innerHTML = LAYERS.map(([k, l]) => `<label class="chk"><input type="checkbox" data-k="${k}" ${state.layers[k] ? "checked" : ""}> ${l}</label>`).join("");
+  $("layerRow").querySelectorAll("input").forEach(i => i.onchange = () => { state.layers[i.dataset.k] = i.checked; renderPlan(); });
+}
+const P = (r) => r.map(([x, y]) => `${x.toFixed(2)},${(-y).toFixed(2)}`).join(" ");
+function poly(rings, attrs) { return rings.map(r => `<polygon points="${P(r)}" ${attrs}/>`).join(""); }
+let planChecks = {};
+function renderPlan() {
+  const site = variant().site, svg = $("plan");
+  const all = site.gross.flat();
+  const xs = all.map(p => p[0]), ys = all.map(p => p[1]);
+  const minx = Math.min(...xs) - 14, maxx = Math.max(...xs) + 14, miny = Math.min(...ys) - 18, maxy = Math.max(...ys) + 16;
+  svg.setAttribute("viewBox", `${minx} ${-maxy} ${maxx - minx} ${maxy - miny}`);
+  const L = state.layers;
+  let h = "";
+  h += poly(site.gross, `fill="var(--plot)" stroke="var(--ink)" stroke-width="0.5"`);
+  if (L.widening) h += poly(site.widening, `fill="var(--widening)" stroke="none"`);
+  if (L.green) h += poly(site.green, `fill="var(--green)" stroke="none"`);
+  if (L.osr) h += poly(site.osr, `fill="var(--osr)" stroke="none"`);
+  if (L.drive) h += poly(site.driveway, `fill="var(--drive)" stroke="none"`);
+  if (L.basement) {
+    h += poly(site.basement_env, `fill="none" stroke="var(--muted)" stroke-width="0.4" stroke-dasharray="2 1.5"`);
+    (S.layout.basements || []).forEach((bs, g) => { h += poly(bs, `fill="none" stroke="var(--p${g + 1})" stroke-width="0.6" stroke-dasharray="3 1.5" data-tip="<b>Phase ${g + 1} basement</b><br>${(S.metrics.parking.basement_levels || [[], []])[g].map((n, k) => `B${k + 1} ${n} cars`).join(" · ")}"`); });
+  }
+  if (L.podium) S.layout.podiums.forEach((pd, g) => h += poly(pd, `fill="var(--podium)" stroke="var(--axis)" stroke-width="0.3"`));
+  if (L.visitor) h += poly(S.layout.visitor_strips, `fill="var(--visitor)" stroke="none"`);
+  if (L.setback) {
+    const seen = new Set();
+    for (const t of S.towers) if (!seen.has(t.setback)) { seen.add(t.setback); h += poly(envFor(site, t.setback), `fill="none" stroke="var(--critical)" stroke-width="0.35" stroke-dasharray="1.6 1.2"`); }
+  }
+  h += poly(site.gross, `fill="none" stroke="var(--ink)" stroke-width="0.6"`);
+  if (L.labels) {
+    const wl = site.widening_line; const mx = (wl[0][0] + wl[wl.length - 1][0]) / 2, my = (wl[0][1] + wl[wl.length - 1][1]) / 2;
+    const ang = -Math.atan2(wl[wl.length - 1][1] - wl[0][1], wl[wl.length - 1][0] - wl[0][0]) * 180 / Math.PI;
+    if (site.front_road) h += `<text x="${mx}" y="${-my - 6}" font-size="3.2" fill="var(--ink-2)" text-anchor="middle" transform="rotate(${ang} ${mx} ${-my - 6})">${site.front_road}</text>`;
+    if (site.rear_road) h += `<text x="${(minx + maxx) / 2 - 10}" y="${-miny - 3}" font-size="3.2" fill="var(--ink-2)" text-anchor="middle">${site.rear_road}</text>`;
+    if (site.osr.length) { const c = centroid(site.osr[0]); h += `<text x="${c[0]}" y="${-c[1]}" font-size="3" fill="var(--ink-2)" text-anchor="middle" transform="rotate(-80 ${c[0]} ${-c[1]})">OSR ${fmt(site.summary.osr_m2)} m²</text>`; }
+  }
+  // north arrow and scale bar
+  h += `<g transform="translate(${maxx - 8},${-maxy + 12})"><polygon points="0,-6 3,4 0,2 -3,4" fill="var(--ink)"/><text y="-8" font-size="3.4" text-anchor="middle" fill="var(--ink)">N</text></g>`;
+  h += `<g transform="translate(${minx + 4},${-maxy + 6})">` + [0, 1, 2, 3, 4].map(i => `<rect x="${i * 10}" y="0" width="10" height="1.2" fill="${i % 2 ? "var(--surface)" : "var(--ink)"}" stroke="var(--ink)" stroke-width="0.2"/>`).join("") +
+    `<text x="0" y="5" font-size="2.6" fill="var(--ink-2)">0</text><text x="50" y="5" font-size="2.6" fill="var(--ink-2)" text-anchor="middle">50 m</text></g>`;
+  // towers
+  planChecks = geomChecks();
+  for (const t of S.towers) {
+    const p = plateOf(t), ok = planChecks[t.name].ok;
+    let g = `<g class="tower" data-name="${t.name}" transform="translate(${t.x},${-t.y})" style="cursor:grab">`;
+    g += poly(p.footprint, `fill="${state.layers.flats ? "none" : `var(${t.podium ? "--p2" : "--p1"})`}" stroke="none"`);
+    if (state.layers.flats) {
+      for (const f of p.flats) g += `<polygon points="${P(f.poly)}" fill="var(${UNIT_VAR[f.unit]})" stroke="var(--surface)" stroke-width="0.35"/>`;
+      g += poly(p.lobby, `fill="var(--lobby)" stroke="none"`) + poly(p.core, `fill="var(--core)" stroke="none"`);
+    }
+    if (state.layers.doors) for (const f of p.flats) g += doorMark(f, 0.9);
+    g += poly(p.footprint, `fill="none" stroke="${ok ? "var(--ink)" : "var(--critical)"}" stroke-width="${ok ? 0.45 : 1.4}"`);
+    g += `</g>`;
+    if (state.layers.labels) {
+      const c = centroid(footprint(t));
+      g += `<text x="${c[0]}" y="${-c[1] - 1}" font-size="5" font-weight="700" text-anchor="middle" fill="var(--ink)" stroke="var(--surface)" stroke-width="1" paint-order="stroke" pointer-events="none">${t.name}</text>`;
+      g += `<text x="${c[0]}" y="${-c[1] + 4}" font-size="3" font-weight="600" text-anchor="middle" fill="var(--ink)" stroke="var(--surface)" stroke-width="0.8" paint-order="stroke" pointer-events="none">${t.floors}F · ${t.height.toFixed(1)} m · P${t.podium + 1}</text>`;
+    }
+    h += g;
+  }
+  svg.innerHTML = h; bindTips(svg);
+  svg.querySelectorAll("g.tower").forEach(el => el.addEventListener("pointerdown", startDrag));
+  const bad = S.towers.filter(t => !planChecks[t.name].ok);
+  $("planMsg").innerHTML = bad.length ? bad.map(t => {
+    const c = planChecks[t.name]; const why = [];
+    if (!c.env) why.push(`outside its ${t.setback} m setback line`); if (!c.pod) why.push(`off podium P${t.podium + 1}`); why.push(...c.spacing);
+    return `<span class="status">${statusIcon(false)} ${t.name}: ${why.join("; ")}</span>`;
+  }).join("<br>") : `<span class="status">${statusIcon(true)} Every tower is inside its setback line, on its podium and clear of the others.</span>`;
+}
+function centroid(r) { const a = ringArea(r); let cx = 0, cy = 0; for (let i = 0; i < r.length; i++) { const [x1, y1] = r[i], [x2, y2] = r[(i + 1) % r.length]; const k = x1 * y2 - x2 * y1; cx += (x1 + x2) * k; cy += (y1 + y2) * k; } return [cx / (6 * a), cy / (6 * a)]; }
+const DV = { N: [0, 1], E: [1, 0], S: [0, -1], W: [-1, 0] };
+function doorMark(f, s) {
+  const [a, b] = f.door, mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, [vx, vy] = DV[f.door_dir];
+  const tip = [mx + 2.2 * s * vx, my + 2.2 * s * vy], l = [mx + 0.9 * s * vx - 0.75 * s * vy, my + 0.9 * s * vy + 0.75 * s * vx], r = [mx + 0.9 * s * vx + 0.75 * s * vy, my + 0.9 * s * vy - 0.75 * s * vx];
+  return `<line x1="${a[0]}" y1="${-a[1]}" x2="${b[0]}" y2="${-b[1]}" stroke="var(--ink)" stroke-width="${0.5 * s}"/><polygon points="${P([tip, l, r])}" fill="var(--ink)"/>`;
+}
+let drag = null;
+function svgPoint(evt) { const svg = $("plan"); const pt = svg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+function startDrag(evt) {
+  const name = evt.currentTarget.dataset.name; const t = S.towers.find(x => x.name === name);
+  const p = svgPoint(evt); drag = { t, x0: t.x, y0: t.y, px: p.x, py: p.y };
+  evt.currentTarget.setPointerCapture(evt.pointerId);
+  evt.currentTarget.addEventListener("pointermove", moveDrag); evt.currentTarget.addEventListener("pointerup", endDrag, { once: true });
+}
+function moveDrag(evt) {
+  if (!drag) return; const p = svgPoint(evt);
+  drag.t.x = Math.round((drag.x0 + (p.x - drag.px)) * 2) / 2; drag.t.y = Math.round((drag.y0 - (p.y - drag.py)) * 2) / 2;
+  renderPlan();
+}
+function endDrag(evt) { evt.currentTarget && evt.currentTarget.removeEventListener("pointermove", moveDrag); drag = null; refreshAll(false); }
+
+// ------------------------------------------------------------ tower table and checks
+function renderTowers(M) {
+  const rows = S.towers.map((t, i) => {
+    const p = plateOf(t), c = planChecks[t.name];
+    const fb = UNIT_IDS.map(u => t.flats_by_type[u] ? `${u}×${t.flats_by_type[u]}` : "").filter(Boolean).join(" ");
+    return `<tr><td class="l"><b>${t.name}</b></td><td class="l">P${t.podium + 1}</td><td class="l">${SEG_LABEL[t.segment] || t.segment}</td><td class="l">${p.variant} · ${p.width.toFixed(1)} × ${p.depth.toFixed(1)} m</td>
+      <td><span class="fl"><button data-i="${i}" data-d="-1" aria-label="one floor less">−</button><b style="min-width:22px;text-align:center">${t.floors}</b><button data-i="${i}" data-d="1" aria-label="one floor more">+</button></span></td>
+      <td>${t.height.toFixed(1)}</td><td>${t.setback}</td><td>${t.flats}</td><td class="l">${fb}</td><td>${fmt(t.fsi_m2)}</td><td>${fmt(p.area_m2)}</td><td>${(p.efficiency * 100).toFixed(1)}%</td><td>${t.slenderness.toFixed(2)}</td><td>${t.refuges.join(", ") || "–"}</td><td>${statusIcon(c.ok)}</td></tr>`;
+  }).join("");
+  $("towerTbl").innerHTML = `<thead><tr><th>Tower</th><th>Phase</th><th>Segment</th><th>Plate</th><th>Floors</th><th>Height m</th><th>Setback m</th><th>Flats</th><th class="l">Flats by type</th><th>FSI m²</th><th>Plate m²</th><th>Plate eff.</th><th>H / width</th><th>Refuge floors</th><th>Site</th></tr></thead><tbody>${rows}</tbody>`;
+  $("towerTbl").querySelectorAll("button").forEach(b => b.onclick = () => {
+    const t = S.towers[+b.dataset.i]; const nf = t.floors + (+b.dataset.d);
+    if (nf < 1 || nf > maxFloors() + 3) return; t.floors = nf; refreshAll(false);
+  });
+  const ck = [];
+  const capOK = M.fsi <= B.fsi.cap + 1e-9;
+  ck.push([capOK, false, `FSI ${M.fsi.toFixed(3)} ${capOK ? "within" : "over"} the ${B.fsi.cap} cap (target ${B.fsi.target}; gap ${(M.fsi - B.fsi.target).toFixed(3)})`]);
+  ck.push([M.maxH <= B.building.max_height_m + 1e-9, false, `Tallest tower ${M.maxH.toFixed(1)} m against the ${B.building.max_height_m} m ceiling`]);
+  { const G = [0, 1].filter(g => S.towers.some(t => t.podium === g));
+    G.forEach(g => ck.push([M.supply[g] >= M.demand[g], false, `${G.length === 1 ? "The podium" : `Phase ${g + 1}`} parks ${M.supply[g]} cars for ${M.demand[g]} needed (${B.parking.ratio} × ${M.phase[g].flats} flats)`])); }
+  { const pk = S.metrics.parking, vbs = (pk.visitor_basement || [0, 0]).reduce((a, b) => a + b, 0), setb = pk.visitor_bays_setback ?? M.visBays;
+    ck.push([M.visBays >= M.visNeed, false, `Visitor bays: ${setb} in the setbacks${vbs ? ` and ${vbs} in the basement` : ""} for ${M.visNeed} needed (${B.parking.visitor_ratio * 100}% of resident cars), none in the EIA belt`]); }
+  const allIn = S.towers.every(t => planChecks[t.name].env && planChecks[t.name].pod);
+  ck.push([allIn, false, allIn ? "All towers inside their height setback and on their podium" : "A tower is outside its setback line or off its podium (see plan)"]);
+  const spOK = S.towers.every(t => !planChecks[t.name].spacing.length);
+  ck.push([spOK, false, spOK ? `Spacing: ${S.metrics.spacing ? `nearest across podiums ${S.metrics.spacing.cross ?? "–"} m, on one podium ${S.metrics.spacing.same ?? "–"} m` : "ok"}` : "Spacing rule broken (see plan)"]);
+  const w = M.facing.W / M.flats;
+  ck.push([w <= B.facing.max_west_share + 1e-9, false, `West-facing doors ${(w * 100).toFixed(0)}% (max ${B.facing.max_west_share * 100}%)`]);
+  ck.push([M.devmax <= 1.5, M.devmax <= 3, `Every unit type within ${M.devmax.toFixed(1)} percentage points of its share`]);
+  $("checks").innerHTML = ck.map(([ok, warn, s]) => `<li>${statusIcon(ok, warn)}<span>${s}</span></li>`).join("");
+}
+
+// ------------------------------------------------------------ plates
+function renderPlates() {
+  const seen = [];
+  $("legendUnits").innerHTML = B.units.map(u => `<span><i class="sw" style="background:var(${UNIT_VAR[u.id]})"></i>${u.id} ${u.label} · ${fmt(u.carpet_ft2)} ft² carpet · ${fmt(u.sbu_ft2)} ft² SBU</span>`).join("") +
+    `<span><i class="sw" style="background:var(--core)"></i>Core</span><span><i class="sw" style="background:var(--lobby);outline:1px solid var(--axis)"></i>Lobby</span>`;
+  let h = "";
+  for (const t of S.towers) {
+    if (seen.includes(t.plate)) continue; seen.push(t.plate);
+    const p = S.plates[t.plate]; const names = S.towers.filter(x => x.plate === t.plate).map(x => x.name).join(", ");
+    const xs = p.footprint[0].map(q => q[0]), ys = p.footprint[0].map(q => q[1]);
+    const R = p.rooms, mg = R ? 9 : 4;
+    const minx = Math.min(...xs) - mg, maxx = Math.max(...xs) + mg, miny = Math.min(...ys) - mg + (R ? 3 : 0), maxy = Math.max(...ys) + mg - (R ? 3 : 0);
+    let s = `<svg viewBox="${minx} ${-maxy} ${maxx - minx} ${maxy - miny}" width="100%" style="max-height:${R ? 860 : 420}px">`;
+    if (R) { s += roomPlate(p, R); h += `<figure class="rooms">${s}</svg>${plateCaption(p, names)}${roomNote(p, R)}</figure>`; continue; }
+    for (const f of p.flats) s += `<polygon points="${P(f.poly)}" fill="var(${UNIT_VAR[f.unit]})" stroke="var(--surface)" stroke-width="0.3"/>`;
+    s += poly(p.lobby, `fill="var(--lobby)" stroke="none"`) + poly(p.core, `fill="var(--core)" stroke="none"`);
+    s += poly(p.footprint, `fill="none" stroke="var(--ink)" stroke-width="0.25"`);
+    for (const f of p.flats) {
+      s += doorMark(f, 0.8);
+      const c = centroid(f.poly), u = B.units.find(x => x.id === f.unit);
+      s += `<text x="${c[0]}" y="${-c[1] - 0.6}" font-size="1.9" font-weight="700" text-anchor="middle" fill="var(--ink)" stroke="var(--surface)" stroke-width="0.45" paint-order="stroke">${f.unit} · ${f.door_dir}</text>`;
+      s += `<text x="${c[0]}" y="${-c[1] + 1.8}" font-size="1.5" text-anchor="middle" fill="var(--ink)" stroke="var(--surface)" stroke-width="0.4" paint-order="stroke">${fmt(u.carpet_ft2)} ft²${f.slot === p.refuge_slot ? " · refuge slot" : ""}</text>`;
+    }
+    s += `</svg>`;
+    h += `<figure>${s}${plateCaption(p, names)}</figure>`;
+  }
+  $("plates").innerHTML = h;
+  bindTips($("plates"));
+}
+function plateCaption(p, names) {
+  const fc = { N: 0, E: 0, S: 0, W: 0 }; p.flats.forEach(f => fc[f.door_dir]++);
+  return `<figcaption><b>${names}</b> · ${p.variant}, ${p.flats.length} flats a core · ${p.width.toFixed(1)} × ${p.depth.toFixed(1)} m · plate ${fmt(p.area_m2)} m², core + lobby ${fmt(p.circulation_m2)} m² (${(p.efficiency * 100).toFixed(1)}% efficient) · doors N ${fc.N}, E ${fc.E}, S ${fc.S}, W ${fc.W}</figcaption>`;
+}
+const ROOM_FILL = { FOY: "--room-day", LIV: "--room-day", DIN: "--room-day", PAS: "--room-day", POJ: "--room-day",
+  MBR: "--room-bed", BR2: "--room-bed", BR3: "--room-bed", STD: "--room-bed", DRS: "--room-bed",
+  KIT: "--room-kit", UTL: "--room-kit", MT: "--room-wet", T2: "--room-wet", T3: "--room-wet", CT: "--room-wet", PWD: "--room-wet", BAL: "--room-out" };
+const segLine = (sg, attrs) => `<line x1="${sg[0][0]}" y1="${-sg[0][1]}" x2="${sg[1][0]}" y2="${-sg[1][1]}" ${attrs}/>`;
+function roomPlate(p, R) {
+  let s = poly(p.lobby, `fill="var(--lobby)" stroke="none"`) + poly(p.core, `fill="var(--core)" stroke="none"`);
+  for (const sh of R.shafts) s += `<polygon points="${P(sh)}" fill="var(--surface)" stroke="var(--vent)" stroke-width="0.12" stroke-dasharray="0.4 0.25"/>`;
+  for (const f of p.flats) {
+    const lay = R.flats[f.slot], u = B.units.find(x => x.id === f.unit);
+    if (!lay || !lay.rooms.length) { s += `<polygon points="${P(f.poly)}" fill="var(${UNIT_VAR[f.unit]})" opacity="0.5"/>`; continue; }
+    for (const r of lay.rooms) s += `<polygon points="${P(r.poly)}" fill="var(${ROOM_FILL[r.code] || "--room-day"})" stroke="var(--ink-2)" stroke-width="0.07"/>`;
+    s += `<polygon points="${P(f.poly)}" fill="none" stroke="var(${UNIT_VAR[f.unit]})" stroke-width="0.35"/>`;
+    for (const d of lay.doors) if (d.width && d.a !== "ENTRY") s += segLine(d.seg, `stroke="var(--door-int)" stroke-width="0.16"`);
+    for (const r of lay.rooms) {
+      for (const w of r.windows) s += segLine(w, `stroke="var(--window)" stroke-width="0.3"`);
+      for (const v of r.vents) s += segLine(v, `stroke="var(--vent)" stroke-width="0.3"`);
+      const c = centroid(r.poly), small = Math.min(r.w, r.d) < 1.65;
+      s += `<text x="${c[0]}" y="${-c[1] - (small ? -0.15 : 0.1)}" font-size="${small ? 0.42 : 0.55}" font-weight="650" text-anchor="middle" fill="var(--ink)">${r.code}</text>`;
+      if (!small) s += `<text x="${c[0]}" y="${-c[1] + 0.6}" font-size="0.42" text-anchor="middle" fill="var(--ink-2)">${Math.max(0, r.w - 0.15).toFixed(1)}×${Math.max(0, r.d - 0.15).toFixed(1)}</text>`;
+    }
+    const bad = lay.checks.filter(c => !c[0]).map(c => c[1]);
+    const tipTxt = `<b>${f.unit} ${u.label} · ${f.slot}</b><br>carpet in plan ${lay.carpet_m2.toFixed(1)} m² (${fmt(lay.carpet_m2 * 10.7639)} ft²) against ${fmt(u.carpet_ft2)} ft² nominal<br>` +
+      (bad.length ? `<span style="color:var(--critical)">${bad.join("<br>")}</span>` : "every rule met") +
+      `<br>Vastu: ${Object.entries(lay.vastu).filter(([, v]) => v).map(([k]) => k.replace(/_/g, " ")).join(", ") || "none"}`;
+    s += `<polygon points="${P(f.poly)}" fill="transparent" stroke="none" data-tip="${tipTxt.replace(/"/g, "&quot;")}"/>`;
+    s += doorMark(f, 0.8);
+    const xs = f.poly.map(q => q[0]), ys = f.poly.map(q => q[1]), c = centroid(f.poly);
+    const end = f.slot.endsWith("_end"), side = end ? Math.sign(c[1]) : Math.sign(c[0]);
+    const lx = end ? c[0] : (side > 0 ? Math.max(...xs) + 0.8 : Math.min(...xs) - 0.8), ly = end ? (side > 0 ? Math.max(...ys) + 1.6 : Math.min(...ys) - 1.2) : c[1];
+    const anchor = end ? "middle" : (side > 0 ? "start" : "end");
+    s += `<text x="${lx}" y="${-ly}" font-size="1.0" font-weight="700" text-anchor="${anchor}" fill="var(${UNIT_VAR[f.unit]})">${f.unit} ${u.label} · ${f.door_dir}${bad.length ? " ⚠" : ""}</text>`;
+  }
+  return s;
+}
+function roomNote(p, R) {
+  const fl = Object.values(R.flats), ok = fl.filter(x => x.ok).length;
+  const sw = (c, t) => `<span><i class="sw" style="background:var(${c})"></i>${t}</span>`, ln = (c, t) => `<span><i class="sw" style="background:var(${c});height:3px"></i>${t}</span>`;
+  return `<div class="legend">${sw("--room-day", "Living, dining, foyer, passage, pooja")}${sw("--room-bed", "Bedrooms, study, dress")}${sw("--room-kit", "Kitchen, utility")}${sw("--room-wet", "Toilets")}${sw("--room-out", "Balcony")}${ln("--window", "Window")}${ln("--vent", "Ventilator / shaft")}${ln("--door-int", "Inner door")}</div>` +
+    `<div class="sub">Rooms laid out by CP-SAT on a 0.3 m grid under NBC 2016 Part 3 rules (light and air, toilet ventilation on the facade or the shared shaft, access through the foyer, minimum sizes). ${ok} of ${fl.length} flats meet every rule; hover a flat for its checks. Sizes are net of walls, in metres.</div>`;
+}
+
+// ------------------------------------------------------------ charts
+const tip = $("tip");
+function showTip(e, html) { tip.innerHTML = html; tip.style.display = "block"; tip.style.left = Math.min(e.clientX + 14, innerWidth - 310) + "px"; tip.style.top = (e.clientY + 14) + "px"; }
+function hideTip() { tip.style.display = "none"; }
+function bindTips(svg) { svg.querySelectorAll("[data-tip]").forEach(el => { el.onmousemove = (e) => showTip(e, el.dataset.tip); el.onmouseleave = hideTip; }); }
+function barRows(svgId, rows, maxV, valueFmt) {
+  const svg = $(svgId), W = svg.clientWidth || 520, rowH = 34, left = 128, right = 120, H = rows.length * rowH + 22;
+  svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const x = (v) => left + (W - left - right) * v / maxV;
+  let h = "";
+  for (let k = 0; k <= 4; k++) { const v = maxV * k / 4, xx = x(v); h += `<line x1="${xx}" y1="4" x2="${xx}" y2="${H - 18}" stroke="var(--grid)"/><text x="${xx}" y="${H - 4}" font-size="11" fill="var(--muted)" text-anchor="middle">${valueFmt(v)}</text>`; }
+  rows.forEach((r, i) => {
+    const y = 6 + i * rowH, bw = Math.max(0, x(r.v) - left);
+    h += `<text x="${left - 8}" y="${y + 15}" font-size="12.5" fill="var(--ink)" text-anchor="end">${r.label}</text>`;
+    h += `<path d="M${left},${y + 4} h${Math.max(0, bw - 4)} a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-${Math.max(0, bw - 4)} z" fill="${r.color}"/>`;
+    if (r.t != null) h += `<line x1="${x(r.t)}" y1="${y}" x2="${x(r.t)}" y2="${y + 26}" stroke="var(--ink)" stroke-width="2"/>`;
+    h += `<text x="${W - right + 8}" y="${y + 15}" font-size="12" fill="var(--ink-2)">${r.text}</text>`;
+    h += `<rect x="0" y="${y}" width="${W}" height="${rowH}" fill="transparent" data-tip="${r.tip}"/>`;
+  });
+  svg.innerHTML = h; bindTips(svg);
+}
+function renderMix(M) {
+  const maxV = Math.max(0.3, ...B.units.map(u => Math.max(u.share, M.shares[u.id]))) * 1.1;
+  barRows("mixChart", B.units.map(u => ({ label: `${u.id} ${u.label}`, v: M.shares[u.id], t: u.share, color: `var(${UNIT_VAR[u.id]})`,
+    text: `${(M.shares[u.id] * 100).toFixed(1)}% · ${M.mix[u.id]}`, tip: `<b>${u.id} ${u.label}</b><br>${fmt(u.carpet_ft2)} ft² carpet · ${fmt(u.sbu_ft2)} ft² SBU<br>achieved ${(M.shares[u.id] * 100).toFixed(1)}% (${M.mix[u.id]} flats)<br>target ${(u.share * 100).toFixed(0)}%` })),
+    maxV, v => (v * 100).toFixed(0) + "%");
+}
+function renderFacing(M) {
+  const col = { N: "var(--good)", E: "var(--good)", S: "var(--warning)", W: "var(--critical)" };
+  const name = { N: "North", E: "East", S: "South", W: "West" };
+  barRows("faceChart", ["N", "E", "S", "W"].map(d => ({ label: name[d], v: M.facing[d] / M.flats, color: col[d],
+    text: `${(M.facing[d] / M.flats * 100).toFixed(1)}% · ${M.facing[d]}`, tip: `<b>${name[d]}-facing doors</b><br>${M.facing[d]} flats` })), 1, v => (v * 100).toFixed(0) + "%");
+}
+function parkLevels(pk) {
+  const bl = pk.basement_levels && pk.basement_levels[0].length ? pk.basement_levels : [[pk.basement[0]], [pk.basement[1]]];
+  const n = Math.max(bl[0].length, bl[1].length);
+  const rows = [];
+  for (let k = 0; k < n; k++) rows.push({ key: `B${k + 1}`, label: n > 1 ? `Basement ${k + 1}` : "Basement", c: k === 0 ? "--lvl-b" : "--lvl-b2", v: [bl[0][k] || 0, bl[1][k] || 0] });
+  rows.push({ key: "gf", label: "Ground floor", c: "--lvl-g", v: pk.gf }, { key: "s1", label: "Stilt 1 (part clubhouse)", c: "--lvl-s", v: pk.s1 });
+  return rows;
+}
+function renderParking(M) {
+  const pk = S.metrics.parking, svg = $("parkChart"), W = svg.clientWidth || 520, left = 90, right = 70, rowH = 46;
+  const G = [0, 1].filter(g => S.towers.some(t => t.podium === g)), one = G.length === 1, H = G.length * rowH + 26;
+  const lv_rows = parkLevels(pk), vb = pk.visitor_basement || [0, 0];
+  $("legendPark").innerHTML = lv_rows.map(r => `<span><i class="sw" style="background:var(${r.c})"></i>${r.label.replace(" (part clubhouse)", "")}</span>`).join("") +
+    `<span><i class="sw" style="background:var(--ink);width:3px"></i>Cars needed${vb[0] + vb[1] ? " (residents + visitors parked below)" : ""}</span>`;
+  const phys = [0, 1].map(g => lv_rows.reduce((a, r) => a + r.v[g], 0));
+  const maxV = Math.max(...phys, ...M.demand.map((d, g) => d + vb[g])) * 1.1;
+  const x = (v) => left + (W - left - right) * v / maxV;
+  svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  let h = "";
+  for (let k = 0; k <= 4; k++) { const v = maxV * k / 4; h += `<line x1="${x(v)}" y1="4" x2="${x(v)}" y2="${H - 18}" stroke="var(--grid)"/><text x="${x(v)}" y="${H - 4}" font-size="11" fill="var(--muted)" text-anchor="middle">${fmt(v)}</text>`; }
+  G.forEach((g, gi) => {
+    const y = 8 + gi * rowH; let x0 = left;
+    h += `<text x="${left - 8}" y="${y + 18}" font-size="12.5" fill="var(--ink)" text-anchor="end">${one ? "Podium" : `Phase ${g + 1}`}</text>`;
+    lv_rows.forEach((r, i) => {
+      const w = x(r.v[g]) - left; h += `<rect x="${x0}" y="${y + 6}" width="${Math.max(0, w - 2)}" height="22" rx="${i === lv_rows.length - 1 ? 4 : 0}" fill="var(${r.c})" data-tip="<b>Phase ${g + 1} · ${r.label}</b><br>${r.v[g]} cars"/>`; x0 += w;
+    });
+    const need = M.demand[g] + vb[g];
+    h += `<line x1="${x(need)}" y1="${y}" x2="${x(need)}" y2="${y + 34}" stroke="var(--ink)" stroke-width="2.5" data-tip="<b>Phase ${g + 1} needs</b><br>${M.demand[g]} cars (${B.parking.ratio} × ${M.phase[g].flats} flats)${vb[g] ? ` + ${vb[g]} visitors` : ""}"/>`;
+    const d = pk.supply[g] - M.demand[g];
+    h += `<text x="${W - right + 8}" y="${y + 21}" font-size="12" fill="var(--ink-2)">${d >= 0 ? "+" : ""}${d}</text>`;
+  });
+  svg.innerHTML = h; bindTips(svg);
+  const lv = S.metrics.levers;
+  const row = (label, v, tot) => `<tr><td>${label}</td>${one ? `<td>${v[0]}</td>` : `<td>${v[0]}</td><td>${v[1]}</td><td>${tot ?? ""}</td>`}</tr>`;
+  let t = `<thead><tr><th>Level</th>${one ? "<th>Cars</th>" : "<th>Phase 1</th><th>Phase 2</th><th>Total</th>"}</tr></thead><tbody>`;
+  lv_rows.forEach(r => t += row(r.label, r.v, r.v[0] + r.v[1]));
+  const neg = (v) => v ? `−${v}` : "0";
+  if (vb[0] + vb[1]) t += row("Less visitors parked in the basement", [neg(vb[0]), neg(vb[1])], neg(vb[0] + vb[1]));
+  t += row("Provided for residents", pk.supply, pk.supply[0] + pk.supply[1]);
+  t += row(`Needed at ${B.parking.ratio}`, M.demand, M.demand[0] + M.demand[1]);
+  t += row("Spare (provision)", [pk.supply[0] - M.demand[0], pk.supply[1] - M.demand[1]], pk.supply[0] + pk.supply[1] - M.demand[0] - M.demand[1]);
+  const setb = pk.visitor_bays_setback ?? M.visBays;
+  t += `<tr><td>Visitor bays: setbacks${vb[0] + vb[1] ? " + basement" : ""}</td>${one ? "" : "<td></td>"}<td${one ? "" : ' colspan="2"'}>${setb}${vb[0] + vb[1] ? ` + ${vb[0] + vb[1]}` : ""} = ${M.visBays} / ${M.visNeed}</td></tr>`;
+  if (pk.lower_needed_m2 && pk.basement_levels && pk.basement_levels[0].length > 1) {
+    const lb = pk.lower_basement_m2, ln = pk.lower_needed_m2;
+    t += row("Lower basement built, m²", lb.map(v => fmt(v)), fmt(lb[0] + lb[1]));
+    t += row("Lower basement needed, m²", ln.map(v => fmt(v)), fmt(ln[0] + ln[1]));
+  }
+  t += `</tbody>`;
+  const short = Math.max(0, M.demand[0] - pk.supply[0]) + Math.max(0, M.demand[1] - pk.supply[1]) + Math.max(0, M.visNeed - M.visBays);
+  if (short > 0 && lv) {
+    t += `<tbody><tr><th class="l" colspan="4">To close the ${short}-car gap (any one of these)</th></tr>
+      <tr><td class="l" colspan="3">Another basement level under part of the site</td><td>${fmt(short * B.parking.m2_per_car_basement + B.parking.ramp_basement_m2)} m²</td></tr>
+      <tr><td class="l" colspan="3">Two-level stackers in the basement</td><td>${short} stackers</td></tr>
+      <tr><td class="l" colspan="3">Basement also under the EIA belt (if the EIA allows)</td><td>up to ${lv.basement_under_green_cars} cars</td></tr>
+      <tr><td class="l" colspan="3">Part second stilt level (adds 3.3 m of podium)</td><td>${fmt(short * B.parking.m2_per_car_podium)} m²</td></tr></tbody>`;
+  }
+  $("parkTbl").innerHTML = t;
+}
+function renderArea(M) {
+  const s = variant().site.summary, m = S.metrics;
+  const resFloors = M.fsi_m2 - B.fsi.clubhouse_m2 - S.towers.length * B.fsi.gf_lobby_m2_per_core;
+  const rows = [
+    ["Gross plot", `${fmt(s.gross_m2)} m²`], ["Road widening (acquired)", `${fmt(s.widening_m2)} m²`], ["Net plot, FSI basis", `${fmt(s.net_m2)} m²`],
+    ["OSR (gifted)", `${fmt(s.osr_m2)} m² · ${(s.osr_ratio * 100).toFixed(1)}% · ${s.osr_narrowest_width_m ?? "–"} m at the road`],
+    ["EIA green belt", `${fmt(s.green_m2)} m² · ${(s.green_ratio * 100).toFixed(1)}% · ${s.green_width_m} m wide`],
+    ["Fire driveway ring", `${fmt(s.driveway_m2)} m² · ${B.access.driveway_m} m`],
+    ["Residential floors (flats + core + lobbies)", `${fmt(resFloors)} m²`], ["Ground-floor entrance lobbies", `${fmt(S.towers.length * B.fsi.gf_lobby_m2_per_core)} m²`],
+    ["Clubhouse (stilt 1, phase 1)", `${fmt(B.fsi.clubhouse_m2)} m²`], ["FSI area", `${fmt(M.fsi_m2)} m² · FSI ${M.fsi.toFixed(3)}`],
+    ["Carpet (incl. balconies)", `${fmt(M.carpet)} ft²`], [`Saleable SBU (carpet × ${B.loading})`, `${fmt(M.sbu)} ft²`],
+    ["Deck basis cross-check (1.06 × FSI)", `${fmt(1.06 * M.fsi_m2 * 10.7639)} ft²`], ["SBU ÷ FSI area", (M.sbu / (M.fsi_m2 * 10.7639)).toFixed(3)],
+    ["Ground coverage (tower plates)", `${(m.coverage * 100).toFixed(1)}% of net`],
+  ];
+  $("areaTbl").innerHTML = `<tbody>${rows.map(([a, b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join("")}</tbody>`;
+}
+function renderScatter() {
+  const v = variant(), pts = v.scatter || [], svg = $("scatter"), W = svg.clientWidth || 900, H = 320, l = 56, r = 16, t = 12, b = 40;
+  const scA = pts.some(p => p.scenario === "targeted") ? "targeted" : "segregated";
+  $("legendScatter").innerHTML = `<span><i class="sw" style="background:var(--u1);border-radius:50%"></i>${SCEN_LABEL[scA]}</span><span><i class="sw" style="background:var(--u2);border-radius:50%"></i>${SCEN_LABEL.mixed}</span><span><i class="sw" style="border:2px solid var(--ink-2);border-radius:50%;background:transparent"></i>All rules met</span><span><i class="sw" style="background:var(--ink-2);border-radius:50%"></i>At FSI target</span>`;
+  if (!pts.length) { svg.innerHTML = ""; return; }
+  const xs = pts.map(p => p.fsi), ys = pts.map(p => p.margin);
+  const x0 = Math.min(...xs) - 0.05, x1 = Math.max(...xs) + 0.05, y0 = Math.min(...ys, 0) - 10, y1 = Math.max(...ys, 0) + 10;
+  const X = (x) => l + (W - l - r) * (x - x0) / (x1 - x0), Y = (y) => t + (H - t - b) * (1 - (y - y0) / (y1 - y0));
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  let h = "";
+  for (let k = 0; k <= 5; k++) { const yy = y0 + (y1 - y0) * k / 5; h += `<line x1="${l}" x2="${W - r}" y1="${Y(yy)}" y2="${Y(yy)}" stroke="var(--grid)"/><text x="${l - 6}" y="${Y(yy) + 4}" font-size="11" fill="var(--muted)" text-anchor="end">${fmt(yy)}</text>`; }
+  for (let k = 0; k <= 6; k++) { const xx = x0 + (x1 - x0) * k / 6; h += `<text x="${X(xx)}" y="${H - b + 16}" font-size="11" fill="var(--muted)" text-anchor="middle">${xx.toFixed(2)}</text>`; }
+  h += `<line x1="${l}" x2="${W - r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--axis)"/><text x="${W - r}" y="${Y(0) - 5}" font-size="11" fill="var(--ink-2)" text-anchor="end">parking met</text>`;
+  h += `<line x1="${X(B.fsi.target)}" x2="${X(B.fsi.target)}" y1="${t}" y2="${H - b}" stroke="var(--axis)" stroke-dasharray="4 3"/><text x="${X(B.fsi.target) + 4}" y="${t + 10}" font-size="11" fill="var(--ink-2)">target ${B.fsi.target}</text>`;
+  h += `<text x="${(l + W - r) / 2}" y="${H - 4}" font-size="12" fill="var(--ink-2)" text-anchor="middle">FSI on the net plot</text><text x="14" y="${(t + H - b) / 2}" font-size="12" fill="var(--ink-2)" text-anchor="middle" transform="rotate(-90 14 ${(t + H - b) / 2})">cars over (+) or short (−)</text>`;
+  const order = [...pts].sort((a, bq) => (a.link ? 1 : 0) - (bq.link ? 1 : 0));
+  for (const p of order) {
+    const c = p.scenario === "mixed" ? "var(--u2)" : "var(--u1)", R = p.link ? 6 : 4.5;
+    const fill = p.mode === "target" ? c : "transparent";
+    h += `<circle cx="${X(p.fsi)}" cy="${Y(p.margin)}" r="${R}" fill="${fill}" stroke="${p.mode === "target" ? "var(--surface)" : c}" stroke-width="${p.mode === "target" ? 2 : 2.2}" ${p.link ? `style="cursor:pointer" data-link="${p.link}"` : ""}
+      data-tip="<b>${SCEN_LABEL[p.scenario]} · ${MODE_LABEL[p.mode]}</b><br>FSI ${p.fsi.toFixed(3)} · ${p.flats} flats · ${p.towers} towers<br>cars ${p.margin >= 0 ? "+" : ""}${p.margin} · mix ±${p.mix_dev.toFixed(1)} pp · N+E ${(p.ne * 100).toFixed(0)}%<br>tallest ${p.max_h.toFixed(1)} m${p.link ? "<br><i>click to open</i>" : ""}"/>`;
+  }
+  svg.innerHTML = h; bindTips(svg);
+  svg.querySelectorAll("[data-link]").forEach(el => el.onclick = () => {
+    const [sc, mode, idx] = el.dataset.link.split("|"); state.scenario = sc; state.mode = mode; state.idx = +idx; refreshAll(true); window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}
+function renderBasis() {
+  $("unitTbl").innerHTML = `<thead><tr><th>Type</th><th class="l">Unit</th><th>Carpet ft²</th><th>SBU ft² (× ${B.loading})</th><th>Built-up m² (× ${B.builtup_factor})</th><th>Target share</th><th class="l">Segment</th></tr></thead><tbody>` +
+    B.units.map(u => `<tr><td><span class="status"><i class="sw" style="background:var(${UNIT_VAR[u.id]})"></i>${u.id}</span></td><td class="l">${u.label}</td><td>${fmt(u.carpet_ft2)}</td><td>${fmt(u.sbu_ft2)}</td><td>${u.builtup_m2.toFixed(1)}</td><td>${(u.share * 100).toFixed(0)}%</td><td class="l">${SEG_LABEL[u.segment]}</td></tr>`).join("") + `</tbody>`;
+  const items = DATA.notes || [];
+  $("basisList").innerHTML = items.map(s => `<li>${s}</li>`).join("");
+}
+
+// ------------------------------------------------------------ 3D
+let R3 = null;
+function init3D() {
+  const box = $("view3d");
+  if (!window.THREE) { $("hint3d").textContent = "3D needs three.js from cdnjs; it did not load (offline?). The plan and tables still work."; return; }
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+  box.appendChild(renderer.domElement);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 1, 5000);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.62));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.55); sun.position.set(-120, 260, 160); scene.add(sun);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.18); fill.position.set(160, 120, -140); scene.add(fill);
+  const root = new THREE.Group(); scene.add(root);
+  R3 = { renderer, scene, camera, root, theta: -0.75, phi: 0.95, radius: 420, target: new THREE.Vector3(), floorMeshes: [] };
+  const resize = () => { const w = box.clientWidth, h = box.clientHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); draw3D(); };
+  new ResizeObserver(resize).observe(box);
+  let d = null;
+  renderer.domElement.addEventListener("contextmenu", e => e.preventDefault());
+  renderer.domElement.addEventListener("pointerdown", e => { d = { x: e.clientX, y: e.clientY, pan: e.button === 2 || e.shiftKey }; renderer.domElement.setPointerCapture(e.pointerId); });
+  renderer.domElement.addEventListener("pointermove", e => {
+    if (!d) return; const dx = e.clientX - d.x, dy = e.clientY - d.y; d.x = e.clientX; d.y = e.clientY;
+    if (d.pan) {
+      const s = R3.radius / 600, c = Math.cos(R3.theta), sn = Math.sin(R3.theta);
+      R3.target.x -= (dx * c + dy * sn * 0) * s; R3.target.z -= (-dx * sn) * s; R3.target.x -= dy * sn * s; R3.target.z -= dy * c * s;
+    } else { R3.theta -= dx * 0.008; R3.phi = Math.max(0.12, Math.min(1.5, R3.phi - dy * 0.008)); }
+    draw3D();
+  });
+  renderer.domElement.addEventListener("pointerup", () => d = null);
+  renderer.domElement.addEventListener("wheel", e => { e.preventDefault(); R3.radius = Math.max(60, Math.min(1500, R3.radius * (1 + Math.sign(e.deltaY) * 0.1))); draw3D(); }, { passive: false });
+  resize();
+}
+function draw3D() {
+  if (!R3) return;
+  const { camera, renderer, target } = R3;
+  camera.position.set(target.x + R3.radius * Math.sin(R3.phi) * Math.sin(R3.theta), target.y + R3.radius * Math.cos(R3.phi), target.z + R3.radius * Math.sin(R3.phi) * Math.cos(R3.theta));
+  camera.lookAt(target); renderer.render(R3.scene, camera);
+}
+function shapeOf(ring) { const s = new THREE.Shape(); ring.forEach(([x, y], i) => i ? s.lineTo(x, y) : s.moveTo(x, y)); s.closePath(); return s; }
+function slab(ring, z0, hgt, color, opts = {}) {
+  const geo = hgt > 0 ? new THREE.ExtrudeGeometry(shapeOf(ring), { depth: hgt, bevelEnabled: false }) : new THREE.ShapeGeometry(shapeOf(ring));
+  geo.rotateX(-Math.PI / 2); geo.translate(0, z0, 0);
+  const mat = new THREE.MeshLambertMaterial({ color: new THREE.Color(color), transparent: !!opts.opacity, opacity: opts.opacity || 1, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: opts.po || 0, polygonOffsetUnits: opts.po || 0 });
+  return new THREE.Mesh(geo, mat);
+}
+function build3D() {
+  if (!R3) return;
+  const { root } = R3; while (root.children.length) { const c = root.children.pop(); c.geometry && c.geometry.dispose(); }
+  R3.floorMeshes = [];
+  const site = variant().site, b = B.building;
+  const bg = css("--surface-2"); R3.scene.background = new THREE.Color(bg);
+  site.gross.forEach(r => root.add(slab(r, -0.3, 0.3, css("--plot"))));
+  site.green.forEach(r => root.add(slab(r, 0.02, 0, css("--green"), { po: -1 })));
+  site.osr.forEach(r => root.add(slab(r, 0.02, 0, css("--osr"), { po: -1 })));
+  site.widening.forEach(r => root.add(slab(r, 0.02, 0, css("--widening"), { po: -1 })));
+  site.driveway.forEach(r => root.add(slab(r, 0.03, 0, css("--drive"), { po: -2 })));
+  S.layout.visitor_strips.forEach(r => root.add(slab(r, 0.05, 0, css("--visitor"), { po: -3 })));
+  S.layout.podiums.forEach((pd) => pd.forEach(r => root.add(slab(r, 0, b.podium_height_m - 0.05, css("--podium")))));
+  const facingCol = { N: css("--good"), E: css("--good"), S: css("--warning"), W: css("--critical") };
+  let maxF = 1;
+  for (const t of S.towers) {
+    const p = plateOf(t), ref = p.flats.find(f => f.slot === p.refuge_slot); maxF = Math.max(maxF, t.floors);
+    for (let n = 1; n <= t.floors; n++) {
+      const z = b.podium_height_m + (n - 1) * b.floor_to_floor_m, isRef = t.refuges.includes(n);
+      for (const f of p.flats) {
+        let col = state.colorBy === "unit" ? css(UNIT_VAR[f.unit]) : state.colorBy === "phase" ? css(t.podium ? "--p2" : "--p1") : facingCol[f.door_dir];
+        if (isRef && f === ref) col = css("--muted");
+        const m = slab(tr(f.poly, t.x, t.y), z, b.floor_to_floor_m - 0.18, col); m.userData.floor = n; root.add(m); R3.floorMeshes.push(m);
+      }
+      for (const r of p.hub) { const m = slab(tr(r, t.x, t.y), z, b.floor_to_floor_m - 0.18, css("--core")); m.userData.floor = n; root.add(m); R3.floorMeshes.push(m); }
+    }
+  }
+  if ($("showEnv").checked) {
+    const seen = new Set();
+    for (const t of S.towers) if (!seen.has(t.setback)) {
+      seen.add(t.setback);
+      (envFor(site, t.setback)).forEach(r => {
+        const pts = r.map(([x, y]) => new THREE.Vector3(x, b.podium_height_m + 0.2, -y)); pts.push(pts[0].clone());
+        root.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: new THREE.Color(css("--critical")) })));
+      });
+    }
+  }
+  const all = site.gross.flat(); const cx = all.reduce((s, p) => s + p[0], 0) / all.length, cy = all.reduce((s, p) => s + p[1], 0) / all.length;
+  R3.target.set(cx, 20, -cy);
+  $("cut").max = String(maxF); if (state.cut > maxF || state.cut === 99) state.cut = maxF; $("cut").value = String(state.cut); $("cutV").textContent = String(state.cut);
+  const leg = state.colorBy === "unit" ? B.units.map(u => [css(UNIT_VAR[u.id]), `${u.id} ${u.label}`]) :
+    state.colorBy === "phase" ? [[css("--p1"), "Phase 1 (podium P1)"], [css("--p2"), "Phase 2 (podium P2)"]] :
+    [[css("--good"), "North or east door"], [css("--warning"), "South door"], [css("--critical"), "West door"]];
+  $("legend3d").innerHTML = leg.map(([c, l]) => `<span><i class="sw" style="background:${c}"></i>${l}</span>`).join("") + `<span><i class="sw" style="background:${css("--muted")}"></i>Refuge</span><span><i class="sw" style="background:${css("--core")}"></i>Core + lobby</span>`;
+  $("hint3d").textContent = "";
+  update3DVisibility();
+}
+function update3DVisibility() { if (!R3) return; for (const m of R3.floorMeshes) m.visible = m.userData.floor <= state.cut; draw3D(); }
+
+// ------------------------------------------------------------ refresh
+function refreshAll(reload) {
+  buildControls();
+  if (reload) { loadScheme(); state.cut = 99; }
+  document.querySelectorAll("main > section:not(.controls):not(.keep)").forEach(el => el.style.display = S ? "" : "none");
+  if (!S) { $("optDesc").textContent = "No scheme of this kind could be placed on the site under this reading; see the options explored below."; renderScatter(); return; }
+  const M = compute();
+  const npod = new Set(S.towers.map(t => t.podium)).size;
+  $("optDesc").innerHTML = `${S.label} · score ${S.score.toFixed(1)} (lower is better) · ${S.towers.length} towers on ${npod === 1 ? "one podium" : npod + " podiums"}`;
+  renderKPIs(M); renderPlan(); renderTowers(M); renderPlates(); renderMix(M); renderFacing(M); renderParking(M); renderArea(M);
+  if (reload) renderScatter();
+  build3D();
+}
+$("title").textContent = DATA.title;
+$("subtitle").textContent = DATA.subtitle;
+buildLayerRow(); renderBasis(); init3D();
+refreshAll(true);
+addEventListener("resize", () => { if (S) { const M = compute(); renderMix(M); renderFacing(M); renderParking(M); renderScatter(); } });
+</script>
+</body>
+</html>
