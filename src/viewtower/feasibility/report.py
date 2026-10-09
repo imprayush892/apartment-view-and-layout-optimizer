@@ -91,20 +91,22 @@ def write_report(path: str | Path, cfg: dict, summary: dict, rooms: dict | None 
                       f"FSI **{m['fsi']:.3f}** ({m['fsi_m2']:,.0f} m²) · {m['flats']} flats · SBU {m['sbu_ft2'] / 1e5:.2f} lakh ft² · "
                       f"tallest {m['max_height']:.1f} m · every unit type within {type_dev_pp(m['mix_counts'], cfg):.1f} pp of its share · doors N {m['facing']['N']}, E {m['facing']['E']}, "
                       f"S {m['facing']['S']}, W {m['facing']['W']} · cars {pk['total_supply']}/{pk['total_demand']} "
-                      f"(P1 {pk['supply'][0]}/{pk['demand'][0]}, P2 {pk['supply'][1]}/{pk['demand'][1]}) · visitor bays {pk['visitor_bays']}/{pk['visitor_need']}", ""]
+                      + (f"(P1 {pk['supply'][0]}/{pk['demand'][0]}, P2 {pk['supply'][1]}/{pk['demand'][1]}) " if pk['demand'][1] else "(one podium) ")
+                      + f"· visitor bays {pk['visitor_bays']}/{pk['visitor_need']}", ""]
                 n = m["flats"] or 1
                 L += ["Mix: " + " · ".join(f"{t['label']} ({t['id']}) {m['mix_counts'].get(t['id'], 0)} = "
                                           f"{m['mix_counts'].get(t['id'], 0) / n * 100:.1f}% (target {t['share'] * 100:.0f}%)"
                                           for t in cfg["units"]["types"]), ""]
                 lvls = pk.get("basement_levels") or [[], []]
                 if max(len(x) for x in lvls) > 1:
+                    used = [g for g in (0, 1) if pk["demand"][g] or pk["supply"][g]]
                     L += ["Cars by level: " + " · ".join(
                         f"P{g + 1} " + ", ".join(f"B{k + 1} {n}" for k, n in enumerate(lvls[g])) + f", GF {pk['gf'][g]}, stilt 1 {pk['s1'][g]}"
-                        for g in (0, 1)) + f". Visitors: {pk.get('visitor_bays_setback', pk['visitor_bays'])} in the setbacks"
+                        for g in used) + f". Visitors: {pk.get('visitor_bays_setback', pk['visitor_bays'])} in the setbacks"
                         + (f", {sum(pk.get('visitor_basement', [0, 0]))} in the basement" if sum(pk.get('visitor_basement', [0, 0])) else "")
-                        + f". Lower basement each phase needs: P1 {pk['lower_needed_m2'][0]:,} m², P2 {pk['lower_needed_m2'][1]:,} m² "
-                        f"(of {pk['lower_basement_m2'][0]:,.0f} / {pk['lower_basement_m2'][1]:,.0f} m² provided; "
-                        f"spare {pk['supply'][0] - pk['demand'][0]} / {pk['supply'][1] - pk['demand'][1]} cars).", ""]
+                        + ". Lower basement needed: " + ", ".join(
+                            f"P{g + 1} {pk['lower_needed_m2'][g]:,} m² of {pk['lower_basement_m2'][g]:,.0f} m² built "
+                            f"(spare {pk['supply'][g] - pk['demand'][g]} cars)" for g in used) + ".", ""]
                 if name == next(iter(summary)):
                     L += _scheme_rows(s, cfg) + [""]
                     lv = m.get("levers")

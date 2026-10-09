@@ -270,9 +270,12 @@ def select(cfg: dict, plates: list[Plate], fit: dict, net: float, nogoods: list,
     hi_f, lo_f = m.NewIntVar(fmin, fmax, "hi"), m.NewIntVar(fmin, fmax, "lo")
     m.AddMaxEquality(hi_f, f)
     m.AddMinEquality(lo_f, f)
-    ph = [sum(c for t, c in enumerate(carpet_t) if fx["podiums"][t] == g) for g in (0, 1)]
     imb = m.NewIntVar(0, 10 ** 7, "imb")
-    m.AddAbsEquality(imb, ph[0] - ph[1])
+    if len(set(fx["podiums"])) > 1:  # balance the phases' saleable area (a single podium has one phase)
+        ph = [sum(c for t, c in enumerate(carpet_t) if fx["podiums"][t] == g) for g in (0, 1)]
+        m.AddAbsEquality(imb, ph[0] - ph[1])
+    else:
+        m.Add(imb == 0)
     # These front towers do not fit at these floors or taller, nor with plates that cover each
     # failed plate's footprint (plates share the hub as origin, so such a plate takes more ground
     # wherever it stands).

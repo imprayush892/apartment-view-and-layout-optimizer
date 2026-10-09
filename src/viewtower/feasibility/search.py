@@ -204,7 +204,7 @@ def metrics(towers: list[Tower], lay: Layout | None, cfg: dict, site: Feasibilit
         "heights": hs, "max_height": max(hs), "min_height": min(hs),
         "slenderness": [round(s, 2) for s in sl],
         "phases": per_phase,
-        "phase_imbalance": round(abs(sale[0] - sale[1]) / max(1, sum(sale)), 4),
+        "phase_imbalance": round(abs(sale[0] - sale[1]) / max(1, sum(sale)), 4) if all(sale) else 0.0,
         "cores": len(towers),
         "efficiency": round(sum(sum(f.area_m2 for f in t.plate.flats) * t.floors for t in towers)
                             / sum(t.plate.area_m2 * t.floors for t in towers), 4),

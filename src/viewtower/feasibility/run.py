@@ -50,8 +50,8 @@ def run_project(cfg_path: str | Path, out_dir: str | Path, readings: list[str] |
     out.mkdir(parents=True, exist_ok=True)
     base = fconfig.load(cfg_path, QUICK if quick else None)
     if fixed:
-        n = len(base["fixed"]["podiums"])
-        defs = [("fixed", f"Fixed arrangement: {n} towers on 2 podiums", {})]
+        n, k = len(base["fixed"]["podiums"]), len(set(base["fixed"]["podiums"]))
+        defs = [("fixed", f"Fixed arrangement: {n} towers on {'one podium' if k == 1 else f'{k} podiums'}", {})]
         readings = [] if readings is None else readings
     else:
         defs = [("base", "Base reading", {})]
@@ -94,8 +94,9 @@ def run_project(cfg_path: str | Path, out_dir: str | Path, readings: list[str] |
                             files.append(fn)
             vjson["scatter"] += [scatter_point(s, links.get(s.sid)) for s in schemes]
         variants[name] = vjson
+    pods = len(set(base["fixed"]["podiums"])) if fixed else int(base["search"]["podiums"])
     data = {"title": f"{base.get('project', 'Feasibility')} · massing and unit-mix options",
-            "subtitle": _subtitle(base), "basis": basis_json(base), "variants": variants, "notes": notes(base)}
+            "subtitle": _subtitle(base, pods), "basis": basis_json(base), "variants": variants, "notes": notes(base)}
     files.append(write_viewer(out / f"{slug}_viewer.html", data))
     (out / f"{slug}_results.json").write_text(json.dumps(data, indent=1, default=str), encoding="utf-8")
     files.append(out / f"{slug}_results.json")
@@ -128,10 +129,10 @@ def _room_layouts(res: dict, cfg: dict, out: Path, progress) -> dict:
     return {k: data[k] for k in plates}
 
 
-def _subtitle(cfg: dict) -> str:
+def _subtitle(cfg: dict, podiums: int = 2) -> str:
     f, b, p = cfg["fsi"], cfg["building"], cfg["parking"]
     return (f"FSI target {f['target']} (cap {f['cap']}) on the net plot · towers ≤ {b['max_height_m']:g} m · "
-            f"{p['ratio']} cars a flat in basement + ground + stilt 1 · EIA green {cfg['eia']['green_ratio'] * 100:.0f}% · two podiums")
+            f"{p['ratio']} cars a flat in basement + ground + stilt 1 · EIA green {cfg['eia']['green_ratio'] * 100:.0f}% · {'one podium' if podiums == 1 else f'{podiums} podiums'}")
 
 
 def notes(cfg: dict) -> list[str]:

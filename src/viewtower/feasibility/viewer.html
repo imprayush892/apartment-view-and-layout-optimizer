@@ -552,7 +552,8 @@ function renderTowers(M) {
   const capOK = M.fsi <= B.fsi.cap + 1e-9;
   ck.push([capOK, false, `FSI ${M.fsi.toFixed(3)} ${capOK ? "within" : "over"} the ${B.fsi.cap} cap (target ${B.fsi.target}; gap ${(M.fsi - B.fsi.target).toFixed(3)})`]);
   ck.push([M.maxH <= B.building.max_height_m + 1e-9, false, `Tallest tower ${M.maxH.toFixed(1)} m against the ${B.building.max_height_m} m ceiling`]);
-  [0, 1].forEach(g => ck.push([M.supply[g] >= M.demand[g], false, `Phase ${g + 1} parks ${M.supply[g]} cars for ${M.demand[g]} needed (${B.parking.ratio} × ${M.phase[g].flats} flats)`]));
+  { const G = [0, 1].filter(g => S.towers.some(t => t.podium === g));
+    G.forEach(g => ck.push([M.supply[g] >= M.demand[g], false, `${G.length === 1 ? "The podium" : `Phase ${g + 1}`} parks ${M.supply[g]} cars for ${M.demand[g]} needed (${B.parking.ratio} × ${M.phase[g].flats} flats)`])); }
   { const pk = S.metrics.parking, vbs = (pk.visitor_basement || [0, 0]).reduce((a, b) => a + b, 0), setb = pk.visitor_bays_setback ?? M.visBays;
     ck.push([M.visBays >= M.visNeed, false, `Visitor bays: ${setb} in the setbacks${vbs ? ` and ${vbs} in the basement` : ""} for ${M.visNeed} needed (${B.parking.visitor_ratio * 100}% of resident cars), none in the EIA belt`]); }
   const allIn = S.towers.every(t => planChecks[t.name].env && planChecks[t.name].pod);
@@ -681,7 +682,8 @@ function parkLevels(pk) {
   return rows;
 }
 function renderParking(M) {
-  const pk = S.metrics.parking, svg = $("parkChart"), W = svg.clientWidth || 520, left = 90, right = 70, rowH = 46, H = 2 * rowH + 26;
+  const pk = S.metrics.parking, svg = $("parkChart"), W = svg.clientWidth || 520, left = 90, right = 70, rowH = 46;
+  const G = [0, 1].filter(g => S.towers.some(t => t.podium === g)), one = G.length === 1, H = G.length * rowH + 26;
   const lv_rows = parkLevels(pk), vb = pk.visitor_basement || [0, 0];
   $("legendPark").innerHTML = lv_rows.map(r => `<span><i class="sw" style="background:var(${r.c})"></i>${r.label.replace(" (part clubhouse)", "")}</span>`).join("") +
     `<span><i class="sw" style="background:var(--ink);width:3px"></i>Cars needed${vb[0] + vb[1] ? " (residents + visitors parked below)" : ""}</span>`;
@@ -691,9 +693,9 @@ function renderParking(M) {
   svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   let h = "";
   for (let k = 0; k <= 4; k++) { const v = maxV * k / 4; h += `<line x1="${x(v)}" y1="4" x2="${x(v)}" y2="${H - 18}" stroke="var(--grid)"/><text x="${x(v)}" y="${H - 4}" font-size="11" fill="var(--muted)" text-anchor="middle">${fmt(v)}</text>`; }
-  [0, 1].forEach(g => {
-    const y = 8 + g * rowH; let x0 = left;
-    h += `<text x="${left - 8}" y="${y + 18}" font-size="12.5" fill="var(--ink)" text-anchor="end">Phase ${g + 1}</text>`;
+  G.forEach((g, gi) => {
+    const y = 8 + gi * rowH; let x0 = left;
+    h += `<text x="${left - 8}" y="${y + 18}" font-size="12.5" fill="var(--ink)" text-anchor="end">${one ? "Podium" : `Phase ${g + 1}`}</text>`;
     lv_rows.forEach((r, i) => {
       const w = x(r.v[g]) - left; h += `<rect x="${x0}" y="${y + 6}" width="${Math.max(0, w - 2)}" height="22" rx="${i === lv_rows.length - 1 ? 4 : 0}" fill="var(${r.c})" data-tip="<b>Phase ${g + 1} · ${r.label}</b><br>${r.v[g]} cars"/>`; x0 += w;
     });
@@ -704,19 +706,20 @@ function renderParking(M) {
   });
   svg.innerHTML = h; bindTips(svg);
   const lv = S.metrics.levers;
-  let t = `<thead><tr><th>Level</th><th>Phase 1</th><th>Phase 2</th><th>Total</th></tr></thead><tbody>`;
-  lv_rows.forEach(r => t += `<tr><td>${r.label}</td><td>${r.v[0]}</td><td>${r.v[1]}</td><td>${r.v[0] + r.v[1]}</td></tr>`);
+  const row = (label, v, tot) => `<tr><td>${label}</td>${one ? `<td>${v[0]}</td>` : `<td>${v[0]}</td><td>${v[1]}</td><td>${tot ?? ""}</td>`}</tr>`;
+  let t = `<thead><tr><th>Level</th>${one ? "<th>Cars</th>" : "<th>Phase 1</th><th>Phase 2</th><th>Total</th>"}</tr></thead><tbody>`;
+  lv_rows.forEach(r => t += row(r.label, r.v, r.v[0] + r.v[1]));
   const neg = (v) => v ? `−${v}` : "0";
-  if (vb[0] + vb[1]) t += `<tr><td>Less visitors parked in the basement</td><td>${neg(vb[0])}</td><td>${neg(vb[1])}</td><td>${neg(vb[0] + vb[1])}</td></tr>`;
-  t += `<tr><td>Provided for residents</td><td>${pk.supply[0]}</td><td>${pk.supply[1]}</td><td>${pk.supply[0] + pk.supply[1]}</td></tr>`;
-  t += `<tr><td>Needed at ${B.parking.ratio}</td><td>${M.demand[0]}</td><td>${M.demand[1]}</td><td>${M.demand[0] + M.demand[1]}</td></tr>`;
-  t += `<tr><td>Spare (provision)</td><td>${pk.supply[0] - M.demand[0]}</td><td>${pk.supply[1] - M.demand[1]}</td><td>${pk.supply[0] + pk.supply[1] - M.demand[0] - M.demand[1]}</td></tr>`;
+  if (vb[0] + vb[1]) t += row("Less visitors parked in the basement", [neg(vb[0]), neg(vb[1])], neg(vb[0] + vb[1]));
+  t += row("Provided for residents", pk.supply, pk.supply[0] + pk.supply[1]);
+  t += row(`Needed at ${B.parking.ratio}`, M.demand, M.demand[0] + M.demand[1]);
+  t += row("Spare (provision)", [pk.supply[0] - M.demand[0], pk.supply[1] - M.demand[1]], pk.supply[0] + pk.supply[1] - M.demand[0] - M.demand[1]);
   const setb = pk.visitor_bays_setback ?? M.visBays;
-  t += `<tr><td>Visitor bays: setbacks${vb[0] + vb[1] ? " + basement" : ""}</td><td colspan="2">${setb}${vb[0] + vb[1] ? ` + ${vb[0] + vb[1]}` : ""}</td><td>${M.visBays} / ${M.visNeed}</td></tr>`;
+  t += `<tr><td>Visitor bays: setbacks${vb[0] + vb[1] ? " + basement" : ""}</td>${one ? "" : "<td></td>"}<td${one ? "" : ' colspan="2"'}>${setb}${vb[0] + vb[1] ? ` + ${vb[0] + vb[1]}` : ""} = ${M.visBays} / ${M.visNeed}</td></tr>`;
   if (pk.lower_needed_m2 && pk.basement_levels && pk.basement_levels[0].length > 1) {
     const lb = pk.lower_basement_m2, ln = pk.lower_needed_m2;
-    t += `<tr><td>Lower basement built, m²</td><td>${fmt(lb[0])}</td><td>${fmt(lb[1])}</td><td>${fmt(lb[0] + lb[1])}</td></tr>`;
-    t += `<tr><td>Lower basement needed, m²</td><td>${fmt(ln[0])}</td><td>${fmt(ln[1])}</td><td>${fmt(ln[0] + ln[1])}</td></tr>`;
+    t += row("Lower basement built, m²", lb.map(v => fmt(v)), fmt(lb[0] + lb[1]));
+    t += row("Lower basement needed, m²", ln.map(v => fmt(v)), fmt(ln[0] + ln[1]));
   }
   t += `</tbody>`;
   const short = Math.max(0, M.demand[0] - pk.supply[0]) + Math.max(0, M.demand[1] - pk.supply[1]) + Math.max(0, M.visNeed - M.visBays);
@@ -880,7 +883,8 @@ function refreshAll(reload) {
   document.querySelectorAll("main > section:not(.controls):not(.keep)").forEach(el => el.style.display = S ? "" : "none");
   if (!S) { $("optDesc").textContent = "No scheme of this kind could be placed on the site under this reading; see the options explored below."; renderScatter(); return; }
   const M = compute();
-  $("optDesc").innerHTML = `${S.label} · score ${S.score.toFixed(1)} (lower is better) · ${S.towers.length} towers on 2 podiums`;
+  const npod = new Set(S.towers.map(t => t.podium)).size;
+  $("optDesc").innerHTML = `${S.label} · score ${S.score.toFixed(1)} (lower is better) · ${S.towers.length} towers on ${npod === 1 ? "one podium" : npod + " podiums"}`;
   renderKPIs(M); renderPlan(); renderTowers(M); renderPlates(); renderMix(M); renderFacing(M); renderParking(M); renderArea(M);
   if (reload) renderScatter();
   build3D();
