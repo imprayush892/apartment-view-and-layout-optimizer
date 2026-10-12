@@ -249,7 +249,11 @@ function generate(model, field, env, C, opts = {}) {
     const elite = pop.filter(c => c.ok).sort((a, b) => b.s - a.s).slice(0, Math.max(4, Math.round((opts.pop || 80) * 0.15)));
     if (elite.length >= 4) dist = refit(dist, elite);
   }
-  return [...seen.values()].sort((a, b) => b.s - a.s).slice(0, opts.top || 4);
+  // diverse shortlist: at most 2 per base shape first, then fill by score (the cross-entropy refit tends to collapse onto one shape)
+  const ranked = [...seen.values()].sort((a, b) => b.s - a.s), top = opts.top || 4, per = {}, out = [];
+  for (const c of ranked) { const b = c.g.base; if ((per[b] || 0) >= 2) continue; per[b] = (per[b] || 0) + 1; out.push(c); if (out.length >= top) break; }
+  for (const c of ranked) { if (out.length >= top) break; if (!out.includes(c)) out.push(c); }
+  return out;
 }
 
 G.TOK = { BASES, MODS, library, resolveDirs, toSpec, tokenVector, TOKEN_KEYS, roseAt, viewAzOf, segments, FEAT, segFeatures, probe, APPEAL_FEAT, appealFeatures, appealScore, appealPick, contextHeight, rowsFromEval, ridge, train, predict, modelScore, ruleScore, rng, initDist, sampleGenome, genomeToTyp, generate, CATS };

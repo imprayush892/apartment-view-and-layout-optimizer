@@ -868,6 +868,11 @@ body.present .stage{height:78vh}
       <option value="hybrid">Hybrid (library + generative, tuned by architect feedback)</option>
     </select></label>
     <label class="f" id="tokKWrap">Designs to evaluate in full (token modes)<input type="number" id="tokK" value="8" min="2" max="24"></label>
+    <div class="f" style="margin-top:4px"><span>Each run</span><div class="row" role="radiogroup" aria-label="Each run">
+      <button type="button" class="chip" id="varNew" aria-pressed="true" title="A fresh random seed every run: new rotations, sizes and invented towers, and designs shown in earlier runs on this site are avoided">New variations</button>
+      <button type="button" class="chip" id="varFix" aria-pressed="false" title="Re-run exactly the seed below (for audits and demos)">Repeatable</button>
+      <label class="f" style="flex:1 1 90px;margin:0">Seed<input type="number" id="seed" value="1" min="1" step="1" aria-label="Seed"></label></div>
+      <p class="hint" style="margin:2px 0 0">New variations explore different designs every run; switch to Repeatable to reproduce a seed exactly.</p></div>
     <div class="typos" id="typos"></div>
     <div class="grid2">
       <label class="f">Rotations (°)<input type="text" id="rots" value="0, 30"></label>

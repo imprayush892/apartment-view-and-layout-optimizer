@@ -244,17 +244,19 @@ async function tokenSpecs(C, mode) {
   const perUpf = list => { if (upfs.length < 2) return list; const out = []; for (const sp of list.slice(0, Math.ceil(K / upfs.length) + 1)) for (const u of upfs) { const q = VT.resolveFloors({ ...sp, upf: u, n: 0 }, Ci); if (ok(q)) out.push({ ...q, tokNote: sp.tokNote }); } return out.slice(0, K); };
   const lib = async K => {
     // 1) cheap rule score for every typology x rotation, 2) fit + hard rules only down the ranked list
-    const sc = [], L = TOK.library(), rots = [0, 45, +(((viewAz % 90) + 90) % 90).toFixed(1)];
+    const R = TOK.rng(st.seed * 17 + K), sc = [], L = TOK.library(), rots = [0, 45, +(((viewAz % 90) + 90) % 90).toFixed(1), Math.round(R() * 90), Math.round(R() * 90)];
     for (let i = 0; i < L.length; i++) { for (const rot of rots) { const sp = TOK.toSpec(L[i], pos, rot, viewAz, Ci, ftf, pod, upf); sc.push({ sp, typ: L[i], s: TOK.ruleScore(sp, f, viewAz) }); } if (i % 60 === 59) { setInfo("runInfo", `Screening the token library… ${i + 1}/${L.length}`); await new Promise(r => setTimeout(r, 0)); } }
-    sc.sort((a, b) => b.s - a.s); const out = [], per = {};
+    { const top = Math.max(...sc.map(c => c.s)); sc.forEach(c => c.s += 0.25 * Math.abs(top) * -Math.log(-Math.log(Math.max(1e-9, R())))); } // Gumbel noise: sample among the best instead of always the same few
+    sc.sort((a, b) => b.s - a.s); const out = [], per = {}, seen = shownBefore();
+    if (st.vary && seen.size) sc.sort((a, b) => (seen.has(VT.specId(a.sp)) - seen.has(VT.specId(b.sp))) || b.s - a.s);
     for (const c of sc) { const b = c.sp.p.base; if ((per[b] || 0) >= 2) continue; let sp = c.sp; if (!VT.fitsAt(sp, env)) sp = fitSpec(sp, Ci); if (!ok(sp)) continue; per[b] = (per[b] || 0) + 1; out.push({ ...sp, tokNote: `from the library: ${describeTokensPlain(sp.p)}; after ${c.typ.precedent}` }); if (out.length >= K) break; }
     return out;
   };
   if (mode === "library") return perUpf(await lib(K));
   if (!MODEL) MODEL = await (await fetch("data/typology_model.json")).json();
   if (mode === "hybrid" && !HYB) { try { HYB = await (await fetch("data/hybrid_weights.json")).json(); } catch (e) { HYB = {}; } try { APPEAL = await (await fetch("data/appeal_model.json")).json(); } catch (e) { APPEAL = null; } }
-  const ctxH = TOK.contextHeight(st.S, ...pos), opts = { S: st.S, V: VT.viewSettings({ res: RES, lmOn: !!(st.ctx.landmarks && st.ctx.landmarks.length) }), check: ok, seed: 1 + (st.runToken % 97), pop: 60, iters: 5, top: K, ctxH, dense: st.ctx.profile === "dense", position: pos, ftf, podium: pod, upf };
-  const gen = (o, k, tag) => TOK.generate(MODEL, f, env, Ci, { ...o, top: k }).map(g => ({ ...g.sp, tokNote: `${tag}: ${describeTokens(g.sp.p)}` }));
+  const ctxH = TOK.contextHeight(st.S, ...pos), opts = { S: st.S, V: VT.viewSettings({ res: RES, lmOn: !!(st.ctx.landmarks && st.ctx.landmarks.length) }), check: ok, seed: st.seed, pop: 60, iters: 5, top: K, ctxH, dense: st.ctx.profile === "dense", position: pos, ftf, podium: pod, upf };
+  const gen = (o, k, tag) => novel(TOK.generate(MODEL, f, env, Ci, { ...o, top: k + (st.vary ? 4 : 0) }).map(g => ({ ...g.sp, tokNote: `${tag}: ${describeTokens(g.sp.p)}` })), k).slice(0, k);
   if (mode !== "hybrid") return perUpf(gen(opts, K, "generated"));
   // hybrid (v2, after the second architect round): the two best library designs and the two best plain generated designs
   // compete with designs generated under the architect-tuned weights; near-equal winners are then ordered by predicted appeal
@@ -289,14 +291,23 @@ function fitSpec(sp, C) {
   for (let i = 1, k = 0.94; i <= 20; i++, k *= 0.94) { const q = VT.resolveFloors(scaleSpec({ ...sp, n: 0 }, k), C); if (Math.min(q.width, q.depth) < MIN_DIM) break; if (fitsEnvelope(q)) { q.fitNote = `scaled to ${Math.round(k * 100)}% of the entered size to fit the envelope`; return q; } }
   return sp;
 }
+/* Variation: every run is driven by a seed (extra plate rotations, ±8 % sizes, sampled library ranking, generator seed).
+   "New variations" draws a fresh seed and avoids designs already shown on this site; "Repeatable" replays the seed exactly. */
+const siteKey = () => VT.fnv(JSON.stringify([st.src, (st.boundary || []).map(p => p.map(v => Math.round(v))), st.setbacks]));
+function nextSeed() { const fix = $("varFix").getAttribute("aria-pressed") === "true"; let s = Math.max(1, Math.round(+$("seed").value || 1));
+  if (!fix) { const a = new Uint32Array(1); (self.crypto || window.crypto).getRandomValues(a); s = 1 + (a[0] % 999999); $("seed").value = s; } st.seed = s; st.vary = !fix; return s; }
+const shownBefore = () => (st.shown && st.shown[siteKey()]) || new Set();
+function rememberShown(results) { st.shown = st.shown || {}; const k = siteKey(), set = st.shown[k] || new Set(); results.slice(0, 3).forEach(e => set.add(VT.specId((e.towers ? e.towers[0] : e).sp || e.sp))); st.shown[k] = set; }
+const novel = (list, keep) => { const seen = shownBefore(); if (!st.vary || !seen.size) return list; const fresh = list.filter(sp => !seen.has(VT.specId(sp))); return fresh.length >= keep ? fresh : fresh.concat(list.filter(sp => seen.has(VT.specId(sp)))); };
 function buildSpecs(C) {
   const c = bestCenter(st.env), specs = [], fit = $("autoFit").checked;
   TYPOS.forEach((t, i) => {
     if (!$(`ty-${i}`).checked) return; const vals = {}; for (const k of Object.keys(t.f)) vals[k] = listNums($(`ty-${i}-${k}`).value);
     const combos = Object.keys(vals).reduce((acc, k) => acc.flatMap(a => vals[k].map(v => ({ ...a, [k]: v }))), [{}]);
-    for (const cmb of combos) for (const rotd of C.rots) for (const ftf of C.ftf) for (const pod of C.pods) for (const upf of C.upf) for (const off of C.coff) {
-      const p = {}; let w = cmb.width, d = cmb.depth;
-      if (["y_shaped", "t_shaped", "cross"].includes(t.key)) { w = 2 * cmb.wing_len; d = cmb.wing_w; p.wing_len = cmb.wing_len; p.wing_w = cmb.wing_w; if (t.key === "y_shaped") p.wing_angle_deg = 120; }
+    const R = TOK.rng(st.seed * 31 + i), rots = [...new Set(C.rots.concat([Math.round(R() * 90) % 90]))], jit = () => 0.92 + 0.16 * R();
+    for (const cmb of combos) for (const rotd of rots) for (const ftf of C.ftf) for (const pod of C.pods) for (const upf of C.upf) for (const off of C.coff) {
+      const p = {}, j = jit(); let w = cmb.width != null ? +(cmb.width * j).toFixed(1) : cmb.width, d = cmb.depth != null ? +(cmb.depth * j).toFixed(1) : cmb.depth;
+      if (["y_shaped", "t_shaped", "cross"].includes(t.key)) { w = +(2 * cmb.wing_len * j).toFixed(1); d = cmb.wing_w; p.wing_len = cmb.wing_len; p.wing_w = cmb.wing_w; if (t.key === "y_shaped") p.wing_angle_deg = 120; }
       for (const k of ["chamfer_m", "exponent", "twist_per_floor_deg", "top_scale", "step_every", "step_m", "step_side_deg"]) if (cmb[k] != null) p[k] = cmb[k];
       if (["twisted", "tapered"].includes(t.key)) p.base = "square"; if (t.key === "terraced") p.base = "rectangular"; if (d == null) d = w;
       const sp0 = VT.resolveFloors({ typology: t.key, width: w, depth: d, p, position: c, rotation: rotd, ftf, podium: pod, upf, coreOff: off, n: 0 }, C);
@@ -316,7 +327,7 @@ async function runSearch() {
   if (st.running) return cancelSearch("Search stopped. Press Run search to start again.");
   if (!st.env || !st.env.length) return setInfo("runInfo", "Set a buildable envelope first.", true);
   const C = readConfig(), bad = validateConfig(C); if (bad.length) return setInfo("runInfo", "Check the inputs: " + bad.join("; ") + ".", true);
-  if (!st.field) computeField();
+  if (!st.field) computeField(); nextSeed();
   const mode = $("searchMode").value; let specs;
   if (mode === "hand") specs = buildSpecs(C);
   else { setInfo("runInfo", mode === "library" ? "Screening the 540-typology library…" : "Sampling token designs with the learned model…"); await new Promise(r => setTimeout(r, 30)); specs = await tokenSpecs(C, mode); }
@@ -348,10 +359,10 @@ async function runSearch() {
   VT.paretoRanks(results); results.sort(VT.cmpKey);
   if ($("searchMode").value === "hybrid" && APPEAL && st.field) { const r2 = TOK.appealPick(results, APPEAL, TOK.viewAzOf(st.field)); if (r2 !== results) { const b = r2[0]; b.explain = [`Put first ahead of the option with the best numbers (this one is within 15 % on sales value and has a similar share of strong-view and compromised flats) because architects are predicted to rate its form higher (+${fmt(b.appealPick.delta, 1)} on a 10-point scale). In blind tests architects' choices matched this prediction 70 % of the time and matched the view and value numbers 53 % of the time.`].concat(b.explain || []); results.splice(0, results.length, ...r2); } }
   if (st.Sf && results.length) { const V = VT.viewSettings({ res: RES, lmOn: !!(scene.landmarks.length) }); for (const ev of results.slice(0, 8).filter(e => !e.towers || e.towers.length === 1)) { const cl = { ...ev, viol: [], checks: { ...ev.checks }, metrics: { ...ev.metrics }, explain: [], units: [] }; VT.evaluateViews(cl, st.Sf, C, V); ev.metrics.futureComp = cl.metrics.compromised; ev.explain.push(`With future neighbours built: ${cl.metrics.compromised} compromised, ${cl.metrics.premium} premium.`); } }
-  st.results = results; st.rejected = rejected.sort((a, b) => a.id < b.id ? -1 : 1); st.C = C;
+  st.results = results; st.rejected = rejected.sort((a, b) => a.id < b.id ? -1 : 1); st.C = C; rememberShown(results);
   $("prog").style.width = "100%"; $("hudSearch").hidden = true; $("hudHint").hidden = false; $("hudHintText").textContent = "Click any floor of a tower to see its view cone. Drag to orbit, scroll to zoom.";
   const fitted = specs.filter(sp => sp.fitNote).length;
-  st.lastRun = `${({ hand: "Choose shapes myself", library: "Best from 540 known towers", generative: "Invent new towers", hybrid: "Best of both" })[mode]} · ${specs.length} designs evaluated in ${fmt((performance.now() - t0) / 1000, 0)} s · ${results.filter(e => e.rank === 0).length} on the best-trade-off front`;
+  st.lastRun = `${({ hand: "Choose shapes myself", library: "Best from 540 known towers", generative: "Invent new towers", hybrid: "Best of both" })[mode]} · ${st.vary ? "new variation" : "repeatable"}, seed ${st.seed} · ${specs.length} designs evaluated in ${fmt((performance.now() - t0) / 1000, 0)} s · ${results.filter(e => e.rank === 0).length} on the best-trade-off front`;
   if (results.length) setInfo("runInfo", `${results.length} feasible · ${rejected.length} rejected · ${results.filter(e => e.rank === 0).length} on the Pareto front · ${fmt((performance.now() - t0) / 1000, 1)} s on ${ws.length || 1} ${ws.length ? "workers" : "thread"}.${fitted ? ` ${fitted} option(s) were shrunk to fit the envelope.` : ""}`);
   else { const cnt = {}; rejected.forEach(e => e.viol.forEach(v => cnt[v] = (cnt[v] || 0) + 1)); const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${k} (${v})`).join(", ");
     setInfo("runInfo", `No option passed the hard rules. Most common failures: ${top}. ${cnt["ENV-ENVELOPE-01"] ? "The towers do not fit this envelope: draw a larger plot, reduce setbacks, or enter smaller widths. " : ""}See the Options tab for details.`, true); }
@@ -615,7 +626,8 @@ async function boot() {
   bindMapNav();
   $("mapIn").addEventListener("click", () => zoomMap(1 / 1.5)); $("mapOut").addEventListener("click", () => zoomMap(1.5)); $("mapFit").addEventListener("click", () => setZoom("plot"));
   $("envYes").addEventListener("click", () => { st.isEnv = true; pressEnv(); recomputeEnv(); });
-  $("sbAllGo").addEventListener("click", setAllSetbacks); $("sbAll").addEventListener("keydown", e => { if (e.key === "Enter") setAllSetbacks(); });
+  $("sbAllGo").addEventListener("click", setAllSetbacks);
+  const setVar = fix => { $("varFix").setAttribute("aria-pressed", String(fix)); $("varNew").setAttribute("aria-pressed", String(!fix)); }; $("varNew").addEventListener("click", () => setVar(false)); $("varFix").addEventListener("click", () => setVar(true)); $("seed").addEventListener("input", () => setVar(true)); $("sbAll").addEventListener("keydown", e => { if (e.key === "Enter") setAllSetbacks(); });
   $("envNo").addEventListener("click", () => { st.isEnv = false; pressEnv(); recomputeEnv(); setTab("t-site"); setZoom("plot"); });
   $("btnRun").addEventListener("click", runSearch);
   const modeUI = () => { const hand = $("searchMode").value === "hand"; $("typos").hidden = !hand; document.querySelectorAll("[data-preset]").forEach(b => b.closest(".row").hidden = !hand); $("presetInfo").hidden = !hand; $("tokKWrap").hidden = hand; $("rots").closest("label").hidden = !hand; };
