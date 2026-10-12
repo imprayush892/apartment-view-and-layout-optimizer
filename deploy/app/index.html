@@ -1,0 +1,1070 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>Viewtower Studio</title>
+<meta name="description" content="Deterministic view-optimised residential tower design: georeferenced site, OpenStreetMap context in 3D, parallel typology search, view cones and first-person views.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>/* Leaflet 1.9.4 CSS (BSD-2-Clause, (c) Volodymyr Agafonkin), inlined */
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+position: absolute;
+left: 0;
+top: 0;
+}
+.leaflet-container {
+overflow: hidden;
+}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+-webkit-user-select: none;
+-moz-user-select: none;
+user-select: none;
+-webkit-user-drag: none;
+}
+.leaflet-tile::selection {
+background: transparent;
+}
+.leaflet-safari .leaflet-tile {
+image-rendering: -webkit-optimize-contrast;
+}
+.leaflet-safari .leaflet-tile-container {
+width: 1600px;
+height: 1600px;
+-webkit-transform-origin: 0 0;
+}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+display: block;
+}
+.leaflet-container .leaflet-overlay-pane svg {
+max-width: none !important;
+max-height: none !important;
+}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+max-width: none !important;
+max-height: none !important;
+width: auto;
+padding: 0;
+}
+.leaflet-container img.leaflet-tile {
+mix-blend-mode: plus-lighter;
+}
+.leaflet-container.leaflet-touch-zoom {
+-ms-touch-action: pan-x pan-y;
+touch-action: pan-x pan-y;
+}
+.leaflet-container.leaflet-touch-drag {
+-ms-touch-action: pinch-zoom;
+touch-action: none;
+touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+-ms-touch-action: none;
+touch-action: none;
+}
+.leaflet-container {
+-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+filter: inherit;
+visibility: hidden;
+}
+.leaflet-tile-loaded {
+visibility: inherit;
+}
+.leaflet-zoom-box {
+width: 0;
+height: 0;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+z-index: 800;
+}
+.leaflet-overlay-pane svg {
+-moz-user-select: none;
+}
+.leaflet-pane         { z-index: 400; }
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+.leaflet-vml-shape {
+width: 1px;
+height: 1px;
+}
+.lvml {
+behavior: url(#default#VML);
+display: inline-block;
+position: absolute;
+}
+.leaflet-control {
+position: relative;
+z-index: 800;
+pointer-events: visiblePainted;
+pointer-events: auto;
+}
+.leaflet-top,
+.leaflet-bottom {
+position: absolute;
+z-index: 1000;
+pointer-events: none;
+}
+.leaflet-top {
+top: 0;
+}
+.leaflet-right {
+right: 0;
+}
+.leaflet-bottom {
+bottom: 0;
+}
+.leaflet-left {
+left: 0;
+}
+.leaflet-control {
+float: left;
+clear: both;
+}
+.leaflet-right .leaflet-control {
+float: right;
+}
+.leaflet-top .leaflet-control {
+margin-top: 10px;
+}
+.leaflet-bottom .leaflet-control {
+margin-bottom: 10px;
+}
+.leaflet-left .leaflet-control {
+margin-left: 10px;
+}
+.leaflet-right .leaflet-control {
+margin-right: 10px;
+}
+.leaflet-fade-anim .leaflet-popup {
+opacity: 0;
+-webkit-transition: opacity 0.2s linear;
+-moz-transition: opacity 0.2s linear;
+transition: opacity 0.2s linear;
+}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+opacity: 1;
+}
+.leaflet-zoom-animated {
+-webkit-transform-origin: 0 0;
+-ms-transform-origin: 0 0;
+transform-origin: 0 0;
+}
+svg.leaflet-zoom-animated {
+will-change: transform;
+}
+.leaflet-zoom-anim .leaflet-zoom-animated {
+-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+-moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+-webkit-transition: none;
+-moz-transition: none;
+transition: none;
+}
+.leaflet-zoom-anim .leaflet-zoom-hide {
+visibility: hidden;
+}
+.leaflet-interactive {
+cursor: pointer;
+}
+.leaflet-grab {
+cursor: -webkit-grab;
+cursor:    -moz-grab;
+cursor:         grab;
+}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+cursor: crosshair;
+}
+.leaflet-popup-pane,
+.leaflet-control {
+cursor: auto;
+}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+cursor: move;
+cursor: -webkit-grabbing;
+cursor:    -moz-grabbing;
+cursor:         grabbing;
+}
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+pointer-events: none;
+}
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+pointer-events: visiblePainted;
+pointer-events: auto;
+}
+.leaflet-container {
+background: #ddd;
+outline-offset: 1px;
+}
+.leaflet-container a {
+color: #0078A8;
+}
+.leaflet-zoom-box {
+border: 2px dotted #38f;
+background: rgba(255,255,255,0.5);
+}
+.leaflet-container {
+font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+font-size: 12px;
+font-size: 0.75rem;
+line-height: 1.5;
+}
+.leaflet-bar {
+box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+border-radius: 4px;
+}
+.leaflet-bar a {
+background-color: #fff;
+border-bottom: 1px solid #ccc;
+width: 26px;
+height: 26px;
+line-height: 26px;
+display: block;
+text-align: center;
+text-decoration: none;
+color: black;
+}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+background-position: 50% 50%;
+background-repeat: no-repeat;
+display: block;
+}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+background-color: #f4f4f4;
+}
+.leaflet-bar a:first-child {
+border-top-left-radius: 4px;
+border-top-right-radius: 4px;
+}
+.leaflet-bar a:last-child {
+border-bottom-left-radius: 4px;
+border-bottom-right-radius: 4px;
+border-bottom: none;
+}
+.leaflet-bar a.leaflet-disabled {
+cursor: default;
+background-color: #f4f4f4;
+color: #bbb;
+}
+.leaflet-touch .leaflet-bar a {
+width: 30px;
+height: 30px;
+line-height: 30px;
+}
+.leaflet-touch .leaflet-bar a:first-child {
+border-top-left-radius: 2px;
+border-top-right-radius: 2px;
+}
+.leaflet-touch .leaflet-bar a:last-child {
+border-bottom-left-radius: 2px;
+border-bottom-right-radius: 2px;
+}
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+font: bold 18px 'Lucida Console', Monaco, monospace;
+text-indent: 1px;
+}
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+font-size: 22px;
+}
+.leaflet-control-layers {
+box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+background: #fff;
+border-radius: 5px;
+}
+.leaflet-control-layers-toggle {
+background-image: url(images/layers.png);
+width: 36px;
+height: 36px;
+}
+.leaflet-retina .leaflet-control-layers-toggle {
+background-image: url(images/layers-2x.png);
+background-size: 26px 26px;
+}
+.leaflet-touch .leaflet-control-layers-toggle {
+width: 44px;
+height: 44px;
+}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+display: none;
+}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+display: block;
+position: relative;
+}
+.leaflet-control-layers-expanded {
+padding: 6px 10px 6px 6px;
+color: #333;
+background: #fff;
+}
+.leaflet-control-layers-scrollbar {
+overflow-y: scroll;
+overflow-x: hidden;
+padding-right: 5px;
+}
+.leaflet-control-layers-selector {
+margin-top: 2px;
+position: relative;
+top: 1px;
+}
+.leaflet-control-layers label {
+display: block;
+font-size: 13px;
+font-size: 1.08333em;
+}
+.leaflet-control-layers-separator {
+height: 0;
+border-top: 1px solid #ddd;
+margin: 5px -10px 5px -6px;
+}
+.leaflet-default-icon-path {
+background-image: url(images/marker-icon.png);
+}
+.leaflet-container .leaflet-control-attribution {
+background: #fff;
+background: rgba(255, 255, 255, 0.8);
+margin: 0;
+}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+padding: 0 5px;
+color: #333;
+line-height: 1.4;
+}
+.leaflet-control-attribution a {
+text-decoration: none;
+}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+text-decoration: underline;
+}
+.leaflet-attribution-flag {
+display: inline !important;
+vertical-align: baseline !important;
+width: 1em;
+height: 0.6669em;
+}
+.leaflet-left .leaflet-control-scale {
+margin-left: 5px;
+}
+.leaflet-bottom .leaflet-control-scale {
+margin-bottom: 5px;
+}
+.leaflet-control-scale-line {
+border: 2px solid #777;
+border-top: none;
+line-height: 1.1;
+padding: 2px 5px 1px;
+white-space: nowrap;
+-moz-box-sizing: border-box;
+box-sizing: border-box;
+background: rgba(255, 255, 255, 0.8);
+text-shadow: 1px 1px #fff;
+}
+.leaflet-control-scale-line:not(:first-child) {
+border-top: 2px solid #777;
+border-bottom: none;
+margin-top: -2px;
+}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+border-bottom: 2px solid #777;
+}
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+box-shadow: none;
+}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+border: 2px solid rgba(0,0,0,0.2);
+background-clip: padding-box;
+}
+.leaflet-popup {
+position: absolute;
+text-align: center;
+margin-bottom: 20px;
+}
+.leaflet-popup-content-wrapper {
+padding: 1px;
+text-align: left;
+border-radius: 12px;
+}
+.leaflet-popup-content {
+margin: 13px 24px 13px 20px;
+line-height: 1.3;
+font-size: 13px;
+font-size: 1.08333em;
+min-height: 1px;
+}
+.leaflet-popup-content p {
+margin: 17px 0;
+margin: 1.3em 0;
+}
+.leaflet-popup-tip-container {
+width: 40px;
+height: 20px;
+position: absolute;
+left: 50%;
+margin-top: -1px;
+margin-left: -20px;
+overflow: hidden;
+pointer-events: none;
+}
+.leaflet-popup-tip {
+width: 17px;
+height: 17px;
+padding: 1px;
+margin: -10px auto 0;
+pointer-events: auto;
+-webkit-transform: rotate(45deg);
+-moz-transform: rotate(45deg);
+-ms-transform: rotate(45deg);
+transform: rotate(45deg);
+}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+background: white;
+color: #333;
+box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+}
+.leaflet-container a.leaflet-popup-close-button {
+position: absolute;
+top: 0;
+right: 0;
+border: none;
+text-align: center;
+width: 24px;
+height: 24px;
+font: 16px/24px Tahoma, Verdana, sans-serif;
+color: #757575;
+text-decoration: none;
+background: transparent;
+}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+color: #585858;
+}
+.leaflet-popup-scrolled {
+overflow: auto;
+}
+.leaflet-oldie .leaflet-popup-content-wrapper {
+-ms-zoom: 1;
+}
+.leaflet-oldie .leaflet-popup-tip {
+width: 24px;
+margin: 0 auto;
+-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+}
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+border: 1px solid #999;
+}
+.leaflet-div-icon {
+background: #fff;
+border: 1px solid #666;
+}
+.leaflet-tooltip {
+position: absolute;
+padding: 6px;
+background-color: #fff;
+border: 1px solid #fff;
+border-radius: 3px;
+color: #222;
+white-space: nowrap;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+pointer-events: none;
+box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.leaflet-tooltip.leaflet-interactive {
+cursor: pointer;
+pointer-events: auto;
+}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+position: absolute;
+pointer-events: none;
+border: 6px solid transparent;
+background: transparent;
+content: "";
+}
+.leaflet-tooltip-bottom {
+margin-top: 6px;
+}
+.leaflet-tooltip-top {
+margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+left: 50%;
+margin-left: -6px;
+}
+.leaflet-tooltip-top:before {
+bottom: 0;
+margin-bottom: -12px;
+border-top-color: #fff;
+}
+.leaflet-tooltip-bottom:before {
+top: 0;
+margin-top: -12px;
+margin-left: -6px;
+border-bottom-color: #fff;
+}
+.leaflet-tooltip-left {
+margin-left: -6px;
+}
+.leaflet-tooltip-right {
+margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+top: 50%;
+margin-top: -6px;
+}
+.leaflet-tooltip-left:before {
+right: 0;
+margin-right: -12px;
+border-left-color: #fff;
+}
+.leaflet-tooltip-right:before {
+left: 0;
+margin-left: -12px;
+border-right-color: #fff;
+}
+@media print {
+.leaflet-control {
+-webkit-print-color-adjust: exact;
+print-color-adjust: exact;
+}
+}
+</style>
+<style>
+:root{
+  --ground:#eef1f0; --surface:#fbfcfc; --surface-2:#e3e8e6; --line:#c9d1ce; --ink:#15201e; --ink-2:#4a5854; --ink-3:#72807c;
+  --accent:#0d5e78; --accent-ink:#ffffff; --accent-soft:#d3e6ec; --signal:#c7702a;
+  --sea:#bcd9e3; --sea-deep:#7fb3c6; --park:#cfe0c2; --bldg:#5b6763; --bldg-future:#c7702a; --road:#ffffff;
+  --premium:#5e3c99; --good:#a99bd0; --neutral:#f2b45c; --compromised:#d4520b;
+  --living:#1d4f9c; --bed:#2aa0c4; --service:#9aa3a0; --ok:#1b7f5b; --bad:#bf4d37; --warn:#9a7412;
+  --display:"Archivo",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ color-scheme:dark;
+    --ground:#0e1413; --surface:#151d1c; --surface-2:#1e2826; --line:#2c3836; --ink:#e3ebe8; --ink-2:#aab8b3; --ink-3:#7f8f8a;
+    --accent:#56b6d3; --accent-ink:#06222b; --accent-soft:#16333c; --signal:#e39150;
+    --sea:#173744; --sea-deep:#2a5f73; --park:#1f3320; --bldg:#9aa7a3; --bldg-future:#e39150; --road:#2b3533;
+    --premium:#9a82d6; --good:#c7bce8; --neutral:#f2b45c; --compromised:#f07030;
+    --living:#6f9ee6; --bed:#4cc1e2; --service:#6d7875; --ok:#3fb484; --bad:#e0694f; --warn:#d8b54c; }
+}
+:root[data-theme="dark"]{ color-scheme:dark;
+  --ground:#0e1413; --surface:#151d1c; --surface-2:#1e2826; --line:#2c3836; --ink:#e3ebe8; --ink-2:#aab8b3; --ink-3:#7f8f8a;
+  --accent:#56b6d3; --accent-ink:#06222b; --accent-soft:#16333c; --signal:#e39150;
+  --sea:#173744; --sea-deep:#2a5f73; --park:#1f3320; --bldg:#9aa7a3; --bldg-future:#e39150; --road:#2b3533;
+  --premium:#9a82d6; --good:#c7bce8; --neutral:#f2b45c; --compromised:#f07030;
+  --living:#6f9ee6; --bed:#4cc1e2; --service:#6d7875; --ok:#3fb484; --bad:#e0694f; --warn:#d8b54c; }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--ground)}
+body{color:var(--ink);font-family:var(--display);font-size:14px;line-height:1.45;padding-inline:16px;padding-block:0 32px;margin:0}
+h1,h2,h3{text-wrap:balance;margin:0;font-weight:700}
+.mono,td.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;padding-block:16px 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+header.top h1{font-size:22px;font-stretch:82%}
+header.top h1 span{color:var(--accent)}
+header.top p{margin:0;color:var(--ink-2);max-width:80ch}
+.shell{display:grid;grid-template-columns:minmax(290px,350px) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:960px){.shell{grid-template-columns:minmax(0,1fr)}}
+aside.controls{display:flex;flex-direction:column;gap:10px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+.step>h2{font-size:12.5px;font-stretch:78%;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);display:flex;gap:8px;align-items:center}
+.step>h2 b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:11px;letter-spacing:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink-2);min-width:0}
+input[type=text],input[type=number],select{font:inherit;font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:5px;padding:5px 7px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;font-weight:600;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);padding:6px 11px;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.chip{padding:3px 9px;font-size:12px;border-radius:99px}
+button.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.q{border-radius:6px;padding:9px 10px;display:flex;flex-direction:column;gap:7px;border:1px dashed var(--accent)}
+.q p{margin:0}
+.hint{font-size:12px;color:var(--ink-3);margin:0}
+.warnline{font-size:12px;color:var(--warn);margin:0}
+.edges{display:grid;grid-template-columns:auto 1fr auto;gap:4px 8px;align-items:center;font-size:12px}
+.edges .sel{color:var(--signal);font-weight:700}
+.typos{display:flex;flex-direction:column;max-height:300px;overflow:auto;padding-right:2px}
+.typo{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:start;padding:6px 0;border-top:1px solid var(--surface-2)}
+.typo .ps{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}
+.typo .ps label{flex:1 1 72px}
+.typo .ps input{padding:3px 5px;font-size:12px}
+details.adv summary{cursor:pointer;font-size:12px;color:var(--ink-2)}
+details.adv[open] summary{margin-bottom:8px}
+.progress{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s}
+main.work{display:flex;flex-direction:column;gap:12px;min-width:0}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 2px rgba(15,30,28,.05);padding:8px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi span{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
+.kpi b{font-family:var(--display);font-variant-numeric:tabular-nums;font-size:19px;font-weight:700;font-stretch:90%;overflow-wrap:anywhere;line-height:1.2}
+.kpi em{font-style:normal;font-size:12px;color:var(--ink-2)}
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+nav.tabs button{background:none;border:none;border-bottom:3px solid transparent;border-radius:0;padding:8px 12px;color:var(--ink-2);white-space:nowrap}
+nav.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.panel{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 2px rgba(15,30,28,.05);padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card h3{font-size:15px;font-stretch:88%}
+.two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:12px}
+@media (max-width:1150px){.two{grid-template-columns:minmax(0,1fr)}}
+svg.map{width:100%;height:auto;aspect-ratio:1/1;max-height:640px;display:block;background:var(--surface);border-radius:6px;touch-action:none;user-select:none}
+#plan{touch-action:manipulation}
+svg text{fill:var(--ink);font-family:var(--mono)} svg.optchart text{font-family:var(--display)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink-2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.tablewrap{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th{font-weight:600;text-align:left;color:var(--ink-2);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;background:var(--surface)}
+td{padding:5px 8px;border-bottom:1px solid var(--surface-2);white-space:nowrap}
+td.why{white-space:normal;min-width:240px;max-width:360px;font-size:12px;overflow-wrap:break-word;word-break:normal}
+td.n,th.n{text-align:right}
+tbody tr.pick{cursor:pointer}
+tbody tr.pick:hover{background:var(--surface-2)}
+tbody tr.on{background:var(--accent-soft)}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:99px;color:#fff}
+.pill.premium{background:var(--premium)}.pill.good{background:var(--good);color:#1d1533}.pill.neutral{background:var(--neutral);color:#1d1a0c}.pill.compromised{background:var(--compromised)}
+.pill.front{background:var(--accent);color:var(--accent-ink)}.pill.r{background:var(--surface-2);color:var(--ink-2)}
+.bar{display:flex;height:9px;border-radius:3px;overflow:hidden;min-width:90px;background:var(--surface-2)}
+.bar i{display:block;height:100%}
+.checks{display:grid;grid-template-columns:auto auto 1fr;gap:4px 10px;font-size:12.5px;align-items:baseline}
+.checks .ok{color:var(--ok);font-weight:700}.checks .no{color:var(--bad);font-weight:700}.checks .adv{color:var(--warn);font-weight:800}.checks .tw{white-space:nowrap;font-size:12px;color:var(--ink-3)}.checks em{font-style:normal;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.checks .advw{color:var(--warn)}.checks .failw{color:var(--bad)}
+.scroll{max-height:380px;overflow:auto}
+.explain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+.muted{color:var(--ink-3)}
+.status{font-size:12px;color:var(--ink-2);min-height:1.2em;margin:0}
+.scope{font-size:12px;color:var(--ink-2);border-left:3px solid var(--signal);padding:6px 10px;background:var(--surface-2);border-radius:0 6px 6px 0;margin:0}
+/* 3D stage */
+.stage{position:relative;height:min(72vh,720px);min-height:420px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:#cfe0e8}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.hud{position:absolute;left:10px;top:10px;display:flex;flex-direction:column;gap:6px;max-width:min(360px,calc(100% - 20px));pointer-events:none}
+.hud>*{pointer-events:auto}
+.hudbox{background:rgba(251,252,252,.92);color:#15201e;border:1px solid rgba(0,0,0,.08);border-radius:7px;padding:7px 10px;font-size:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.hudbox b{font-family:var(--mono);font-weight:500}
+.hudbox .progress{margin-top:5px;background:#dfe6e4}
+.tools{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.tools button{background:rgba(251,252,252,.94);color:#15201e;border-color:rgba(0,0,0,.12);font-size:12px;padding:5px 9px}
+.tools button.primary{background:#0d5e78;color:#fff}
+.attrib{position:absolute;right:8px;bottom:6px;font-size:10.5px;color:#34403d;background:rgba(255,255,255,.75);padding:1px 6px;border-radius:4px}
+.jumpbar{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(21,32,30,.86);color:#fff;border-radius:8px;padding:8px 12px;font-size:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 20px)}
+.jumpbar button{background:#fff;color:#15201e;border:none}
+.conecard{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media (max-width:700px){.conecard,.grid3{grid-template-columns:minmax(0,1fr)}}
+#leaf{height:260px;border-radius:6px;border:1px solid var(--line)}
+.dotlist{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink-2)}
+/* round-2 additions */
+.verdict{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;box-shadow:0 2px 8px rgba(15,30,28,.06);padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.verdict p{margin:0;font-size:14.5px;max-width:95ch}
+.verdict p.whyb{background:var(--accent-soft);border-radius:8px;padding:8px 11px;font-size:13.5px}
+.vhead .eyebrow{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.vhead h2{font-size:21px;font-stretch:88%;line-height:1.2;margin:2px 0 0}.vhead .vsub{color:var(--ink-2);font-size:13.5px;margin:2px 0 0}
+.vstats{display:flex;flex-wrap:wrap;gap:8px}
+.vstat{display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:baseline;min-width:118px;padding:7px 11px;border-radius:8px;background:var(--surface-2);border-left:4px solid var(--line)}
+.vstat b{font-size:22px;font-variant-numeric:tabular-nums;line-height:1.1}.vstat span{font-size:12.5px;color:var(--ink-2)}.vstat i{grid-column:1/-1;font-style:normal;font-size:11.5px;color:var(--ink-3)}
+.vstat.premium{border-left-color:var(--premium)}.vstat.good{border-left-color:var(--good)}.vstat.neutral{border-left-color:var(--neutral)}.vstat.compromised{border-left-color:var(--compromised)}.vstat.val{border-left-color:var(--accent)}
+table.vtowers{align-self:flex-start;border-collapse:collapse;font-size:12.5px;width:auto!important;min-width:0}table.vtowers th,table.vtowers td{padding:2px 12px 2px 0;text-align:left;font-variant-numeric:tabular-nums}table.vtowers th{color:var(--ink-3);font-weight:600}
+.badge{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2)}
+.badge.high{border-color:var(--ok);color:color-mix(in srgb,var(--ok) 55%,var(--ink));background:color-mix(in srgb,var(--ok) 8%,var(--surface))}.badge.medium{border-color:var(--warn);color:color-mix(in srgb,var(--warn) 45%,var(--ink));background:color-mix(in srgb,var(--warn) 9%,var(--surface))}.badge.low{border-color:var(--bad);color:color-mix(in srgb,var(--bad) 65%,var(--ink));background:color-mix(in srgb,var(--bad) 8%,var(--surface))}
+.exportbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.exportbar .lab{font-size:12px;color:var(--ink-3);margin-right:2px}
+.pill.bf{background:var(--accent-soft);color:var(--ink);font-weight:500}
+table.sortable th{cursor:pointer}table.sortable th[aria-sort=ascending]::after{content:" ▲"}table.sortable th[aria-sort=descending]::after{content:" ▼"}
+table.sens td.neg{color:var(--bad);font-weight:600}
+.hudclose{position:absolute;right:4px;top:2px;border:none;background:none;padding:2px 6px;font-size:14px;color:#4a5854}
+#hudHint{position:relative;padding-right:24px}.stage.nohint #hudHint{display:none!important}
+.jpad{display:grid;grid-template-columns:repeat(3,34px);gap:4px}.jpad button{padding:4px 0;font-size:14px;touch-action:none}
+.compass{width:34px;height:34px;border-radius:50%;border:2px solid #fff;position:relative;flex:none}
+.compass i{position:absolute;left:50%;top:3px;width:0;height:0;margin-left:-5px;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:13px solid #e0584f;transform-origin:5px 14px}
+.compass::after{content:"N";position:absolute;left:50%;top:-15px;transform:translateX(-50%);font-size:10px}
+.glossary{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:6px 14px;font-size:13px;margin:0}.glossary dt{font-weight:700}.glossary dd{margin:0;color:var(--ink-2)}
+#btnRun{position:sticky;bottom:8px;z-index:6;box-shadow:0 -6px 12px var(--surface)}
+#edgeFold summary{cursor:pointer;font-size:12.5px;color:var(--ink-2);margin:4px 0}
+.jumplink{display:none}
+main.work{display:flex;flex-direction:column;gap:12px;min-width:0}
+#verdict{order:1} main.work nav.tabs{order:2} main.work .panel{order:3} #kpis{order:4} .exportbar{order:5} .jumplink{order:0}
+.checks .tw{font-size:12.5px}.checks .tw span{font-size:14px}
+.legend3d{position:absolute;left:10px;bottom:10px;background:rgba(251,252,252,.94);color:#15201e;border-radius:7px;padding:6px 10px;font-size:12px;display:flex;gap:10px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.1)}.legend3d i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.scrollcue{background:linear-gradient(to right,var(--surface) 30%,transparent),linear-gradient(to left,var(--surface) 30%,transparent) 100% 0,radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.18),transparent),radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.18),transparent) 100% 0;background-repeat:no-repeat;background-size:40px 100%,40px 100%,14px 100%,14px 100%;background-attachment:local,local,scroll,scroll}
+.modecards{display:grid;grid-template-columns:1fr 1fr;gap:6px}.modecard{display:flex;flex-direction:column;gap:3px;text-align:left;font-weight:400;padding:8px 10px}.modecard b{font-size:13px}.modecard span{font-size:11.5px;color:var(--ink-2)}.modecard[aria-checked=true]{border-color:var(--accent);background:var(--accent-soft)}
+@media (max-width:960px){
+  .shell{display:flex;flex-direction:column;align-items:stretch}
+  header.top p{font-size:13px}
+  header.top{flex-wrap:wrap}
+  main.work{order:-1}
+  .stage{height:62vh;min-height:340px}
+  header.top p{display:none}
+  .legend3d{bottom:28px;left:6px;right:6px;font-size:11px;gap:6px}
+  .verdict{padding:12px 13px}.vhead h2{font-size:19px}.vstat{min-width:0;flex:1 1 40%;padding:6px 9px}.vstat b{font-size:19px}.verdict p{font-size:13.5px}.verdict .row .badge{font-size:11px}.verdict p.hint{display:none}
+  main.work{display:flex;flex-direction:column}
+  .jumplink{display:inline-block;font-size:12.5px;font-weight:600;margin:4px 0}
+  .hud{max-width:calc(100% - 120px)}
+  nav.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;-webkit-mask-image:linear-gradient(to right,#000 82%,transparent);mask-image:linear-gradient(to right,#000 82%,transparent);padding-right:40px}
+  nav.tabs button{flex:none}
+  nav.tabs button{padding:7px 9px}
+  .glossary{grid-template-columns:1fr}
+}
+body.present aside.controls, body.present nav.tabs, body.present .exportbar, body.present header.top p, body.present #kpis{display:none!important}
+body.present .shell{grid-template-columns:minmax(0,1fr)}
+body.present .stage{height:78vh}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <h1>Viewtower <span>Studio</span></h1>
+  <p>Pin a location or upload a georeferenced DXF, confirm the buildable envelope and limits, then search tower typologies in a 3D city model. Click any floor of a result to see its view cone, or jump in to stand at the window.</p>
+  <button type="button" class="chip" id="btnPresent" aria-pressed="false" title="Hide the inputs and show the tower and its verdict full width, for a client or buyer">Present</button>
+</header>
+
+<div class="shell">
+<aside class="controls" aria-label="Inputs" id="inputs">
+  <section class="step">
+    <h2><b>1</b>Location and context</h2>
+    <label class="f">Context data
+      <select id="src">
+        <option value="dadar">Dadar, Mumbai: OpenStreetMap snapshot</option>
+        <option value="nyc_lower">Lower Manhattan, New York: snapshot</option>
+        <option value="nyc_midtown">Midtown Manhattan, New York: snapshot</option>
+        <option value="ldn_city">City of London: snapshot</option>
+        <option value="ldn_canary">Canary Wharf, London: snapshot</option>
+        <option value="live">Pin anywhere: live OpenStreetMap</option>
+        <option value="upload">Upload OSM / GeoJSON file</option>
+        <option value="synthetic">Synthetic test site</option>
+      </select>
+    </label>
+    <div id="liveBox" hidden>
+      <div class="row"><input type="text" id="placeQ" placeholder="Search a place, e.g. Marine Drive, Mumbai" aria-label="Search a place" style="flex:1 1 160px"><button type="button" id="btnFind">Find</button></div>
+      <div id="placeHits" class="dotlist"></div>
+      <div id="leaf" role="application" aria-label="Map: click to set the site location"></div>
+      <p class="hint" id="leafNote">Click the map to drop the pin.</p>
+    </div>
+    <div id="uploadBox" hidden>
+      <label class="f">Overpass JSON or GeoJSON<input type="file" id="osmFile" accept=".json,.geojson"></label>
+      <details class="adv"><summary>Get a file from overpass-turbo</summary><p class="hint">Open overpass-turbo.eu, paste this query, run it, then Export → raw data (JSON).</p><textarea id="oqText" readonly rows="4" style="width:100%;font-family:var(--mono);font-size:11px"></textarea><button type="button" class="chip" id="btnCopyQ">Copy query</button></details>
+    </div>
+    <div class="grid3">
+      <label class="f">Latitude<input type="number" id="lat" step="0.0001" value="19.0280"></label>
+      <label class="f">Longitude<input type="number" id="lon" step="0.0001" value="72.8375"></label>
+      <label class="f">Radius (m)<input type="number" id="rad" value="1500" min="300" max="2500" step="100"></label>
+    </div>
+    <div class="row"><button type="button" id="btnFetch" class="primary">Load context here</button><label class="f" style="flex:1 1 120px">Unknown heights (m)<input type="number" id="defH" value="" placeholder="auto" title="Blank = estimated by building type and calibrated against tagged buildings nearby"></label></div>
+    <p class="status" id="ctxInfo"></p>
+  </section>
+
+  <section class="step">
+    <h2><b>2</b>Site boundary</h2>
+    <div class="row" role="group" aria-label="Boundary source">
+      <button type="button" class="chip" id="bIllus" aria-pressed="true">Illustrative plot</button>
+      <button type="button" class="chip" id="bDraw" aria-pressed="false">Draw on plan</button>
+      <label class="chip" style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;padding:3px 9px;font-size:12px;font-weight:600;cursor:pointer">Upload DXF<input type="file" id="dxfFile" accept=".dxf" style="width:0;height:0;opacity:0;position:absolute"></label>
+    </div>
+    <div id="drawBox" hidden><p class="hint">In the Site plan tab, pan and zoom to the spot, then click to add corners. Click the first corner (or Finish) to close the outline.</p><div class="row"><button type="button" class="chip" id="drawDone">Finish outline</button><button type="button" class="chip" id="drawUndo">Undo point</button><button type="button" class="chip" id="drawClear">Clear</button></div></div>
+    <div id="georef" hidden>
+      <label class="f">DXF coordinates are
+        <select id="geoMode"><option value="anchor">Local drawing units: place a reference point</option><option value="utm">UTM easting / northing (WGS84)</option></select>
+      </label>
+      <div id="geoAnchor" class="grid2">
+        <label class="f">Drawing X of reference<input type="number" id="refX" value="0"></label>
+        <label class="f">Drawing Y of reference<input type="number" id="refY" value="0"></label>
+        <label class="f">Reference latitude<input type="number" id="refLat" step="0.00001"></label>
+        <label class="f">Reference longitude<input type="number" id="refLon" step="0.00001"></label>
+      </div>
+      <div id="geoUtm" class="grid2" hidden>
+        <label class="f">UTM zone<input type="number" id="utmZone" value="43" min="1" max="60"></label>
+        <label class="f">Hemisphere<select id="utmHemi"><option value="N">North</option><option value="S">South</option></select></label>
+      </div>
+      <div class="grid2">
+        <label class="f">True north in drawing (°)<input type="number" id="northDeg" value="0" step="0.5"></label>
+        <label class="f" id="bndPickWrap" hidden>Site polyline<select id="bndPick"></select></label>
+      </div>
+      <button type="button" class="chip" id="btnGeoApply">Apply georeference</button>
+    </div>
+    <p class="status" id="siteInfo"></p>
+  </section>
+
+  <section class="step">
+    <h2><b>3</b>Buildable envelope</h2>
+    <div class="q"><p><strong id="envQtext">Is this outline the buildable envelope?</strong></p>
+      <div class="row"><button type="button" class="chip" id="envYes" aria-pressed="false">Yes, build to the line</button><button type="button" class="chip" id="envNo" aria-pressed="true">No, set setbacks</button></div></div>
+    <div id="setbackBox"><p class="hint">Click a side in the Site plan tab, or edit the list.</p><div class="row"><label class="f" style="flex:1 1 110px">Same setback on every side (m)<input type="number" id="sbAll" min="0" step="0.5" placeholder="e.g. 6"></label><button type="button" class="chip" id="sbAllGo">Apply to all</button></div><details id="edgeFold" open><summary id="edgeSum">Sides</summary><div class="edges" id="edgeList"></div></details></div>
+    <p class="status" id="envInfo"></p>
+  </section>
+
+  <section class="step">
+    <h2><b>4</b>Development limits</h2>
+    <div class="grid2">
+      <label class="f">Consumable FSI area (m²)<input type="number" id="fsi" value="30000" min="100" step="100"></label>
+      <label class="f">Max height (m)<input type="number" id="hmax" value="165" min="10" step="1"></label>
+    </div>
+    <label class="f">Reserved non-saleable floors (optional)<input type="text" id="reserved" value="" placeholder="e.g. 20, 30"></label>
+    <div class="grid2">
+      <label class="f">Towers on the site<input type="number" id="towers" value="1" min="1" max="6" step="1"></label>
+      <label class="f">Min gap between towers (m)<input type="number" id="towerSep" value="24" min="6" step="1"></label>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2><b>5</b>Options to explore</h2>
+    <div class="row" role="group" aria-label="Search size"><span class="hint">Search size:</span><button type="button" class="chip" data-preset="quick" aria-pressed="false">Quick</button><button type="button" class="chip" data-preset="standard" aria-pressed="true">Standard</button><button type="button" class="chip" data-preset="thorough" aria-pressed="false">Thorough</button></div>
+    <p class="hint" id="presetInfo">Quick tests 2 shapes in about a minute; Thorough tests every shape, rotation and flat count.</p>
+    <label class="f">Search method<select id="searchMode">
+      <option value="hand">Hand-set typologies (below)</option>
+      <option value="library">Token library, deterministic (540 typologies, rule-screened)</option>
+      <option value="generative">Generative, probabilistic (learned token model)</option>
+      <option value="hybrid">Hybrid (library + generative, tuned by architect feedback)</option>
+    </select></label>
+    <label class="f" id="tokKWrap">Designs to evaluate in full (token modes)<input type="number" id="tokK" value="8" min="2" max="24"></label>
+    <div class="f" style="margin-top:4px"><span>Each run</span><div class="row" role="radiogroup" aria-label="Each run">
+      <button type="button" class="chip" id="varNew" aria-pressed="true" title="A fresh random seed every run: new rotations, sizes and invented towers, and designs shown in earlier runs on this site are avoided">New variations</button>
+      <button type="button" class="chip" id="varFix" aria-pressed="false" title="Re-run exactly the seed below (for audits and demos)">Repeatable</button>
+      <label class="f" style="flex:1 1 90px;margin:0">Seed<input type="number" id="seed" value="1" min="1" step="1" aria-label="Seed"></label></div>
+      <p class="hint" style="margin:2px 0 0">New variations explore different designs every run; switch to Repeatable to reproduce a seed exactly.</p></div>
+    <div class="typos" id="typos"></div>
+    <div class="grid2">
+      <label class="f">Rotations (°)<input type="text" id="rots" value="0, 30"></label>
+      <label class="f">Units per floor<input type="text" id="upf" value="1, 2"></label>
+      <label class="f">Podium / stilt floors<input type="text" id="pods" value="6"></label>
+      <label class="f">Floor-to-floor (m)<input type="text" id="ftf" value="3.6"></label>
+      <label class="f">Core offset from sea (m)<input type="text" id="coff" value="0"></label>
+      <label class="f">View check every n floors<input type="number" id="evalEvery" value="4" min="1" max="10"></label>
+    </div>
+    <label class="row" style="font-size:12px;color:var(--ink-2);gap:6px;flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" id="autoFit" checked> Shrink towers that don't fit the envelope (not below 16 m)</label>
+    <details class="adv"><summary>Core, programme, thresholds and rates</summary>
+      <div class="grid2">
+        <label class="f">Core fixed area (m²)<input type="number" id="coreFixed" value="95"></label>
+        <label class="f">Core per unit (m²)<input type="number" id="corePer" value="14"></label>
+        <label class="f">Max core-to-facade P90 (m)<input type="number" id="rDepth" value="13.5" step="0.5"></label>
+        <label class="f">Max slab span (m)<input type="number" id="rSpan" value="12" step="0.5"></label>
+        <label class="f">Core slab margin (m)<input type="number" id="rFit" value="3" step="0.5"></label>
+        <label class="f">Max overhang per floor (m)<input type="number" id="rCant" value="3" step="0.5"></label>
+        <label class="f">Min facing distance (m)<input type="number" id="rPriv" value="18"></label>
+        <label class="f">Living frontage (m)<input type="number" id="pLiving" value="8" step="0.5"></label>
+        <label class="f">Bedroom frontage (m)<input type="number" id="pBed" value="4.2" step="0.1"></label>
+        <label class="f">Bedrooms for 1 / 2 / 3+ units<input type="text" id="pBeds" value="5, 4, 3"></label>
+      </div>
+      <p class="hint">Compromised if any: living view &lt; <input type="number" id="cQ" value="0.25" step="0.05" style="width:62px">, obstruction within <input type="number" id="cD" value="100" style="width:62px"> m, horizon angle &gt; <input type="number" id="cA" value="10" style="width:62px">°, privacy &gt; <input type="number" id="cP" value="0.35" step="0.05" style="width:62px">.</p>
+      <p class="hint">Premium: living sea ≥ <input type="number" id="prW" value="0.45" step="0.05" style="width:62px"> and view ≥ <input type="number" id="prQ" value="0.6" step="0.05" style="width:62px">, plus at least <input type="number" id="prShare" value="50" step="5" style="width:58px"> % of bedrooms with sea ≥ <input type="number" id="prBW" value="0.3" step="0.05" style="width:62px">. Thresholds calibrated on Dadar test plots (seafront ≈ 75 % premium, 600 m inland ≈ 25 %, 900 m ≈ 10 %).</p>
+      <div class="grid2">
+        <label class="f"><span data-cur="Base rate ({s}/ft² carpet)">Base rate (₹/ft² carpet)</span><input type="number" id="eRate" value="45000" step="500"></label>
+        <label class="f"><span data-cur="Construction ({s}/ft² BUA)">Construction (₹/ft² BUA)</span><input type="number" id="eCost" value="12000" step="500"></label>
+        <label class="f">Floor rise (% per floor)<input type="number" id="eRise" value="0.5" step="0.1"></label>
+        <label class="f">Pricing<select id="ePricing"><option value="continuous" selected>Continuous in living-room view</option><option value="class">By class</option></select></label>
+        <label class="f">Premium / good / neutral / compromised ×<input type="text" id="eMult" value="1.15, 1.00, 0.90, 0.75"></label>
+        <label class="f" title="Rate change for flats under 1,500 ft² carpet">Small flats &lt; 1,500 ft² (%)<input type="number" id="eSmall" value="-3" step="0.5"></label>
+        <label class="f" title="Rate change for flats over 4,000 ft² carpet; this favours 1 flat per floor, set 0 to compare neutrally">Large flats &gt; 4,000 ft² (%)<input type="number" id="eLarge" value="3" step="0.5"></label>
+      </div>
+      <p class="hint">Rates are placeholders for comparing options, not market figures. Continuous pricing: multiplier = 0.655 + 0.69 × living-room view, kept within 0.80–1.20 (compromised units 0.75), so two nearly identical flats are never a whole class apart in price.</p>
+    </details>
+    <button type="button" class="primary" id="btnRun">Run search</button>
+    <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+    <p class="status" id="runInfo" role="status"></p>
+  </section>
+</aside>
+
+<main class="work" id="results">
+  <a class="jumplink" href="#inputs">Edit inputs ↓</a>
+  <div id="verdict"></div>
+  <div class="summary" id="kpis"></div>
+  <div class="exportbar" role="group" aria-label="Export and share"><span class="lab">Export &amp; share:</span>
+    <button type="button" class="chip" id="xBoard" title="One HTML page with the verdict, 3D view, flat mix, economics and assumptions; print it to PDF">Board pack</button>
+    <button type="button" class="chip" id="xCSV" title="Every flat with class, price, view values and the reasons, plus the assumptions">Units CSV</button>
+    <button type="button" class="chip" id="xCAD" title="Zip with a DXF (floor plates, cores, units by class) and an OBJ massing with context">CAD massing (DXF + OBJ)</button>
+    <button type="button" class="chip" id="xJSON" title="Save the site, envelope, inputs and results to a file">Save scenario</button>
+    <label class="chip" style="display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:99px;padding:3px 9px;font-size:12px;font-weight:600;cursor:pointer;background:var(--surface-2)">Load scenario<input type="file" id="xLoad" accept=".json" style="width:0;height:0;opacity:0;position:absolute"></label>
+    <button type="button" class="chip" id="xLink" title="Copy a link that opens this site, envelope and inputs">Copy share link</button>
+    <span class="status" id="exportInfo"></span></div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="t-3d" aria-selected="true" data-p="p-3d">3D</button>
+    <button role="tab" id="t-site" aria-selected="false" data-p="p-site">Site plan &amp; views</button>
+    <button role="tab" id="t-opts" aria-selected="false" data-p="p-opts">Options</button>
+    <button role="tab" id="t-design" aria-selected="false" data-p="p-design">Design detail</button>
+    <button role="tab" id="t-method" aria-selected="false" data-p="p-method">Method &amp; data</button>
+  </nav>
+
+  <section class="panel" id="p-3d" role="tabpanel">
+    <div class="stage" id="stage">
+      <div class="hud">
+        <div class="hudbox" id="hudSearch" hidden><div id="hudText"></div><div class="progress"><i id="hudProg"></i></div></div>
+        <div class="hudbox" id="hudHint"><span id="hudHintText">Drag to orbit · right-drag or two fingers to pan · scroll to zoom. Press Run search to generate towers; then click any floor to see its view cone.</span><button type="button" class="hudclose" id="hudClose" aria-label="Hide the help text">×</button></div>
+      </div>
+      <div class="tools">
+        <button type="button" id="vReset">Reset view</button>
+        <button type="button" id="vTop">Top view</button>
+        <button type="button" id="vClear" hidden>Clear view cone</button>
+        <button type="button" id="vJump" class="primary" hidden>Jump in</button>
+      </div>
+      <div class="jumpbar" id="jumpbar" hidden><span class="compass" aria-hidden="true"><i id="jumpNeedle"></i></span><span><span id="jumpText"></span><br>Looking <b id="jumpHeading"></b> · drag to look · W A S D or the pad to step</span><div class="jpad"><button type="button" data-jturn="-20" aria-label="Turn left">⟲</button><button type="button" data-jkey="w" aria-label="Step forward">▲</button><button type="button" data-jturn="20" aria-label="Turn right">⟳</button><button type="button" data-jkey="a" aria-label="Step left">◀</button><button type="button" data-jkey="s" aria-label="Step back">▼</button><button type="button" data-jkey="d" aria-label="Step right">▶</button></div><button type="button" id="jumpSea">Face the sea</button><button type="button" id="jumpExit">Exit (Esc)</button></div>
+      <div class="attrib" id="attrib">© OpenStreetMap contributors</div>
+      <div class="legend3d" id="legend3d" hidden></div>
+    </div>
+    <div class="card" id="coneCard" hidden>
+      <div class="row" style="justify-content:space-between"><h3 id="coneTitle">View cone</h3>
+        <label class="f" style="flex-direction:row;align-items:center;gap:6px">Floor <select id="coneLevel" style="width:auto"></select></label></div>
+      <div class="conecard">
+        <div><div class="summary" id="coneKpis"></div><p class="hint" id="coneSectors" style="margin-top:8px"></p><p class="status" id="coneNote"></p>
+          <div class="row" style="margin-top:8px"><button type="button" class="chip" id="xFlat" title="One page for this flat: view, sea by floor, size and indicative price, to send to a buyer">Flat sheet for a buyer</button></div>
+          <div class="row" style="margin-top:8px" role="group" aria-label="View feedback"><span class="hint">Know this spot? Does this match the real view?</span><button type="button" class="chip" data-fb="right">Looks right</button><button type="button" class="chip" data-fb="wrong">Not right</button><input type="text" id="fbNote" placeholder="optional note, e.g. new tower blocks the sea" style="flex:1 1 160px" aria-label="Feedback note"></div>
+          <p class="hint" id="fbInfo">Feedback stays in this browser and is included when you save the scenario; it is used to check and calibrate the view model.</p>
+          <div class="legend" style="margin-top:6px"><span><i style="background:#1f6fd1"></i>Reaches sea</span><span><i style="background:#d24b3a"></i>Blocked (length = distance to obstruction)</span><span><i style="background:#8a948f"></i>Open land / sky</span></div></div>
+        <div><p class="hint">Sea view from this facade point, floor by floor</p><svg id="coneChart" viewBox="0 0 360 170" style="width:100%;height:auto" role="img" aria-label="Sea visibility by floor"></svg></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-site" role="tabpanel" hidden>
+    <div class="two">
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><h3>Site plan</h3>
+          <div class="row" role="group" aria-label="Zoom"><button class="chip" data-zoom="plot" aria-pressed="true" type="button">Plot</button><button class="chip" data-zoom="nbhd" aria-pressed="false" type="button">Neighbourhood</button><button class="chip" data-zoom="district" aria-pressed="false" type="button">District</button><button class="chip" id="mapIn" type="button" aria-label="Zoom in">+</button><button class="chip" id="mapOut" type="button" aria-label="Zoom out">−</button><button class="chip" id="mapFit" type="button">Fit plot</button></div></div>
+        <p class="hint">Drag to pan, scroll to zoom. The whole loaded area (about 1 km around the pin) can be browsed.</p>
+        <svg class="map" id="map" viewBox="0 0 100 100" role="img" aria-label="Site plan"></svg>
+        <div class="legend"><span><i style="background:var(--sea)"></i>Water</span><span><i style="background:var(--park)"></i>Park</span><span><i style="background:var(--bldg)"></i>Buildings (darker = taller)</span><span><i style="background:var(--accent-soft);border:1px solid var(--accent)"></i>Envelope</span><span><i style="background:var(--signal);opacity:.4"></i>Premium arc</span></div>
+      </div>
+      <div class="card">
+        <h3>View rose</h3>
+        <p class="hint">Mean view quality by direction across the envelope. Bar length is quality; colour shows how much sea is visible.</p>
+        <div class="row" id="roseH"></div>
+        <svg id="rose" viewBox="-150 -150 300 300" style="width:100%;max-width:360px;align-self:center;height:auto" role="img" aria-label="View rose"></svg>
+        <div class="tablewrap"><table id="fieldTbl"></table></div>
+        <p class="status" id="fieldInfo"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-opts" role="tabpanel" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h3>Ranked options</h3><button type="button" id="btnCopy" class="chip">Copy results JSON</button></div>
+      <p class="hint">“Best” options are best trade-offs: no other option beats them on every measure (sales value minus construction cost, fewer compromised flats, more strong-view flats, living-room views, efficiency, simpler structure). Lower numbers are further from that front. Click a column heading to sort, or a row to show it in 3D.</p>
+      <div id="optChart"></div>
+      <div class="tablewrap scroll scrollcue"><table id="optTbl"></table></div>
+    </div>
+    <div class="card"><h3>Rejected options</h3><div class="tablewrap scroll"><table id="rejTbl"></table></div></div>
+  </section>
+
+  <section class="panel" id="p-design" role="tabpanel" hidden>
+    <div class="card" id="designHead"></div>
+    <div class="two">
+      <div class="card"><div class="row" style="justify-content:space-between"><h3>Floor plan</h3><label class="f" style="flex-direction:row;align-items:center;gap:6px">Level <select id="lvlPick" style="width:auto"></select></label></div>
+        <svg class="map" id="plan" viewBox="0 0 100 100" role="img" aria-label="Floor plan"></svg>
+        <div class="legend"><span><i style="background:var(--premium)"></i>Strong view</span><span><i style="background:var(--good)"></i>Good view</span><span><i style="background:var(--neutral)"></i>Ordinary</span><span><i style="background:var(--compromised)"></i>Compromised</span><span><i style="background:var(--living)"></i>Living</span><span><i style="background:var(--bed)"></i>Bedrooms</span><span><i style="background:var(--service)"></i>Kitchen / service</span></div></div>
+      <div class="card"><h3>Rule checks</h3><div class="checks" id="checks"></div><h3>Why this result</h3><ul class="explain" id="explain"></ul></div>
+    </div>
+    <div class="two">
+      <div class="card"><div class="row" style="justify-content:space-between"><h3>Economics</h3><span class="badge r">Placeholder rates</span></div>
+        <div class="grid2">
+          <label class="f"><span data-cur="Land cost ({s} {b})">Land cost (₹ cr)</span><input type="number" id="xLand" value="" placeholder="enter to include" min="0" step="10"></label>
+          <label class="f">Soft costs (% of construction)<input type="number" id="xSoft" value="15" step="1"></label>
+          <label class="f">Sales &amp; marketing (% of GDV)<input type="number" id="xSales" value="3" step="0.5"></label>
+          <label class="f">Target margin (% of GDV)<input type="number" id="xTarget" value="20" step="1"></label>
+          <label class="f">Build period (months)<input type="number" id="xMonths" value="" placeholder="24 + 0.6 × floors" min="6" step="1"></label>
+          <label class="f">Sales per quarter (% of flats)<input type="number" id="xAbs" value="6" min="0.5" step="0.5"></label>
+          <label class="f">Discount rate (% a year)<input type="number" id="xDisc" value="12" step="0.5"></label>
+        </div>
+        <p class="hint">Construction uses the per-ft² built-up rate in step 5 (advanced) times the whole tower incl. podium, plus a premium for structurally complex shapes.</p>
+        <div id="econOut"></div></div>
+      <div class="card"><div class="row" style="justify-content:space-between"><h3>Building-height uncertainty</h3><button type="button" class="chip" id="btnHeight">Test this tower</button></div><div id="htOut"></div></div>
+    </div>
+    <div class="card"><div class="row" style="justify-content:space-between"><h3>Shadow study</h3><label class="f" style="flex-direction:row;align-items:center;gap:6px">Date <select id="shDate" style="width:auto"><option value="0">21 Mar (equinox)</option><option value="1">21 Jun (monsoon solstice)</option><option value="2">21 Dec (winter solstice)</option></select></label></div><div id="shadowOut"></div></div>
+    <div class="card"><h3>Units</h3><p class="hint">Click a column heading to sort.</p><div class="tablewrap scroll"><table id="unitTbl"></table></div></div>
+  </section>
+
+  <section class="panel" id="p-method" role="tabpanel" hidden>
+    <div class="card">
+      <h3>How it works</h3>
+      <ol class="explain">
+        <li>Context comes from OpenStreetMap: buildings, streets, parks, water and coastline. Sea is traced from the coastline (OSM puts water on the right of the line). Building heights come from OSM <span class="mono">height</span> or <span class="mono">building:levels</span> × 3.2 m; otherwise they are estimated by building type and drawn lighter in 3D.</li>
+        <li>The site is georeferenced to a latitude/longitude anchor and a local metre grid (x east, y north). DXF files can be placed with a reference point and true-north angle, or read directly as UTM coordinates.</li>
+        <li>The surroundings are rasterised at 4 m and rays are cast every 2° to 3 km. View quality combines sea visibility (depression angle), distance to obstruction, open sky, parks and landmarks, minus a privacy penalty.</li>
+        <li>Each typology is generated floor by floor. Options are checked against the hard rules, then views are evaluated on sampled floors in parallel Web Workers. The facade is split into units at its worst point, rooms take the best frontage, and each unit is classed with its reasons.</li>
+        <li>Options are ranked by Pareto front without collapsing to one score. The top options are re-checked against future neighbours when the data includes them.</li>
+      </ol>
+      <h3>Glossary</h3>
+      <dl class="glossary">
+        <dt>Strong-view flat (premium)</dt><dd>The living room has a strong sea view (at least 45% of the reference sea view and view score ≥ 0.6) and at least half the bedrooms see the sea.</dd>
+        <dt>Good / ordinary</dt><dd>Good: view score ≥ 0.4 but not premium. Ordinary (neutral): below that, usually lower floors or inland faces.</dd>
+        <dt>Compromised flat</dt><dd>The living room looks at a nearby wall (closer than 100 m), up at a steep skyline (over 10°), into another home, or has a poor view score (&lt; 0.25). The goal is zero.</dd>
+        <dt>View score (0–1)</dt><dd>Combines how much sea is visible, how far away the nearest building is, open sky, parks and landmarks, minus a privacy penalty. A tower alone in an empty field scores about 0.35.</dd>
+        <dt>Sea share</dt><dd>How much of the reference sea view a window gets; 1.0 means a band of sea at least 5° tall across the view.</dd>
+        <dt>Premium sea arc</dt><dd>The compass directions from the plot with a clear sea view at 100 m height.</dd>
+        <dt>GDV</dt><dd>Gross development value: the total sales value of all flats at the placeholder rates.</dd>
+        <dt>Inventory risk</dt><dd>Share of sales value sitting in ordinary or compromised flats, which are usually slower to sell.</dd>
+        <dt>Open (&gt; 3 km)</dt><dd>No building blocks the view within the 3 km the rays are traced; beyond the loaded building data the city is not modelled, so read this as “nothing mapped in the way”.</dd>
+        <dt>Efficiency</dt><dd>Carpet area divided by the gross floor area of the saleable floors.</dd>
+        <dt>Best trade-off</dt><dd>An option no other option beats on every measure at once (also called the Pareto front).</dd>
+        <dt>Estimated height</dt><dd>OpenStreetMap had no height or floor count for that building, so it was guessed from its type and calibrated against tagged buildings nearby. Use the height test to see how much it matters.</dd>
+      </dl>
+      <p class="scope" id="envNote">Statutory rules are not modelled; you supply consumable FSI, maximum height and the buildable envelope. Low-confidence rule defaults (core size, depths, frontages) are assumptions for the design team to confirm. Rates are placeholders. The illustrative Dadar plot is not the project site.</p>
+      <p class="hint" id="dataNote"></p>
+    </div>
+  </section>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/polygon-clipping@0.15.7/dist/polygon-clipping.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/tokens.js"></script>
+<script src="js/geo.js"></script>
+<script src="js/view3d.js"></script>
+<script src="js/app.js"></script>
+<script src="js/extras.js"></script>
+
+</body></html>

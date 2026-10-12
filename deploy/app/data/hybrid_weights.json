@@ -1,0 +1,114 @@
+{
+ "version": 3,
+ "created": "2026-09-27T03:08:08.819Z",
+ "designsCritiqued": 2736,
+ "moveCounts": {
+  "splay_or_offset_to_avoid_facing": 446,
+  "podium_or_base_changes": 663,
+  "terrace_toward_outlook": 464,
+  "spread_towers_apart": 63,
+  "crown_or_top_articulation": 465,
+  "taper_more": 368,
+  "corner_gardens_or_cutouts": 731,
+  "chamfer_or_round_corners": 276,
+  "rotate_plate_to_outlook": 616,
+  "stagger_or_cantilever": 263,
+  "twist_more": 207,
+  "simplify_for_constructability": 173,
+  "more_slender": 142,
+  "taller": 245,
+  "lower": 55,
+  "add_variety_between_floors": 152,
+  "fewer_towers": 54,
+  "lean_toward_outlook": 87,
+  "none": 8,
+  "twist_less_or_remove": 166,
+  "terrace_away": 11,
+  "remove_stagger": 22,
+  "less_slender_or_wider": 59,
+  "taper_less": 39,
+  "split_into_more_towers": 7
+ },
+ "prior": {
+  "base": {
+   "square": 0.0909,
+   "rectangular": 0.0909,
+   "chamfered": 0.1372,
+   "curved": 0.1372,
+   "diamond": 0.0909,
+   "triangular": 0.1292,
+   "y_shaped": 0.1419,
+   "cross": 0.0909,
+   "t_shaped": 0.0909
+  },
+  "twist": {
+   "none": 0.3138,
+   "linear": 0.2908,
+   "band": 0.1667,
+   "ease": 0.2287
+  },
+  "taper": {
+   "none": 0.1899,
+   "linear": 0.4233,
+   "frustum": 0.2202,
+   "bulge": 0.1667
+  },
+  "shift": {
+   "none": 0.1864,
+   "stagger": 0.2554,
+   "lean": 0.1785,
+   "wave": 0.1429,
+   "pixel": 0.2369
+  },
+  "terrace": {
+   "none": 0.396,
+   "view": 0.604
+  },
+  "cut": {
+   "none": 0.3846,
+   "cut": 0.6154
+  },
+  "podium": {
+   "none": 0.3846,
+   "street": 0.6154
+  },
+  "crown": {
+   "none": 0.2,
+   "crown": 0.4,
+   "crown_turn": 0.4
+  }
+ },
+ "numPrior": {
+  "size": [
+   27.74,
+   5
+  ],
+  "rate": [
+   1.2,
+   0.8
+  ],
+  "top": [
+   0.849,
+   0.12
+  ],
+  "rot": [
+   0,
+   22.4
+  ]
+ },
+ "W": {
+  "q": 1,
+  "prize": 0.6,
+  "priv": 0.7,
+  "complexity": 0.234,
+  "appeal": 0.3
+ },
+ "towerSplay": 15,
+ "rotationRefine": true,
+ "notes": "Derived from architects' image-only critiques; see docs/spec/14_architect_study.md",
+ "sources": [
+  "critiques_r1.json",
+  "critiques_r2.json",
+  "critiques_r3.json"
+ ]
+}

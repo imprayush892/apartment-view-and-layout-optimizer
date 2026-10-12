@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Viewtower Studio — design every tower around its view</title>
+<meta name="description" content="Pin a plot and, in under a minute, test hundreds of residential tower designs against the real city: which flats get the sea or skyline, which look into a wall, and what that does to value.">
+<meta property="og:title" content="Viewtower Studio — design every tower around its view">
+<meta property="og:description" content="View-optimised tower massing in the browser: real 3D city context, 540 typologies plus invented towers, every flat graded for its view.">
+<meta property="og:image" content="assets/midtown_cone.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&display=swap">
+<style>
+:root{--ink:#14201e;--ink-2:#4a5854;--ink-3:#71807b;--bg:#f4f6f5;--surface:#fff;--line:#d8dfdc;--accent:#0d5e78;--accent-2:#11809f;--soft:#e3f0f4;--warm:#c7702a;--premium:#5e3c99;--good:#a99bd0;--comp:#d4520b;--hero:#0e1a1f}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Archivo",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}img{max-width:100%;height:auto;display:block}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+h1,h2,h3{margin:0;line-height:1.12;font-stretch:88%;text-wrap:balance}
+h2{font-size:clamp(28px,3.4vw,40px);font-weight:750}
+h3{font-size:20px;font-weight:700}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-2)}
+.lead{font-size:clamp(18px,1.6vw,20px);color:var(--ink-2);max-width:62ch}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;font-weight:700;text-decoration:none;font-size:16px;transition:transform .12s,box-shadow .12s}
+.btn.primary{background:#fff;color:var(--hero)}.btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.btn.ghost{color:#fff;border:1px solid rgba(255,255,255,.35)}.btn.ghost:hover{background:rgba(255,255,255,.08)}
+.btn.dark{background:var(--accent);color:#fff}.btn.dark:hover{background:var(--accent-2)}
+nav.top{position:sticky;top:0;z-index:10;background:rgba(14,26,31,.92);backdrop-filter:blur(8px);color:#fff}
+nav.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:16px}
+nav.top b{font-size:19px;font-stretch:85%;letter-spacing:-.01em}nav.top b span{color:#5fc3df}
+nav.top .links{display:flex;gap:22px;align-items:center;font-size:15px}nav.top .links a{color:#cfdcd9;text-decoration:none}nav.top .links a:hover{color:#fff}
+nav.top .links a.btn{color:var(--hero);padding:8px 16px;font-size:14px}
+@media (max-width:760px){nav.top .links a:not(.btn){display:none}}
+header.hero{background:radial-gradient(1200px 500px at 80% -10%,#1d4552 0%,transparent 60%),var(--hero);color:#fff;padding:72px 0 0;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:40px}
+header.hero h1{font-size:clamp(38px,5.6vw,68px);font-weight:800;letter-spacing:-.015em;max-width:15ch}
+header.hero .lead{color:#c3d2ce;margin:20px 0 28px}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.hero-shot{margin-top:48px;border-radius:14px 14px 0 0;overflow:hidden;box-shadow:0 -10px 60px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12);border-bottom:0}
+.hero-note{font-size:13px;color:#9fb2ad;margin-top:14px}
+.stats{background:var(--surface);border-bottom:1px solid var(--line)}
+.stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.stat{padding:26px 20px;border-right:1px solid var(--line)}.stat:last-child{border-right:0}
+.stat b{display:block;font-size:30px;font-weight:800;font-stretch:85%;color:var(--accent)}.stat span{font-size:15px;color:var(--ink-2)}
+@media (max-width:860px){.stats .wrap{grid-template-columns:repeat(2,1fr)}.stat:nth-child(2){border-right:0}.stat:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+section{padding:88px 0}
+section.alt{background:var(--surface);border-block:1px solid var(--line)}
+.head{max-width:760px;margin-bottom:44px}.head h2{margin:10px 0 14px}
+.problem{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px}
+.pcard .n{font-size:13px;font-weight:800;color:var(--warm);letter-spacing:.08em}
+.pcard h3{margin:8px 0 8px}.pcard p{margin:0;color:var(--ink-2);font-size:16px}
+@media (max-width:860px){.problem{grid-template-columns:1fr}}
+.step{display:grid;grid-template-columns:5fr 7fr;gap:48px;align-items:center;margin-bottom:72px}
+.step:last-child{margin-bottom:0}.step.rev{grid-template-columns:7fr 5fr}.step.rev .txt{order:2}
+.step .num{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;margin-bottom:14px}
+.step h3{font-size:26px;margin-bottom:10px}.step p{color:var(--ink-2);margin:0 0 10px}
+.step ul{margin:8px 0 0;padding-left:20px;color:var(--ink-2)}.step li{margin:4px 0}
+.frame{border-radius:12px;overflow:hidden;border:1px solid var(--line);box-shadow:0 18px 50px rgba(20,32,30,.14);background:#fff}
+@media (max-width:900px){.step,.step.rev{grid-template-columns:1fr;gap:22px}.step.rev .txt{order:0}}
+.diff{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+.dcard{border:1px solid var(--line);border-radius:14px;padding:26px;background:var(--bg)}
+.dcard h3{margin-bottom:8px}.dcard p{margin:0;color:var(--ink-2);font-size:16px}
+.big{font-size:44px;font-weight:800;font-stretch:85%;color:var(--accent);line-height:1}
+@media (max-width:860px){.diff{grid-template-columns:1fr}}
+.evidence{display:grid;grid-template-columns:7fr 5fr;gap:40px;align-items:start}
+@media (max-width:900px){.evidence{grid-template-columns:1fr}}
+table.ev{width:100%;border-collapse:collapse;font-size:15px;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table.ev th,table.ev td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+table.ev th{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);background:#f8faf9}
+table.ev tr:last-child td{border-bottom:0}table.ev td.hl{font-weight:800;color:var(--accent)}
+.bars{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.bar{display:grid;grid-template-columns:150px 1fr 48px;gap:12px;align-items:center;font-size:15px}
+.bar i{display:block;height:14px;border-radius:7px;background:var(--line);position:relative;overflow:hidden}.bar i b{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:7px}
+.bar.muted i b{background:#9aa8a4}
+.note{font-size:14px;color:var(--ink-3);border-left:3px solid var(--warm);padding:4px 0 4px 12px;margin-top:22px}
+.cities{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.city figcaption{padding:12px 4px 0;font-weight:700}.city figcaption span{display:block;font-weight:400;color:var(--ink-2);font-size:15px}
+@media (max-width:860px){.cities{grid-template-columns:1fr}}
+.road{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.rcard{border-top:3px solid var(--accent);padding-top:14px}.rcard.now{border-color:var(--warm)}
+.rcard .when{font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.rcard h3{font-size:18px;margin:6px 0}.rcard p{margin:0;font-size:15px;color:var(--ink-2)}
+@media (max-width:860px){.road{grid-template-columns:1fr 1fr}}
+.final{background:var(--hero);color:#fff;text-align:center;padding:96px 0}
+.final h2{font-size:clamp(30px,4vw,48px);max-width:20ch;margin:0 auto 16px}.final p{color:#c3d2ce;max-width:60ch;margin:0 auto 28px}
+.final .cta{justify-content:center}
+footer{background:#0a1316;color:#8fa29d;font-size:14px;padding:28px 0}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
+.phone{max-width:300px;margin:0 auto;border-radius:28px;overflow:hidden;border:8px solid #1b2a2e;box-shadow:0 18px 50px rgba(20,32,30,.25)}
+</style>
+</head>
+<body>
+<nav class="top"><div class="wrap"><b>Viewtower <span>Studio</span></b>
+  <div class="links"><a href="#problem">Problem</a><a href="#how">How it works</a><a href="#why">Why it's different</a><a href="#evidence">Evidence</a><a href="#roadmap">Roadmap</a><a class="btn primary" href="app/">Open live demo</a></div></div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">View-optimised residential towers · working prototype</div>
+  <h1>Design every tower around its view.</h1>
+  <p class="lead">Pin a plot and, in under a minute, test hundreds of tower designs against the real city: which flats see the sea or the skyline, which look straight into a neighbour, and what that does to sales value.</p>
+  <div class="cta"><a class="btn primary" href="app/">Open the live demo →</a><a class="btn ghost" href="#how">See how it works</a></div>
+  <div class="hero-shot"><img src="assets/midtown_cone.jpg" alt="Two towers on a Midtown Manhattan plot in a 3D city model, coloured by view class, with the view cone of one flat drawn across the skyline" width="1566" height="1028"></div>
+</div></header>
+
+<div class="stats"><div class="wrap">
+  <div class="stat"><b>540</b><span>tower typologies, plus newly invented ones every run</span></div>
+  <div class="stat"><b>Every flat</b><span>graded for its view by ray-casting the 3D city</span></div>
+  <div class="stat"><b>&lt; 1 min</b><span>from a pin on the map to ranked, explained options</span></div>
+  <div class="stat"><b>0 installs</b><span>runs in the browser; project data stays on the device</span></div>
+</div></div>
+
+<section id="problem"><div class="wrap">
+  <div class="head"><div class="eyebrow">The problem</div><h2>The view sets the price. It is checked last.</h2>
+    <p class="lead">In high-rise residential markets, the same flat sells very differently depending on what it looks at. Yet the tower's shape is usually fixed long before anyone tests which flats will actually see the view.</p></div>
+  <div class="problem">
+    <div class="pcard"><div class="n">01</div><h3>Massing is decided early</h3><p>Tower shape, height and orientation are set at feasibility stage, from rules of thumb and a handful of sketches.</p></div>
+    <div class="pcard"><div class="n">02</div><h3>View studies are slow</h3><p>A proper view analysis means a 3D model of the city and a specialist. It is done for one or two options, weeks later.</p></div>
+    <div class="pcard"><div class="n">03</div><h3>Mistakes are locked in</h3><p>Flats that look into a wall, towers that face each other, the best view on a service core. They are found when it is too late to change.</p></div>
+  </div>
+</div></section>
+
+<section class="alt" id="how"><div class="wrap">
+  <div class="head"><div class="eyebrow">How it works</div><h2>From a pin on the map to a ranked set of towers.</h2></div>
+
+  <div class="step"><div class="txt"><div class="num">1</div><h3>Site and real city context</h3>
+    <p>Pin a location or upload a georeferenced DXF of the plot. The surrounding buildings, parks, water and coastline load from OpenStreetMap, with building heights calibrated against mapped towers.</p>
+    <ul><li>Setbacks per edge, or upload the buildable envelope</li><li>A view rose shows where the sea or skyline opens, and from what height</li></ul></div>
+    <div class="frame"><img src="assets/london_site.jpg" alt="Site plan of a City of London plot with setbacks, the buildable envelope and a view rose" loading="lazy" width="1566" height="1092"></div></div>
+
+  <div class="step rev"><div class="txt"><div class="num">2</div><h3>Search hundreds of towers</h3>
+    <p>Four ways to explore: shapes you choose, the best of a 540-typology library modelled on built precedents, newly invented towers, or the recommended mix of both. Every candidate is checked against hard rules (envelope, height, core, structure, overhangs) and its views are ray-cast floor by floor.</p>
+    <ul><li>One or several towers per site, kept apart and turned so they don't face each other</li><li>Every run explores new designs; any run can be replayed exactly by its seed</li></ul></div>
+    <div class="frame"><img src="assets/midtown_3d.jpg" alt="Two tower options on a Midtown Manhattan plot, floors coloured by view class" loading="lazy" width="1566" height="1028"></div></div>
+
+  <div class="step"><div class="txt"><div class="num">3</div><h3>A verdict in plain words, and the files to act on</h3>
+    <p>Each option shows how many flats get a strong view, which are compromised and why, and where the view opens up. Click any floor to see its view cone, or "jump in" to stand at the window.</p>
+    <ul><li>Ranked trade-offs: value, strong-view flats, compromised flats, efficiency</li><li>Exports: board pack, units CSV, CAD massing (DXF + OBJ), shareable scenario link</li></ul></div>
+    <div class="frame"><img src="assets/verdict.jpg" alt="The verdict card: best trade-off, counts of strong-view, good and compromised flats, and the floor where the view opens" loading="lazy" width="1566" height="663"></div></div>
+
+  <div class="step rev"><div class="txt"><div class="num">4</div><h3>Compare options side by side</h3>
+    <p>The options chart plots sales value against the share of compromised flats. Every numbered dot is a tower the engine tested and explained, so the trade-off is visible at a glance.</p></div>
+    <div class="frame"><img src="assets/options.jpg" alt="Options chart of sales value against share of compromised flats, with a ranked table" loading="lazy" width="1566" height="1037"></div></div>
+</div></section>
+
+<section id="why"><div class="wrap">
+  <div class="head"><div class="eyebrow">Why it's different</div><h2>An engine that measures views, and a model that learned what architects like.</h2></div>
+  <div class="diff">
+    <div class="dcard"><div class="big">Every flat</div><h3 style="margin-top:12px">Measured, not guessed</h3><p>Views are ray-cast through a 3D model of the real city, for every flat's living room and bedrooms. Each class comes with its reason: what blocks the view, how close it is, and from which floor the view opens.</p></div>
+    <div class="dcard"><div class="big">70% vs 53%</div><h3 style="margin-top:12px">Taste, learned from architect reviews</h3><p>In blind tests, a model of visible form predicted which of two designs reviewers preferred 70% of the time. View and value numbers alone predicted it 53% of the time. The tool uses the engine for the numbers and the model to break near-ties.</p></div>
+    <div class="dcard"><div class="big">540 + new</div><h3 style="margin-top:12px">A grammar of tower moves</h3><p>Towers are built from floor-by-floor moves: twist, taper, stagger, terraces, corner gardens, podium and crown. Each move draws on precedents such as Cayan Tower, 56 Leonard and Kanchanjunga, and new combinations are invented for each site.</p></div>
+    <div class="dcard"><div class="big">Browser-only</div><h3 style="margin-top:12px">Private by design, explainable by default</h3><p>No install and no server: the plot, drawings and results stay on the user's device. Every choice is explained, and every run can be replayed exactly from its seed.</p></div>
+  </div>
+</div></section>
+
+<section class="alt" id="evidence"><div class="wrap">
+  <div class="head"><div class="eyebrow">Evidence so far</div><h2>Four blind rounds with 456 simulated architects, four with 50 simulated UX designers.</h2>
+    <p class="lead">The reviewers are AI-simulated personas, each with a distinct practice and point of view. Each round fed the next version of the engine and the interface, and every comparison was blind and judged from images only.</p></div>
+  <div class="evidence">
+    <div>
+      <table class="ev"><thead><tr><th>Architect review round (blind, 456 sites)</th><th>Preferred</th><th>Rating /10</th></tr></thead><tbody>
+        <tr><td>1 · Rule-based library vs learned generator</td><td>239 vs 162</td><td>5.85 vs 5.58</td></tr>
+        <tr><td>2 · Hybrid v1 vs each reviewer's own earlier favourite</td><td>198 vs 205</td><td>5.99 vs 5.97</td></tr>
+        <tr><td>3 · Hybrid v2 vs earlier favourite</td><td>129 vs 206</td><td>5.88 vs 6.06</td></tr>
+        <tr><td>4 · Hybrid v3 vs earlier favourite</td><td class="hl">141 vs 148</td><td class="hl">5.90 vs 5.85</td></tr>
+        <tr><td>4 · Newly invented towers vs earlier favourite</td><td class="hl">102 vs 75</td><td></td></tr>
+      </tbody></table>
+      <p class="note">Reviewers were AI-simulated personas: architects with distinct practices, influences and temperaments, and UI/UX designers. They judged rendered images only. This is a structured, reproducible design review, not market validation. Studies with practising architects and developers are the next milestone. Prices in the demo are placeholders.</p>
+    </div>
+    <div>
+      <h3 style="margin-bottom:14px">Interface rated by 50 designers per round (/10)</h3>
+      <div class="bars">
+        <div class="bar muted"><span>Previous release</span><i><b style="width:49%"></b></i><span>4.9</span></div>
+        <div class="bar"><span>Round 2</span><i><b style="width:64.6%"></b></i><span>6.46</span></div>
+        <div class="bar"><span>Round 3</span><i><b style="width:70%"></b></i><span>7.0</span></div>
+        <div class="bar"><span>Round 4 (current)</span><i><b style="width:73.4%"></b></i><span>7.34</span></div>
+      </div>
+      <p style="color:var(--ink-2);font-size:15px;margin-top:18px">In round 4, all 50 designers rated the current version above the previous release. The new variant won 11 of the 12 interface A/B tests.</p>
+      <div class="frame" style="margin-top:22px"><img src="assets/architect_review_sample.jpg" alt="Example of the image a reviewer saw: two aerial views of a proposal in its city context and five floor plates" loading="lazy" width="1600" height="864"></div>
+      <p style="color:var(--ink-3);font-size:13.5px;margin-top:8px">What a reviewer saw: the proposal in context, with no numbers.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="cities"><div class="wrap">
+  <div class="head"><div class="eyebrow">Ready today</div><h2>Mumbai, New York and London, and anywhere with map data.</h2>
+    <p class="lead">Five city districts come preloaded, each with local currency, typical limits and its own view rules: the sea in Mumbai, the skyline in Manhattan, the Thames in London. Any other location loads live from OpenStreetMap.</p></div>
+  <div class="cities">
+    <figure class="city" style="margin:0"><div class="frame"><img src="assets/mumbai_3d.jpg" alt="An invented tower near Shivaji Park, Mumbai, with every flat seeing the Arabian Sea" loading="lazy" width="1566" height="1028"></div><figcaption>Mumbai · Dadar<span>Sea views over Shivaji Park</span></figcaption></figure>
+    <figure class="city" style="margin:0"><div class="frame"><img src="assets/midtown_3d.jpg" alt="Two towers in Midtown Manhattan" loading="lazy" width="1566" height="1028"></div><figcaption>New York · Midtown, Lower Manhattan<span>Skyline views among supertalls</span></figcaption></figure>
+    <figure class="city" style="margin:0"><div class="frame"><img src="assets/london_3d.jpg" alt="A tower beside the Thames in the City of London" loading="lazy" width="1566" height="1028"></div><figcaption>London · City, Canary Wharf<span>River and skyline views on irregular plots</span></figcaption></figure>
+  </div>
+</div></section>
+
+<section class="alt" id="roadmap"><div class="wrap">
+  <div class="head"><div class="eyebrow">Roadmap</div><h2>From prototype to the feasibility tool developers use first.</h2></div>
+  <div class="road">
+    <div class="rcard now"><div class="when">Now</div><h3>Working prototype</h3><p>3D context, typology search, view grading, explained verdicts, CAD and board-pack exports, five cities.</p></div>
+    <div class="rcard"><div class="when">Next</div><h3>Real-world validation</h3><p>Pilots with developers and practising architects; view predictions checked against photos taken from real windows.</p></div>
+    <div class="rcard"><div class="when">Then</div><h3>Calibrated value</h3><p>Prices calibrated from local sales comparables, so the view premium is measured rather than assumed.</p></div>
+    <div class="rcard"><div class="when">Later</div><h3>Into the workflow</h3><p>Room-level layouts, IFC/Revit export, team workspaces and more cities.</p></div>
+  </div>
+</div></section>
+
+<section class="final"><div class="wrap">
+  <h2>See it on a real plot in under a minute.</h2>
+  <p>Pick a city, press "Run search", click any floor to see its view, and press "Run" again to see a new set of designs.</p>
+  <div class="cta"><a class="btn primary" href="app/">Open the live demo →</a></div>
+</div></section>
+
+<footer><div class="wrap"><span>Viewtower Studio · working prototype · © 2026</span><span>Map data © OpenStreetMap contributors (ODbL). Prices and costs in the demo are placeholders for comparing options.</span></div></footer>
+</body>
+</html>
