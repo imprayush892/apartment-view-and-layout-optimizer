@@ -1,0 +1,22 @@
+# Fictitious example for `viewtower feasibility` (no real project data).
+# A 100 x 170 m plot with the main road on the north edge and an OSR in the south-east corner.
+project: Example plot
+slug: example
+site:
+  plot: [[0, 170], [100, 170], [100, 0], [0, 0]]
+  front_edge: 0
+  road_widening_m: 3.0
+  front_road: Main road
+  rear_road: Rear street
+osr:
+  area_ratio: 0.10
+  min_width_m: 30.0
+  anchor_vertex: 2
+units:
+  types:
+    - {id: U1, label: 2 BHK,      carpet_ft2: 850,  share: 0.20, segment: middle}
+    - {id: U2, label: 3 BHK,      carpet_ft2: 1100, share: 0.30, segment: middle}
+    - {id: U3, label: 3 BHK Plus, carpet_ft2: 1250, share: 0.25, segment: upper_middle}
+    - {id: U4, label: 4 BHK,      carpet_ft2: 1500, share: 0.25, segment: luxury}
+readings:
+  eia_additional: {label: "EIA belt added to the setback", override: {eia: {mode: additional}}}
